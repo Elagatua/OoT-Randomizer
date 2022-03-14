@@ -25,6 +25,7 @@ def start():
     logging.basicConfig(format='%(message)s', level=loglevel)
 
     logger = logging.getLogger('')
+    settings.compress_rom = 'None'
 
     try:
         all_counts = []
