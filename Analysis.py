@@ -18,7 +18,7 @@ class ArgumentDefaultsHelpFormatter(argparse.RawTextHelpFormatter):
 
 def start():
 
-    settings, gui, args_loglevel, no_log_file = get_settings_from_command_line_args()
+    settings, gui, args_loglevel, no_log_file, diff_rom = get_settings_from_command_line_args()
 
     # set up logger
     loglevel = {'error': logging.ERROR, 'info': logging.INFO, 'warning': logging.WARNING, 'debug': logging.DEBUG}[args_loglevel]
