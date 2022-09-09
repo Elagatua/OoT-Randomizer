@@ -4567,6 +4567,7 @@ setting_infos = [
         choices        = [name for name, item in ItemInfo.items.items() if item.type == 'Item']
     ),
     Setting_Info('hint_dist_user',    dict, None, None, True, {}),
+    Setting_Info('plandomized_locations',    dict, None, None, True, {}),
     Combobox(
         name           = 'text_shuffle',
         gui_text       = 'Text Shuffle',

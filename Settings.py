@@ -241,6 +241,9 @@ class Settings:
 
         for location in self.disabled_locations:
             self.distribution.add_location(location, '#Junk')
+        
+        for location in self.plandomized_locations:
+            self.distribution.add_location(location, self.plandomized_locations[location])
 
 
     def check_dependency(self, setting_name, check_random=True):
