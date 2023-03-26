@@ -29,7 +29,7 @@ class FlagType(IntEnum):
     SWITCH = 0x01
     CLEAR = 0x02
     COLLECT = 0x03
-    # 0x04 unused
+    UNK00 = 0x04 # 0x04 unused
     VISITED_ROOM = 0x05
     VISITED_FLOOR = 0x06
 
@@ -40,7 +40,7 @@ class Address():
         if address is None:
             self.address = Address.prev_address
         else:
-            self.address = address           
+            self.address = address
         self.value = value
         self.size = size
         self.choices = choices
@@ -95,7 +95,7 @@ class Address():
         value = (value & self.mask) >> self.bit_offset
         if value > self.max:
             value = self.max
-        
+
         if self.choices is not None:
             for choice_name, choice_value in self.choices.items():
                 if choice_value == value:
@@ -113,7 +113,7 @@ class Address():
         if value is None:
             return
 
-        values = zip(Address.to_bytes(value, self.size), 
+        values = zip(Address.to_bytes(value, self.size),
                      Address.to_bytes(self.mask, self.size))
 
         for i, (byte, mask) in enumerate(values):
@@ -197,6 +197,11 @@ class SaveContext():
         # Scenes and FlagType enums are defined for increased readability when using
         # this function.
         self.write_bits(0x00D4 + scene * 0x1C + type * 0x04 + byte_offset, bit_values)
+
+    # write all flags (int32) of a given type at once
+    def write_permanent_flags(self, scene, type, value):
+        byte_value = value.to_bytes(4, byteorder='big', signed=False)
+        self.write_bytes(0x00D4 + scene * 0x1C + type * 0x04, byte_value)
 
     def set_ammo_max(self):
         ammo_maxes = {
@@ -320,6 +325,15 @@ class SaveContext():
                         'total_keys.gc': 3 if world.dungeon_mq[dungeon] else 2,
                     },
                 }[dungeon]
+                if world.settings.keyring_give_bk:
+                    bk_names = {
+                        "Forest Temple": 'dungeon_items.forest.boss_key',
+                        "Fire Temple": 'dungeon_items.fire.boss_key',
+                        "Water Temple": 'dungeon_items.water.boss_key',
+                        "Spirit Temple": 'dungeon_items.spirit.boss_key',
+                        "Shadow Temple": 'dungeon_items.shadow.boss_key'
+                    }
+                    save_writes[dungeon][bk_names[dungeon]] = True
             else:
                 save_writes = SaveContext.save_writes_table[item]
             for address, value in save_writes.items():
@@ -439,7 +453,7 @@ class SaveContext():
                     'sword'              : Address(0x0048, size=2, mask=0x000F),
                     'shield'             : Address(0x0048, size=2, mask=0x00F0),
                     'tunic'              : Address(0x0048, size=2, mask=0x0F00),
-                    'boots'              : Address(0x0048, size=2, mask=0xF000),                
+                    'boots'              : Address(0x0048, size=2, mask=0xF000),
                 },
             },
             'equips_adult' : {
@@ -458,7 +472,7 @@ class SaveContext():
                     'sword'              : Address(0x0052, size=2, mask=0x000F),
                     'shield'             : Address(0x0052, size=2, mask=0x00F0),
                     'tunic'              : Address(0x0052, size=2, mask=0x0F00),
-                    'boots'              : Address(0x0052, size=2, mask=0xF000),                
+                    'boots'              : Address(0x0052, size=2, mask=0xF000),
                 },
             },
             'unk_06'                     : Address(size=0x12),
@@ -480,7 +494,7 @@ class SaveContext():
                     'sword'              : Address(0x0070, size=2, mask=0x000F, max=3),
                     'shield'             : Address(0x0070, size=2, mask=0x00F0, max=3),
                     'tunic'              : Address(0x0070, size=2, mask=0x0F00, max=3),
-                    'boots'              : Address(0x0070, size=2, mask=0xF000, max=3),                
+                    'boots'              : Address(0x0070, size=2, mask=0xF000, max=3),
                 },
             },
             'unk_07'                     : Address(size=2),
@@ -880,7 +894,7 @@ class SaveContext():
         "Bottle with Bugs"         : 'bug',
         "Bottle with Big Poe"      : 'big_poe',
         "Bottle with Milk (Half)"  : 'half_milk',
-        "Bottle with Poe"          : 'poe',    
+        "Bottle with Poe"          : 'poe',
     }
 
 
@@ -940,6 +954,7 @@ class SaveContext():
         },
         "Fire Arrows"    : {'item_slot.fire_arrow'      : 'fire_arrow'},
         "Ice Arrows"     : {'item_slot.ice_arrow'       : 'ice_arrow'},
+        "Blue Fire Arrows"     : {'item_slot.ice_arrow' : 'ice_arrow'},
         "Light Arrows"   : {'item_slot.light_arrow'     : 'light_arrow'},
         "Dins Fire"      : {'item_slot.dins_fire'       : 'dins_fire'},
         "Farores Wind"   : {'item_slot.farores_wind'    : 'farores_wind'},
@@ -953,6 +968,7 @@ class SaveContext():
         "Pocket Cucco"   : {'item_slot.adult_trade'     : 'pocket_cucco'},
         "Cojiro"         : {'item_slot.adult_trade'     : 'cojiro'},
         "Odd Mushroom"   : {'item_slot.adult_trade'     : 'odd_mushroom'},
+        "Odd Potion"     : {'item_slot.adult_trade'     : 'odd_potion'},
         "Poachers Saw"   : {'item_slot.adult_trade'     : 'poachers_saw'},
         "Broken Sword"   : {'item_slot.adult_trade'     : 'broken_sword'},
         "Prescription"   : {'item_slot.adult_trade'     : 'prescription'},
@@ -962,6 +978,14 @@ class SaveContext():
         "Weird Egg"      : {'item_slot.child_trade'     : 'weird_egg'},
         "Chicken"        : {'item_slot.child_trade'     : 'chicken'},
         "Zeldas Letter"  : {'item_slot.child_trade'     : 'zeldas_letter'},
+        "Keaton Mask"    : {'item_slot.child_trade'     : 'keaton_mask'},
+        "Skull Mask"     : {'item_slot.child_trade'     : 'skull_mask'},
+        "Spooky Mask"    : {'item_slot.child_trade'     : 'spooky_mask'},
+        "Bunny Hood"     : {'item_slot.child_trade'     : 'bunny_hood'},
+        "Goron Mask"     : {'item_slot.child_trade'     : 'goron_mask'},
+        "Zora Mask"      : {'item_slot.child_trade'     : 'zora_mask'},
+        "Gerudo Mask"    : {'item_slot.child_trade'     : 'gerudo_mask'},
+        "Mask of Truth"  : {'item_slot.child_trade'     : 'mask_of_truth'},
         "Goron Tunic"    : {'equip_items.goron_tunic'   : True},
         "Zora Tunic"     : {'equip_items.zora_tunic'    : True},
         "Iron Boots"     : {'equip_items.iron_boots'    : True},

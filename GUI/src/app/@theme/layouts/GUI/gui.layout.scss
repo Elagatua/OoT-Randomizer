@@ -1,5 +1,5 @@
 @import '../../styles/themes';
-@import '~@nebular/theme/styles/global/breakpoints';
+@import '@nebular/theme/styles/global/breakpoints';
 
 @include nb-install-component() {
 
@@ -219,12 +219,6 @@
           display: none;
         }
       }
-    }
-  }
-
-  @include media-breakpoint-down(xs) {
-    .main-content {
-      padding: 0.75rem !important;
     }
   }
 

@@ -107,7 +107,7 @@ class GoalCategory(object):
 
 
     def update_reachable_goals(self, starting_search, full_search):
-        # Only reduce goal item quantity if minimum goal requirements are reachable, 
+        # Only reduce goal item quantity if minimum goal requirements are reachable,
         # but not the full goal quantity. Primary use is to identify reachable
         # skull tokens, triforce pieces, and plentiful item duplicates with
         # All Locations Reachable off. Beatable check is required to prevent
@@ -119,11 +119,14 @@ class GoalCategory(object):
         # be called once for all world states for each category type.
 
         for index, state in enumerate(starting_search.state_list):
-            for goal in state.world.goal_categories[self.name].goals:
+            world_category = state.world.goal_categories.get(self.name, None)
+            if world_category is None:
+                continue
+            for goal in world_category.goals:
                 if goal.items:
                     if all(map(full_search.state_list[index].has_item_goal, goal.items)):
                         for i in goal.items:
-                            i['quantity'] = min(full_search.state_list[index].item_count(i['name']), i['quantity'])
+                            i['quantity'] = min(full_search.state_list[index].item_name_count(i['name']), i['quantity'])
 
 
 def replace_goal_names(worlds):
@@ -355,7 +358,7 @@ def maybe_set_misc_item_hints(location):
             location.item.world.misc_hint_item_locations[hint_type] = location
             logging.getLogger('').debug(f'{item} [{location.item.world.id}] set to [{location.name}]')
     for hint_type in misc_location_hint_table:
-        the_location = location.item.world.misc_hint_locations[hint_type]
-        if hint_type not in location.item.world.misc_hint_location_items and location.name == the_location:
-            location.item.world.misc_hint_location_items[hint_type] = location.item
-            logging.getLogger('').debug(f'{the_location} [{location.item.world.id}] set to [{location.item.name}]')
+        the_location = location.world.misc_hint_locations[hint_type]
+        if hint_type not in location.world.misc_hint_location_items and location.name == the_location:
+            location.world.misc_hint_location_items[hint_type] = location.item
+            logging.getLogger('').debug(f'{the_location} [{location.world.id}] set to [{location.item.name}]')

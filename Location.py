@@ -31,6 +31,8 @@ class Location(object):
         self.never = False
         if filter_tags is None:
             self.filter_tags = None
+        elif isinstance(filter_tags, str):
+            self.filter_tags = [filter_tags]
         else:
             self.filter_tags = list(filter_tags)
 
@@ -67,7 +69,14 @@ class Location(object):
         if self.never:
             return
         self.access_rules.append(lambda_rule)
-        self.access_rule = lambda state, **kwargs: all(rule(state, **kwargs) for rule in self.access_rules)
+        self.access_rule = self._run_rules
+
+
+    def _run_rules(self, state, **kwargs):
+        for rule in self.access_rules:
+            if not rule(state, **kwargs):
+                return False
+        return True
 
 
     def set_rule(self, lambda_rule):

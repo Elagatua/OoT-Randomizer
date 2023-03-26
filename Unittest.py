@@ -13,10 +13,12 @@ import unittest
 from EntranceShuffle import EntranceShuffleError
 from Fill import ShuffleError
 from Hints import HintArea
+from Hints import HintArea, buildMiscItemHints
 from Item import ItemInfo
 from ItemPool import remove_junk_items, remove_junk_ludicrous_items, ludicrous_items_base, ludicrous_items_extended, trade_items, ludicrous_exclusions
 from LocationList import location_is_viewable
 from Main import main, resolve_settings, build_world_graphs
+from Messages import Message
 from Settings import Settings, get_preset_files
 
 test_dir = os.path.join(os.path.dirname(__file__), 'tests')
@@ -30,7 +32,7 @@ logging.basicConfig(level=logging.INFO, filename=os.path.join(output_dir, 'LAST_
 never_prefix = ['Bombs', 'Arrows', 'Rupee', 'Deku Seeds', 'Map', 'Compass']
 never_suffix = ['Capacity']
 never = {
-    'Bunny Hood', 'Recovery Heart', 'Milk', 'Ice Trap',
+    'Recovery Heart', 'Milk', 'Ice Trap',
     'Double Defense', 'Biggoron Sword', 'Giants Knife',
 } | {name for name, item in ItemInfo.items.items() if item.priority
      or any(map(name.startswith, never_prefix)) or any(map(name.endswith, never_suffix))}
@@ -285,6 +287,12 @@ class TestPlandomizer(unittest.TestCase):
             "negative-pattern-test",
             "dual-hints-custom-text",
             "dual-hints-with-upgrade",
+            "plando-freestanding-nomq",
+            "plando-freestanding-allmq",
+            "plando-potscrates-nomq",
+            "plando-potscrates-allmq",
+            "plando-beehives",
+            "plando-freestanding-pots-crates-beehives-triforcehunt",
         ]
         for filename in filenames:
             with self.subTest(filename):
@@ -373,13 +381,33 @@ class TestPlandomizer(unittest.TestCase):
         shuffled_one = "plando-egg-shuffled-one-pool"
         distribution_file, spoiler = generate_with_plandomizer(shuffled_one)
         self.assertEqual(spoiler['item_pool']['Weird Egg'], 1)
-        # Shuffled, two in pool: Shouldn't have more than one, will remove force to 1 in pool
+        # Shuffled, two in pool: Valid config, will end with 2 in pool
         shuffled_two = "plando-egg-shuffled-two-pool"
         distribution_file, spoiler = generate_with_plandomizer(shuffled_two)
         self.assertEqual(spoiler['item_pool']['Weird Egg'], 1)
 
     def test_key_rings(self):
         # Checking dungeon keys using forest temple
+        # Testing Boss Keys, should not be any Forest BK
+        # All other Boss Keys should exist, Fire Temple for example
+        distribution_file, spoiler = generate_with_plandomizer("plando-keyrings-bosskey-forest-anywhere-minimal")
+        self.assertNotIn('Boss Key (Forest Temple)', spoiler['locations'].values())
+        self.assertEqual(get_actual_pool(spoiler)['Boss Key (Fire Temple)'], 1)
+        distribution_file, spoiler = generate_with_plandomizer("plando-keyrings-bosskey-forest-anywhere-balanced")
+        self.assertNotIn('Boss Key (Forest Temple)', spoiler['locations'].values())
+        self.assertEqual(get_actual_pool(spoiler)['Boss Key (Fire Temple)'], 1)
+        # Shuffle Keys set to Vanilla, Boss Keys should exist
+        distribution_file, spoiler = generate_with_plandomizer("plando-keyrings-bosskey-forest-vanilla-plentiful")
+        self.assertEqual(get_actual_pool(spoiler)['Boss Key (Forest Temple)'], 1)
+
+        # No key rings: Make sure boss key in plentiful
+        distribution_file, spoiler = generate_with_plandomizer("plando-keyrings-bosskey-none-anywhere-plentiful")
+        self.assertEqual(get_actual_pool(spoiler)['Boss Key (Forest Temple)'], 1)
+
+        # No key rings: Make sure boss key in ludicrous
+        distribution_file, spoiler = generate_with_plandomizer("plando-keyrings-bosskey-none-anywhere-ludicrous")
+        self.assertEqual(get_actual_pool(spoiler)['Boss Key (Forest Temple)'], 1)
+
         # Minimal and balanced pools: Should be one key ring
         distribution_file, spoiler = generate_with_plandomizer("plando-keyrings-forest-anywhere-minimal")
         self.assertNotIn('Small Key (Forest Temple)', spoiler['locations'].values())
@@ -443,7 +471,7 @@ class TestPlandomizer(unittest.TestCase):
         self.assertNotIn('Small Key Ring (Forest Temple)', spoiler['locations'].values())
         self.assertGreater(get_actual_pool(spoiler)['Small Key (Thieves Hideout)'], 5)
         self.assertNotIn('Small Key Ring (Thieves Hideout)', spoiler['locations'].values())
-    
+
     def test_empty_dungeons(self):
         filenames = [
             "empty-dungeons-all-dungeon-er",
@@ -530,7 +558,7 @@ class TestHints(unittest.TestCase):
                 _, spoiler = generate_with_plandomizer(filename, live_copy=True)
                 self.assertIsNotNone(spoiler.worlds[0].misc_hint_item_locations["ganondorf"])
                 self.assertNotEqual('Ganons Tower Boss Key Chest', spoiler.worlds[0].misc_hint_item_locations["ganondorf"].name)
-    
+
     # Test that every goal in every goal category is hinted at least once
     # if the bridge and Ganon's Boss Key conditions are for the same type
     # of win condition, such as 4 medallion bridge and 6 medallion GBK.
@@ -572,10 +600,34 @@ class TestHints(unittest.TestCase):
                 self.assertEqual(found_goals, goals)
         # 1 stone bridge / 3 stone gbk
         # 5 med bridge / 6 med bridge
-        # 5 dungeon bridge / 9 dungeon gbk 
+        # 5 dungeon bridge / 9 dungeon gbk
         # 99 skull bridge / 100 skull gbk
         # 19 heart bridge / 20 heart gbk
         # TH
+
+    # Test that Ganondorf hints light arrows in the pots within Ganon's Tower as "those pots over there"
+    # This seems to break every time the hint system changes slightly.
+    def test_those_pots_over_there(self):
+        filename = "those_pots_over_there"
+        # Ganondorf should say "those pots over there" when light arrows are in a pot below
+        _, spoiler = generate_with_plandomizer(filename, live_copy=True)
+        world = spoiler.worlds[0]
+        location = spoiler.worlds[0].misc_hint_item_locations["ganondorf"]
+        area = HintArea.at(location, use_alt_hint=True).text(world.settings.clearer_hints, world=None if location.world.id == world.id else location.world.id + 1)
+        self.assertEqual(area, "#Ganondorf's Chamber#")
+        # Build a test message with the same ID as the ganondorf hint (0x70CC)
+        messages = [Message("Test", 0, 0x70CC, 0,0,0)]
+        buildMiscItemHints(spoiler.worlds[0], messages)
+        for message in messages:
+            if(message.id == 0x70CC): # Ganondorf hint message
+                self.assertTrue("thosepotsoverthere" in message.text.replace('\n', '').replace(' ', ''))
+
+    def test_blue_fire_arrows(self):
+        # Blue Fire Arrows should be WotH and in the item pool
+        _, spoiler = generate_with_plandomizer("plando-blue-fire-arrows-hints")
+        woth = list(spoiler[':woth_locations'].values())
+        self.assertIn('Blue Fire Arrows', woth)
+
 
 class TestEntranceRandomizer(unittest.TestCase):
     def test_spawn_point_invalid_areas(self):

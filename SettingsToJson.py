@@ -9,7 +9,7 @@ import copy
 
 tab_keys     = ['text', 'app_type', 'footer']
 section_keys = ['text', 'app_type', 'is_colors', 'is_sfx', 'col_span', 'row_span', 'subheader']
-setting_keys = ['hide_when_disabled', 'min', 'max', 'size', 'max_length', 'file_types', 'no_line_break', 'function', 'option_remove']
+setting_keys = ['hide_when_disabled', 'min', 'max', 'size', 'max_length', 'file_types', 'no_line_break', 'function', 'option_remove', 'dynamic']
 types_with_options = ['Checkbutton', 'Radiobutton', 'Combobox', 'SearchBox', 'MultipleSelect']
 
 
@@ -169,7 +169,7 @@ def GetSettingJson(setting, web_version, as_array=False):
                     for name, option in settingJson['options'].items():
                         if name != option_name[1:]:
                             add_disable_option_to_json(setting_disable[option_name], option)
-                        
+
 
         if tags_list:
             tags_list.sort()
@@ -225,7 +225,7 @@ def GetTabJson(tab, web_version, as_array=False):
             continue
         elif section.get('exclude_from_electron', False) and not web_version:
             continue
-        
+
         if as_array:
             tabJson['sections'].append(sectionJson)
         else:
@@ -257,7 +257,7 @@ def CreateJSON(path, web_version=False):
         if tab.get('is_cosmetics', False):
             settingOutputJson['cosmeticsObj'][tab['name']] = tabJsonObj
             settingOutputJson['cosmeticsArray'].append(tabJsonArr)
-    
+
     for d in HintDistFiles():
         with open(d, 'r') as dist_file:
             dist = json.load(dist_file)
@@ -270,9 +270,25 @@ def CreateJSON(path, web_version=False):
     with open(path, 'w') as f:
         json.dump(settingOutputJson, f)
 
- 
+
+def GetSettingDetails(setting_key, web_version):
+    settingJsonObj = GetSettingJson(setting_key, web_version, as_array=False)
+    settingJsonArr = GetSettingJson(setting_key, web_version, as_array=True)
+
+    settingOutput = { "object": settingJsonObj, "array": settingJsonArr }
+    print(json.dumps(settingOutput))
+
+
 def settingToJsonMain():
-    web_version = '--web' in sys.argv
+    args = sys.argv[1:]
+    web_version = '--web' in args
+
+    if '--setting' in args:
+        arg_index = args.index('--setting') + 1
+        if len(args) < arg_index:
+            raise Exception("Usage: SettingsToJson.py --setting <setting_key>")
+        return GetSettingDetails(args[arg_index], web_version)
+
     CreateJSON(data_path('generated/settings_list.json'), web_version)
 
 

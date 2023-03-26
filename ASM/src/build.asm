@@ -34,8 +34,8 @@
 
 .headersize (0x80400000 - 0x03480000)
 
-.org 0x80400000
-.area 0x20000 //payload max memory
+.org    0x80400000
+.area   0x00200000 //payload max memory
 PAYLOAD_START:
 
 .area 0x20, 0
@@ -103,7 +103,17 @@ RANDO_CONTEXT:
 .include "misc_colors.asm"
 .include "door_of_time_col_fix.asm"
 .include "mask_deequip.asm"
+.include "trade_quests.asm"
 .include "blue_fire_arrows.asm"
+.include "save.asm"
+.include "drop_overrides/obj_mure3.asm"
+.include "drop_overrides/bg_haka_tubo.asm"
+.include "drop_overrides/bg_spot18_basket.asm"
+.include "drop_overrides/obj_comb.asm"
+.include "drop_overrides/actor.asm"
+.include "rand_seed.asm"
+.include "messages.asm"
+.include "player_save_mask.asm"
 
 .align 0x10
 .importobj "../build/bundle.o"
@@ -114,23 +124,12 @@ DPAD_TEXTURE:
 .incbin("../resources/dpad.bin")
 TRIFORCE_ICON_TEXTURE:
 .incbin("../resources/triforce_sprite.bin")
-GILDED_CHEST_FRONT_TEXTURE:
-.incbin("../resources/gilded_chest_front.bin")
-GILDED_CHEST_BASE_TEXTURE:
-.incbin("../resources/gilded_chest_base.bin")
-SILVER_CHEST_FRONT_TEXTURE:
-.incbin("../resources/silver_chest_front.bin")
-SILVER_CHEST_BASE_TEXTURE:
-.incbin("../resources/silver_chest_base.bin")
-SKULL_CHEST_FRONT_TEXTURE:
-.incbin("../resources/skull_chest_front.bin")
-SKULL_CHEST_BASE_TEXTURE:
-.incbin("../resources/skull_chest_base.bin")
 
 .align 0x10
-PAYLOAD_END:
-.endarea //payload max memory
 
 AUDIO_THREAD_MEM_START:
 .skip AUDIO_THREAD_MEM_SIZE
+PAYLOAD_END:
+.endarea //payload max memory
+
 .close
