@@ -965,7 +965,7 @@
         "bridge_stones": 3,
         "trials_random": false,
         "trials": 0,
-        "starting_age": "random",
+        "starting_age": "adult",
         "mq_dungeons_mode": "vanilla",
         "empty_dungeons_mode": "none",
         "shuffle_interior_entrances": "off",
@@ -976,8 +976,7 @@
         "owl_drops": false,
         "warp_songs": false,
         "spawn_positions": [
-            "child",
-            "adult"
+            "child"
         ],
         "triforce_hunt": false,
         "free_bombchu_drops": false,
@@ -1035,7 +1034,8 @@
         ],
         "starting_items": [
             "ocarina",
-            "zeldas_letter"
+            "zeldas_letter",
+            "farores_wind"
         ],
         "starting_songs": [
             "prelude"
@@ -1069,7 +1069,9 @@
         "misc_hints": [
             "altar",
             "ganondorf",
-            "warp_songs"
+            "warp_songs",
+            "20_skulltulas",
+            "30_skulltulas"
         ],
         "text_shuffle": "none",
         "damage_multiplier": "normal",
