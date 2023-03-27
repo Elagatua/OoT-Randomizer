@@ -1065,7 +1065,7 @@
         "correct_potcrate_appearances": "textures_content",
         "clearer_hints": true,
         "hints": "always",
-        "hint_dist": "sgl2022",
+        "hint_dist": "sgl2023",
         "misc_hints": [
             "altar",
             "ganondorf",
