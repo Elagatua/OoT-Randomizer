@@ -154,15 +154,40 @@ def is_restricted_dungeon_item(item):
     )
 
 
-def add_hint(spoiler, world, groups, gossip_text, count, locations=[], force_reachable=False):
+def add_hint(spoiler, world, groups, gossip_text, count, locations=[], force_reachable=False, hint_type=None):
     random.shuffle(groups)
     skipped_groups = []
     duplicates = []
     first = True
     success = True
+
+    # Prevent randomizer from placing always hints in specified locations
+    if hint_type in ['always', 'dual_always'] and 'remove_always_stones' in world.hint_dist_user:
+        removed_stones = world.hint_dist_user['remove_always_stones']
+        for group in groups:
+            gossip_names = [gossipLocations[id].name for id in group]
+            if any(map(lambda name: name in removed_stones, gossip_names)):
+                skipped_groups.append(group)
+        
+        for group in skipped_groups:
+            groups.remove(group)
+
     # early failure if not enough
     if len(groups) < int(count):
         return False
+    
+    # move all priority stones to the front of the list so they get picked first
+    if 'priority_stones' in world.hint_dist_user:
+        priority_stones = world.hint_dist_user['priority_stones']
+        
+        # iterate in reverse so that the top priority stone gets inserted at index 0 last
+        for priority_stone in reversed(priority_stones):
+            matching_groups = list(filter(lambda group: list(set([priority_stone]) & set([gossipLocations[id].name for id in group])), groups))
+            if len(matching_groups) > 0:
+                index = groups.index(matching_groups[0])
+                priority_group = groups.pop(index)
+                groups.insert(0, priority_group)
+
     # Randomly round up, if we have enough groups left
     total = int(random.random() + count) if len(groups) > count else int(count)
     while total:
@@ -1367,7 +1392,7 @@ def buildWorldGossipHints(spoiler, world, checkedLocations=None):
                 location_text = '#%s#' % location_text
             first_item_text = getHint(getItemGenericName(firstLocation.item), world.settings.clearer_hints).text
             second_item_text = getHint(getItemGenericName(secondLocation.item), world.settings.clearer_hints).text
-            add_hint(spoiler, world, stoneGroups, GossipText('%s #%s# and #%s#.' % (location_text, first_item_text, second_item_text), ['Red', 'Green', 'Green'], [firstLocation.name, secondLocation.name], [firstLocation.item.name, secondLocation.item.name]), hint_dist['dual_always'][1], [firstLocation, secondLocation], force_reachable=True)
+            add_hint(spoiler, world, stoneGroups, GossipText('%s #%s# and #%s#.' % (location_text, first_item_text, second_item_text), ['Red', 'Green', 'Green'], [firstLocation.name, secondLocation.name], [firstLocation.item.name, secondLocation.item.name]), hint_dist['dual_always'][1], [firstLocation, secondLocation], force_reachable=True, hint_type='dual_always')
             logging.getLogger('').debug('Placed dual_always hint for %s.', hint.name)
 
     # Add required location hints, only if hint copies > 0
@@ -1386,7 +1411,7 @@ def buildWorldGossipHints(spoiler, world, checkedLocations=None):
             if '#' not in location_text:
                 location_text = '#%s#' % location_text
             item_text = getHint(getItemGenericName(location.item), world.settings.clearer_hints).text
-            add_hint(spoiler, world, stoneGroups, GossipText('%s #%s#.' % (location_text, item_text), ['Red', 'Green'], [location.name], [location.item.name]), hint_dist['always'][1], [location], force_reachable=True)
+            add_hint(spoiler, world, stoneGroups, GossipText('%s #%s#.' % (location_text, item_text), ['Red', 'Green'], [location.name], [location.item.name]), hint_dist['always'][1], [location], force_reachable=True, hint_type='always')
             logging.getLogger('').debug('Placed always hint for %s.', location.name)
 
     # Add required entrance hints, only if hint copies > 0
@@ -1409,22 +1434,22 @@ def buildWorldGossipHints(spoiler, world, checkedLocations=None):
                 if '#' not in region_text:
                     region_text = '#%s#' % region_text
 
-                add_hint(spoiler, world, stoneGroups, GossipText('%s %s.' % (entrance_text, region_text), ['Green', 'Light Blue']), hint_dist['entrance_always'][1], None, force_reachable=True)
+                add_hint(spoiler, world, stoneGroups, GossipText('%s %s.' % (entrance_text, region_text), ['Green', 'Light Blue']), hint_dist['entrance_always'][1], None, force_reachable=True, hint_type='entrance_always')
 
     # Add trial hints, only if hint copies > 0
     if hint_dist['trial'][1] > 0:
         if world.settings.trials_random and world.settings.trials == 6:
-            add_hint(spoiler, world, stoneGroups, GossipText("#Ganon's Tower# is protected by a powerful barrier.", ['Pink']), hint_dist['trial'][1], force_reachable=True)
+            add_hint(spoiler, world, stoneGroups, GossipText("#Ganon's Tower# is protected by a powerful barrier.", ['Pink']), hint_dist['trial'][1], force_reachable=True, hint_type='trial')
         elif world.settings.trials_random and world.settings.trials == 0:
-            add_hint(spoiler, world, stoneGroups, GossipText("Sheik dispelled the barrier around #Ganon's Tower#.", ['Yellow']), hint_dist['trial'][1], force_reachable=True)
+            add_hint(spoiler, world, stoneGroups, GossipText("Sheik dispelled the barrier around #Ganon's Tower#.", ['Yellow']), hint_dist['trial'][1], force_reachable=True, hint_type='trial')
         elif world.settings.trials < 6 and world.settings.trials > 3:
             for trial,skipped in world.skipped_trials.items():
                 if skipped:
-                    add_hint(spoiler, world, stoneGroups,GossipText("the #%s Trial# was dispelled by Sheik." % trial, ['Yellow']), hint_dist['trial'][1], force_reachable=True)
+                    add_hint(spoiler, world, stoneGroups,GossipText("the #%s Trial# was dispelled by Sheik." % trial, ['Yellow']), hint_dist['trial'][1], force_reachable=True, hint_type='trial')
         elif world.settings.trials <= 3 and world.settings.trials > 0:
             for trial,skipped in world.skipped_trials.items():
                 if not skipped:
-                    add_hint(spoiler, world, stoneGroups, GossipText("the #%s Trial# protects Ganon's Tower." % trial, ['Pink']), hint_dist['trial'][1], force_reachable=True)
+                    add_hint(spoiler, world, stoneGroups, GossipText("the #%s Trial# protects Ganon's Tower." % trial, ['Pink']), hint_dist['trial'][1], force_reachable=True, hint_type='trial')
 
     # Add user-specified hinted item locations if using a built-in hint distribution
     # Raise error if hint copies is zero
@@ -1447,7 +1472,7 @@ def buildWorldGossipHints(spoiler, world, checkedLocations=None):
                 if hint:
                     checkedLocations.update(filtered_checked - checkedAlwaysLocations)
                     gossip_text, location = hint
-                    place_ok = add_hint(spoiler, world, stoneGroups, gossip_text, hint_dist['named-item'][1], location)
+                    place_ok = add_hint(spoiler, world, stoneGroups, gossip_text, hint_dist['named-item'][1], location, hint_type='named-item')
                     if not place_ok:
                         raise Exception('Not enough gossip stones for user-provided item hints')
 
@@ -1516,7 +1541,7 @@ def buildWorldGossipHints(spoiler, world, checkedLocations=None):
             hint_dist[hint_type] = (0.0, copies)
         else:
             gossip_text, locations = hint
-            place_ok = add_hint(spoiler, world, stoneGroups, gossip_text, copies, locations)
+            place_ok = add_hint(spoiler, world, stoneGroups, gossip_text, copies, locations, hint_type=hint_type)
             if place_ok:
                 hint_counts[hint_type] = hint_counts.get(hint_type, 0) + 1
                 if locations is None:
