@@ -316,6 +316,9 @@ class World(object):
                 if goal_list1 != [goal.name for goal in category.goals] and category.name != 'door_of_time':
                     self.one_hint_per_goal = False
 
+        if 'one_hint_per_goal' in self.hint_dist_user:
+            self.one_hint_per_goal = self.hint_dist_user['one_hint_per_goal']
+
         # initialize category check for first rounds of goal hints
         self.hinted_categories = []
 
