@@ -161,9 +161,9 @@ def add_hint(spoiler, world, groups, gossip_text, count, locations=[], force_rea
     first = True
     success = True
 
-    # Prevent randomizer from placing always hints in specified locations
-    if hint_type in ['always', 'dual_always'] and 'remove_always_stones' in world.hint_dist_user:
-        removed_stones = world.hint_dist_user['remove_always_stones']
+    # Prevent randomizer from placing hint in removed locations for this hint type
+    if 'remove_stones' in world.hint_dist_user['distribution'][hint_type]:
+        removed_stones = world.hint_dist_user['distribution'][hint_type]['remove_stones']
         for group in groups:
             gossip_names = [gossipLocations[id].name for id in group]
             if any(map(lambda name: name in removed_stones, gossip_names)):
@@ -177,8 +177,8 @@ def add_hint(spoiler, world, groups, gossip_text, count, locations=[], force_rea
         return False
     
     # move all priority stones to the front of the list so they get picked first
-    if 'priority_stones' in world.hint_dist_user:
-        priority_stones = world.hint_dist_user['priority_stones']
+    if 'priority_stones' in world.hint_dist_user['distribution'][hint_type]:
+        priority_stones = world.hint_dist_user['distribution'][hint_type]['priority_stones']
         
         # iterate in reverse so that the top priority stone gets inserted at index 0 last
         for priority_stone in reversed(priority_stones):

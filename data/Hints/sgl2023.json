@@ -39,9 +39,24 @@
     "distribution":          {
         "trial":           {"order": 1, "weight": 0.0, "fixed":   0, "copies": 2},
         "entrance_always": {"order": 2, "weight": 0.0, "fixed":   0, "copies": 2},
-        "always":          {"order": 3, "weight": 0.0, "fixed":   0, "copies": 2},
-        "barren":          {"order": 4, "weight": 0.0, "fixed":   4, "copies": 1},
-        "junk":            {"order": 5, "weight": 0.0, "fixed":   2, "copies": 1},
+        "always":          {"order": 3, "weight": 0.0, "fixed":   0, "copies": 2, "remove_stones": [        
+            "ToT (Left)",
+            "ToT (Left-Center)",
+            "ToT (Right-Center)",
+            "ToT (Right)",
+            "HF (Cow Grotto)",
+            "HC (Storms Grotto)"
+        ]},
+        "junk":            {"order": 4, "weight": 0.0, "fixed":   2, "copies": 1, "priority_stones": [
+            "HF (Cow Grotto)",
+            "HC (Storms Grotto)"
+        ]},
+        "barren":          {"order": 5, "weight": 0.0, "fixed":   4, "copies": 1, "priority_stones": [
+            "ToT (Left)",
+            "ToT (Left-Center)",
+            "ToT (Right-Center)",
+            "ToT (Right)"
+        ]},
         "goal":            {"order": 6, "weight": 0.0, "fixed":   5, "copies": 2},
         "dual":            {"order": 7, "weight": 0.0, "fixed":   3, "copies": 2},
         "sometimes":       {"order": 8, "weight": 0.0, "fixed": 100, "copies": 2},
@@ -53,21 +68,5 @@
         "overworld":       {"order": 0, "weight": 0.0, "fixed":   0, "copies": 2},
         "dungeon":         {"order": 0, "weight": 0.0, "fixed":   0, "copies": 2},
         "named-item":      {"order": 0, "weight": 0.0, "fixed":   0, "copies": 2}
-    },
-    "remove_always_stones": [
-        "ToT (Left)",
-        "ToT (Left-Center)",
-        "ToT (Right-Center)",
-        "ToT (Right)",
-        "HF (Cow Grotto)",
-        "HC (Storms Grotto)"
-    ],
-    "priority_stones": [
-        "ToT (Left)",
-        "ToT (Left-Center)",
-        "ToT (Right-Center)",
-        "ToT (Right)",
-        "HF (Cow Grotto)",
-        "HC (Storms Grotto)"
-    ]
+    }
 }
