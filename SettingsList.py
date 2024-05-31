@@ -3298,6 +3298,7 @@ class SettingInfos:
             'keys':     "Small keys",
             'tokens':   "Gold Skulltula tokens",
             'hearts':   "Hearts",
+            'bombchus': "Bombchus",
         },
         default         = ['major', 'bosskeys','keys', 'tokens', 'hearts'],
         gui_tooltip     = '''\

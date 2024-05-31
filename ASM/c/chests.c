@@ -24,6 +24,7 @@ extern uint8_t CHEST_GILDED_TEXTURE;
 extern uint8_t CHEST_SILVER_TEXTURE;
 extern uint8_t CHEST_SKULL_TEXTURE;
 extern uint8_t CHEST_HEART_TEXTURE;
+extern uint8_t CHEST_BOMBCHU_TEXTURE;
 extern uint8_t SOA_UNLOCKS_CHEST_TEXTURE;
 
 extern Mtx_t* write_matrix_stack_top(z64_gfx_t* gfx);
@@ -106,6 +107,14 @@ void set_chest_texture(z64_gfx_t* gfx, uint8_t chest_type, Gfx** opa_ptr) {
                 case HEART_CHEST_SMALL:
                 case HEART_CHEST_BIG:
                     if (CHEST_HEART_TEXTURE) {
+                        frontTexture = get_texture(TEXTURE_ID_CHEST_FRONT_HEART);
+                        baseTexture = get_texture(TEXTURE_ID_CHEST_BASE_HEART);
+                    }
+                    break;
+
+                case BOMBCHU_CHEST_SMALL:
+                case BOMBCHU_CHEST_BIG:
+                    if (CHEST_BOMBCHU_TEXTURE) {
                         frontTexture = get_texture(TEXTURE_ID_CHEST_FRONT_HEART);
                         baseTexture = get_texture(TEXTURE_ID_CHEST_BASE_HEART);
                     }
