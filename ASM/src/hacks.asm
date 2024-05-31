@@ -91,7 +91,7 @@ Gameplay_InitSkybox:
     ; addiu v0, v0 0x5660
     ; addiu v1, v1, 0x5630
     li      v1, FONTLOADSTATUS_EXTENDED
-    li      v0, FONTLOADSTATUS_EXTENDED + 0x80
+    li      v0, FONTLOADSTATUS_EXTENDED + 0xA0
 
 .org 0x800B3554
     ; Replaces:
@@ -841,6 +841,70 @@ bg_spot18_basket_rupees_loopstart: ; our new loop branch target
 .orga 0xA99C98 ; In memory: 0x80023D38
     jal     Player_SpawnEntry_Hack
 
+; Hack the function that kills actor when changing rooms to not kill overridden collectibles?
+; Hack at the call to Actor_Kill
+.orga 0xA9ADAC ; In memory: 0x80024E4C
+; Replaces:
+;   jal     Actor_Kill
+    jal     Room_Change_Actor_Kill_Hack
+
+; ====== Wonderitem Shuffle ======
+
+; Increase the size of wonderitem to store when they are being overridden
+.orga 0xDE96FA
+.halfword 0x01D0
+
+; Hack EnWonderItem_Init to not kill the actor if the switch flag is set but it should be overridden
+; Replaces
+;   jal     Actor_Kill
+.orga 0xDE8E54
+    jal     EnWonderItem_Kill_Hack
+    nop
+    nop
+    nop
+    nop
+
+; Hack EnWonderItem_MultitagFree to show the remaining tags
+.orga 0xDE9198
+; Replaces:
+;   lwc1    f4, 0x0024(a2)
+;   lwc1    f8, 0x0028(a2)
+    jal     EnWonderItem_Multitag_DrawHook
+    nop
+
+; Hack EnWonderItem_MultitagOrdered to show the remaining tags
+.orga 0xDE9408
+; Replaces:
+;   lwc1    f4, 0x0024(a2)
+;   lwc1    f8, 0x0028(a2)
+    jal     EnWonderItem_MultitagOrdered_DrawHook
+    nop
+
+; Hack at the end of EnWonderItem_MultitagFree to not set the switch flag. It is set inside EnWonderItem_DropCollectible
+.orga 0xDE9250
+; Replaces:
+;   bltzl   a1, 0x801F8EE4
+;   or      a0, s0, r0
+;   jal     0x800204D0 ;Flags_SetSwitch
+;   lw      a0, 0x0024(sp)
+    nop
+    nop
+    nop
+    nop
+
+; Hack at the beginning of EnWonderItem_Update to draw a marker for the location (other than multitags)
+.orga 0xDE9630
+; Replaces:
+;   lw      t9, 0x013c(s0)
+;   or      a0, s0, r0
+    jal       EnWonderItem_Update_Hook
+    nop
+
+; Hack EnWonderItem_DropCollectible to drop flagged collectibles
+.orga 0xDE8C94
+    j       EnWonderItem_DropCollectible_Hack
+    nop
+
 ; Runs when storing an incoming item to the player instance
 ; Replaces:
 ;   sb      a2, 0x0424 (a3)
@@ -1294,52 +1358,12 @@ nop
 ; Item menu
 ;==================================================================================================
 
-; Left movement check
+; Reimplement KaleidoScope_DrawItemSelect
 ; Replaces:
-;   beq     s4, t5, 0x8038F2B4
-;   nop
-.orga 0xBB77B4 ; In memory: 0x8038F134
-    nop
-    nop
-
-; Right movement check
-; Replaces:
-;   beq     s4, t4, 0x8038F2B4
-;   nop
-.orga 0xBB7894 ; In memory: 0x8038F214
-    nop
-    nop
-
-; Upward movement check
-; Replaces:
-;   beq     s4, t4, 0x8038F598
-;   nop
-.orga 0xBB7BA0 ; In memory: 0x8038F520
-    nop
-    nop
-
-; Downward movement check
-; Replaces:
-;   beq     s4, t4, 0x8038F598
-;   nop
-.orga 0xBB7BFC ; In memory: 0x8038F57C
-    nop
-    nop
-
-; Remove "to Equip" text if the cursor is on an empty slot
-; Replaces:
-;   addu    s1, t6, t7
-;   lbu     v0, 0x0000 (s1)
-.orga 0xBB7C88 ; In memory: 0x8038F608
-    jal     item_menu_prevent_empty_equip
-    addu    s1, t6, t7
-
-; Prevent empty slots from being equipped
-; Replaces:
-;   lbu     v0, 0x0000 (s1)
-;   addiu   at, r0, 0x0009
-.orga 0xBB7D10 ; In memory: 0x8038F690
-    jal     item_menu_prevent_empty_equip
+;   addiu       sp, sp, -0xA8
+;   sw          s5, 0x0030 (sp)
+.orga 0xBB7670 ; In memory: 0x8038EFF0
+    j     KaleidoScope_DrawItemSelect
     nop
 
 ;==================================================================================================
@@ -1490,19 +1514,8 @@ nop
 ; Update object ID and draw ID for progressive items
 .headersize(0x80862C00 - 0xC004E0)
 
-; EnGirlA_InitializeItemAction / func_8086443C
-; Update the IDs
-; Replaces:
-;   lh      t2, 0x0002(v1)
-.org 0x8086476C
-    jal     shop_draw_id_hook
-
-; Remove vanilla line assigning the draw ID.
-; This is handled in the above hook.
-; Replaces:
-;   sh      t2, 0x01BC(s0)
-.org 0x80864778
-    nop
+.org 0x8086498C
+    jal     shop_draw_hook
 
 .headersize(0x808CED80 - 0xC6C5E0)
 
@@ -1512,9 +1525,9 @@ nop
 ; Replaces:
 ;   lh      t6, 0x001C(s0)
 ;   addiu   $at, $zero, 0x000A
-.org 0x808D1D48
-    jal     shop_update_offerings_hook
-    nop
+;.org 0x808D1D48
+;    jal     shop_update_offerings_hook
+;    nop
 
 .headersize(0)
 
@@ -1597,37 +1610,6 @@ nop
 ;   jal     0x80057030 ; copies Scarecrow Song from active space to save context
 .orga 0xB55A64 ; In memory 800DFB04
     jal     save_scarecrow_song
-
-;==================================================================================================
-; Override Player Name Text
-;==================================================================================================
-
-; Replaces
-;   lui   t2,0x8012
-;   addu  t2,t2,s3
-;   lbu   t2,-23053(t2)
-.orga 0xB51694
-    jal     get_name_char_1
-    ;addi    a0, s3, -1
-    ;ori     t2, v0, 0
-
-; Replaces
-;   lui   s0,0x8012
-;   addu  s0,s0,s2
-;   lbu   s0,-23052(s0)
-.orga 0xB516C4
-    jal     get_name_char_2
-    ;ori     a0, s2, 0
-    ;ori     s0, v0, 0
-
-; Replaces
-;   lw      s6,48(sp)
-;   lw      s7,52(sp)
-;   lw      s8,56(sp)
-.orga 0xB52784
-    jal     reset_player_name_id
-    nop
-    lw      ra, 0x3C (sp)
 
 ;==================================================================================================
 ; Text Fixes
@@ -3679,7 +3661,7 @@ courtyard_guards_kill:
 ; Allow ice arrows to melt red ice
 ;===================================================================================================
 .orga 0xDB32C8
-    jal blue_fire_arrows ; replaces addiu at, zero, 0x00F0
+    jal     blue_fire_arrows ; replaces addiu at, zero, 0x00F0
 
 ;===================================================================================================
 ; Give each cursed skulltula house resident a different text ID, for skulltula reward hints
@@ -3765,7 +3747,7 @@ courtyard_guards_kill:
     lw      s0, 0x4(sp)
     jr      ra
     addiu   sp, sp, 0x10
-    ;Remove the rest of the old function
+    ; Remove the rest of the old function
     nop
     nop
     nop
@@ -3779,14 +3761,23 @@ courtyard_guards_kill:
 ;==================================================================================================
 ; Load current mask on scene change
 ;==================================================================================================
-;Player_Init (0x80844DE8)
-;Replaces:
+; Player_Init (0x80844DE8)
+; Replaces:
 ;jal     func_80834000
 .orga 0xBE28EC
-    jal     player_save_mask
+    jal     player_restore_mask
 
-; Dumb hack to not relocate the function call to player_save_mask
+; Dumb hack to not relocate the function call to player_restore_mask
 .orga 0xBF2C14
+    nop
+
+; Save the current mask on file save
+; replaces
+;lh      t8, 0xA4(s1)
+;lui     t1, 0x8012
+; SaveContext->save.info.playerData.savedSceneId = play->sceneId;
+.orga 0xBC5120
+    jal     player_save_mask
     nop
 
 ;===================================================================================================
@@ -4035,3 +4026,55 @@ courtyard_guards_kill:
 ;   sw      t7, 0x1F24(at)
     jal     ocarina_buttons
     nop
+
+;===================================================================================================
+; Overrides the function that gives Fairy Ocarina on the Lost Woods Bridge
+;===================================================================================================
+.orga 0xACCDFC
+; Replaces Item_Give(play, ITEM_OCARINA_FAIRY)
+    jal      fairy_ocarina_getitem_override
+    nop
+;===================================================================================================
+; Move the small key counter horizontally if we have boss key, to make room for the BK icon.
+;===================================================================================================
+; Replaces addiu   t7, $zero, 0x001A
+;          addiu   t8, $zero, 0x00BE
+.orga 0xAEB8AC
+    jal     move_key_icon
+    addiu   t8, $zero, 0x00BE
+
+; Replaces
+;          addiu   s2, $zero, 0x002A
+;          addiu   t8, $zero, 0x00BE
+.orga 0xAEB998
+    jal     move_key_counter
+    addiu   t8, $zero, 0x00BE
+
+;===================================================================================================
+; Adds a textbox for adult shooting gallery if game was played without a bow
+;===================================================================================================
+.orga 0xD36164
+; Replaces sw      t4, 0x01EC(a2)
+;          sw      t1, 0x0118(a2)
+    jal     shooting_gallery_no_bow
+    nop
+
+;===================================================================================================
+; Cancel Volvagia flying form hitbox when her health is already at O
+;===================================================================================================
+; Replaces addiu   a2, $zero, 0x0004
+;          andi    t6, a1, 0x0002
+.orga 0xCEA41C
+    jal     volvagia_flying_hitbox
+    nop
+
+; Replaces     lh      t6, 0x01D0(a1)
+;              addiu   $at, $zero, 0x0003
+.orga 0xE56B38
+    jal     kz_no_timer
+    addiu   $at, $zero, 0x0003
+
+.include "hacks/z_parameter.asm"
+
+
+.include "hacks/ovl_en_kz.asm"

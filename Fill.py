@@ -149,8 +149,6 @@ def distribute_items_restrictive(worlds: list[World], fill_locations: Optional[l
                            if location.world.empty_dungeons[HintArea.at(location).dungeon_name].empty]
         for location in empty_locations:
             fill_locations.remove(location)
-            location.world.hint_type_overrides['sometimes'].append(location.name)
-            location.world.hint_type_overrides['random'].append(location.name)
 
         if worlds[0].settings.shuffle_mapcompass in ['any_dungeon', 'overworld', 'keysanity', 'regional']:
             # Non-empty dungeon items are present in restitempool but yet we
@@ -311,7 +309,10 @@ def fill_dungeon_unique_item(worlds: list[World], search: Search, fill_locations
                 major_items.append(item)
 
         # place 1 item into the dungeon
-        fill_restrictive(worlds, base_search, dungeon_locations, major_items, 1)
+        try:
+            fill_restrictive(worlds, base_search, dungeon_locations, major_items, 1)
+        except FillError as e:
+            raise FillError(f'Could not place a major item in {dungeon} because there are no remaining locations in the dungeon. If you have excluded some of the locations in this dungeon, try reincluding one.') from e
 
         # update the location and item pool, removing any placed items and filled locations
         # the fact that you can remove items from a list you're iterating over is python magic
@@ -328,7 +329,7 @@ def fill_dungeon_unique_item(worlds: list[World], search: Search, fill_locations
     # Error out if we have any items that won't be placeable in the overworld left.
     for item in major_items:
         if not item.world.get_region('Root').can_fill(item):
-            raise FillError(f"No more dungeon locations available for {item.name} to be placed with 'Dungeons Have One Major Item' enabled.")
+            raise FillError(f"No more dungeon locations available for {item.name} to be placed with 'Dungeons Have One Major Item' enabled. To fix this, either disable 'Dungeons Have One Major Item' or enable some settings that add more locations for shuffled items in the overworld.")
 
     logger.info("Unique dungeon items placed")
 
@@ -374,7 +375,7 @@ def fill_ownworld_restrictive(worlds: list[World], search: Search, locations: li
                 continue
             break
         else:
-            raise FillError('Unable to place %s items in world %d' % (description, (world.id+1)))
+            raise FillError(f'Unable to place {description} items in world {world.id + 1}')
 
 
 # Places items in the itempool into locations.
@@ -487,7 +488,7 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
                 continue
             else:
                 # we expect all items to be placed
-                raise FillError('Game unbeatable: No more spots to place %s [World %d] from %d locations (%d total); %d other items left to place, plus %d skipped' % (item_to_place, item_to_place.world.id + 1, len(l2cations), len(locations), len(itempool), len(unplaced_items)))
+                raise FillError(f'Game unbeatable: No more spots to place {item_to_place} [World {item_to_place.world.id + 1}] from {len(l2cations)} locations ({len(locations)} total); {len(itempool)} other items left to place, plus {len(unplaced_items)} skipped')
 
         # Place the item in the world and continue
         spot_to_fill.world.push_item(spot_to_fill, item_to_place)
@@ -498,9 +499,9 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
 
     # assert that the specified number of items were placed
     if count > 0:
-        raise FillError('Could not place the specified number of item. %d remaining to be placed.' % count)
+        raise FillError(f'Could not place the specified number of item. {count} remaining to be placed.')
     if count < 0 < len(itempool):
-        raise FillError('Could not place all the items. %d remaining to be placed.' % len(itempool))
+        raise FillError(f'Could not place all the items. {len(itempool)} remaining to be placed.')
     # re-add unplaced items that were skipped
     itempool.extend(unplaced_items)
 

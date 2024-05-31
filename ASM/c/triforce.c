@@ -13,7 +13,7 @@ void set_triforce_render() {
     frames = frames > TRIFORCE_FRAMES_FADE_INTO ? TRIFORCE_FRAMES_FADE_INTO : frames;
 }
 
-void draw_triforce_count(z64_disp_buf_t *db) {
+void draw_triforce_count(z64_disp_buf_t* db) {
 
     // Must be triforce hunt and triforce should be drawable, and we should either be on the pause screen or the render triforce flag should be set
     if (!(TRIFORCE_HUNT_ENABLED && CAN_DRAW_TRIFORCE && (render_triforce_flag == 1 || z64_game.pause_ctxt.state == 6))) {
@@ -99,10 +99,5 @@ void draw_triforce_count(z64_disp_buf_t *db) {
     sprite_load(db, &triforce_sprite, sprite, 1);
     sprite_draw(db, &triforce_sprite, 0, draw_x, draw_y_triforce, triforce_sprite.tile_w, triforce_sprite.tile_h);
 
-    // If model text needs to be drawn as well, don't end DL yet
     text_flush(db);
-    if (!illegal_model) {
-        gDPFullSync(db->p++);
-        gSPEndDisplayList(db->p++);
-    }
 }

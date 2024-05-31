@@ -56,15 +56,15 @@ class World:
         self.distribution: WorldDistribution = settings.distribution.world_dists[world_id]
 
         # rename a few attributes...
-        self.keysanity: bool = settings.shuffle_smallkeys in ['keysanity', 'remove', 'any_dungeon', 'overworld', 'regional']
+        self.keysanity: bool = settings.shuffle_smallkeys in ('keysanity', 'remove', 'any_dungeon', 'overworld', 'regional')
         self.shuffle_silver_rupees = settings.shuffle_silver_rupees != 'vanilla'
         self.check_beatable_only: bool = settings.reachable_locations != 'all'
 
         self.shuffle_special_interior_entrances: bool = settings.shuffle_interior_entrances == 'all'
-        self.shuffle_interior_entrances: bool = settings.shuffle_interior_entrances in ['simple', 'all']
+        self.shuffle_interior_entrances: bool = settings.shuffle_interior_entrances in ('simple', 'all')
 
         self.shuffle_special_dungeon_entrances: bool = settings.shuffle_dungeon_entrances == 'all'
-        self.shuffle_dungeon_entrances: bool = settings.shuffle_dungeon_entrances in ['simple', 'all']
+        self.shuffle_dungeon_entrances: bool = settings.shuffle_dungeon_entrances in ('simple', 'all')
 
         self.entrance_shuffle: bool = bool(
             self.shuffle_interior_entrances or settings.shuffle_grotto_entrances or self.shuffle_dungeon_entrances
@@ -78,7 +78,15 @@ class World:
         self.disable_trade_revert: bool = self.shuffle_interior_entrances or settings.shuffle_overworld_entrances or settings.adult_trade_shuffle
         self.skip_child_zelda: bool = 'Zeldas Letter' not in settings.shuffle_child_trade and \
                                       'Zeldas Letter' in self.distribution.starting_items
-        self.selected_adult_trade_item: str = ''
+        self.selected_adult_trade_item: str = None
+        if not settings.adult_trade_shuffle and settings.adult_trade_start:
+            self.selected_adult_trade_item = random.choice(settings.adult_trade_start)
+            # Override the adult trade item used to control trade quest flags during patching if any are placed in plando.
+            # This has to run here because the rule parser caches world attributes and this attribute impacts logic for buying a blue potion from Granny's Potion shop.
+            adult_trade_matcher = self.distribution.pattern_matcher("#AdultTrade")
+            plando_adult_trade = list(filter(lambda location_record_pair: adult_trade_matcher(location_record_pair[1].item), self.distribution.pattern_dict_items(self.distribution.locations)))
+            if plando_adult_trade:
+                self.selected_adult_trade_item = plando_adult_trade[0][1].item # ugly but functional, see the loop in Plandomizer.WorldDistribution.fill for how this is indexed
         self.adult_trade_starting_inventory: str = ''
 
         if (settings.open_forest == 'closed'
@@ -97,12 +105,12 @@ class World:
 
         # trials that can be skipped will be decided later
         self.skipped_trials: dict[str, bool] = {
-            'Forest': False,
-            'Fire': False,
-            'Water': False,
             'Spirit': False,
+            'Light': False,
+            'Fire': False,
             'Shadow': False,
-            'Light': False
+            'Water': False,
+            'Forest': False,
         }
 
         # empty dungeons will be decided later
@@ -146,7 +154,7 @@ class World:
             'Water Temple': False,
             'Spirit Temple': False,
             'Shadow Temple': False,
-            'Ganons Castle': False
+            'Ganons Castle': False,
         }
 
         if resolve_randomized_settings:
@@ -167,15 +175,16 @@ class World:
             self.settings.hint_dist = 'custom'
             self.hint_dist_user = self.settings.hint_dist_user
 
-        # Hack for legacy hint distributions from before the goal, dual and dual_always hint
-        # types was created. Keeps validation happy.
-        for hint_type in ('goal', 'dual', 'dual_always', 'entrance_always'):
+        # Allow omitting hint types that shouldn't be included
+        for hint_type in hint_dist_keys:
             if 'distribution' in self.hint_dist_user and hint_type not in self.hint_dist_user['distribution']:
                 self.hint_dist_user['distribution'][hint_type] = {"order": 0, "weight": 0.0, "fixed": 0, "copies": 0}
         if 'use_default_goals' not in self.hint_dist_user:
             self.hint_dist_user['use_default_goals'] = True
         if 'upgrade_hints' not in self.hint_dist_user:
             self.hint_dist_user['upgrade_hints'] = 'off'
+        if 'combine_trial_hints' not in self.hint_dist_user:
+            self.hint_dist_user['combine_trial_hints'] = False
 
         # Validate hint distribution format
         # Originally built when I was just adding the type distributions
@@ -318,12 +327,13 @@ class World:
         # over again after the first round through the categories.
         if len(self.goal_categories) > 0:
             self.one_hint_per_goal = True
+            minor_goal_categories = ('door_of_time', 'ganon')
             goal_list1 = []
             for category in self.goal_categories.values():
-                if category.name != 'door_of_time':
+                if category.name not in minor_goal_categories:
                     goal_list1 = [goal.name for goal in category.goals]
             for category in self.goal_categories.values():
-                if goal_list1 != [goal.name for goal in category.goals] and category.name != 'door_of_time':
+                if goal_list1 != [goal.name for goal in category.goals] and category.name not in minor_goal_categories:
                     self.one_hint_per_goal = False
 
         if 'one_hint_per_goal' in self.hint_dist_user:
@@ -343,13 +353,8 @@ class World:
         self.locked_goal_categories: dict[str, GoalCategory] = {name: category for (name, category) in self.goal_categories.items() if category.lock_entrances}
         self.unlocked_goal_categories: dict[str, GoalCategory] = {name: category for (name, category) in self.goal_categories.items() if not category.lock_entrances}
 
-    def copy(self, *, copy_dict: Optional[dict[int, Any]] = None) -> World:
-        copy_dict = {} if copy_dict is None else copy_dict
-        if (new_world := copy_dict.get(id(self), None)) and isinstance(new_world, World):
-            return new_world
-
+    def copy(self) -> World:
         new_world = World(self.id, self.settings, False)
-        copy_dict[id(self)] = new_world
 
         new_world.skipped_trials = copy.copy(self.skipped_trials)
         new_world.dungeon_mq = copy.copy(self.dungeon_mq)
@@ -361,13 +366,13 @@ class World:
         new_world.maximum_wallets = self.maximum_wallets
         new_world.distribution = self.distribution
 
-        new_world.dungeons = [dungeon.copy(copy_dict=copy_dict) for dungeon in self.dungeons]
-        new_world.regions = [region.copy(copy_dict=copy_dict) for region in self.regions]
-        new_world.itempool = [item.copy(copy_dict=copy_dict) for item in self.itempool]
+        new_world.dungeons = [dungeon for dungeon in self.dungeons]
+        new_world.regions = [region for region in self.regions]
+        new_world.itempool = [item for item in self.itempool]
         new_world.state = self.state.copy(new_world)
 
         # TODO: Why is this necessary over copying region.entrances on region copy?
-        new_world.initialize_entrances()
+        # new_world.initialize_entrances()
 
         # copy any randomized settings to match the original copy
         new_world.randomized_list = list(self.randomized_list)
@@ -431,7 +436,7 @@ class World:
             and ('starting_tod' not in dist_keys
              or self.distribution.distribution.src_dict['_settings']['starting_tod'] == 'random')):
             setting_info = SettingInfos.setting_infos['starting_tod']
-            choices = [ch for ch in setting_info.choices if ch not in ['default', 'random']]
+            choices = [ch for ch in setting_info.choices if ch not in ('default', 'random')]
             self.settings.starting_tod = random.choice(choices)
             self.randomized_list.append('starting_tod')
         if (self.settings.starting_age == 'random'
@@ -455,13 +460,13 @@ class World:
         elif self.settings.dungeon_shortcuts_choice == 'all':
             self.settings.dungeon_shortcuts = dungeons
 
-        # Determine area with keyring
+        # Determine areas with keyrings
+        areas = ['Thieves Hideout', 'Treasure Chest Game', 'Forest Temple', 'Fire Temple', 'Water Temple', 'Shadow Temple', 'Spirit Temple', 'Bottom of the Well', 'Gerudo Training Ground', 'Ganons Castle']
         if self.settings.key_rings_choice == 'random':
-            areas = ['Thieves Hideout', 'Treasure Chest Game', 'Forest Temple', 'Fire Temple', 'Water Temple', 'Shadow Temple', 'Spirit Temple', 'Bottom of the Well', 'Gerudo Training Ground', 'Ganons Castle']
             self.settings.key_rings = random.sample(areas, random.randint(0, len(areas)))
             self.randomized_list.append('key_rings')
         elif self.settings.key_rings_choice == 'all':
-            self.settings.key_rings = ['Thieves Hideout', 'Treasure Chest Game', 'Forest Temple', 'Fire Temple', 'Water Temple', 'Shadow Temple', 'Spirit Temple', 'Bottom of the Well', 'Gerudo Training Ground', 'Ganons Castle']
+            self.settings.key_rings = areas
 
         # Handle random Rainbow Bridge condition
         if (self.settings.bridge == 'random'
@@ -524,7 +529,7 @@ class World:
             for dungeon in mq_dungeon_pool:
                 self.dungeon_mq[dungeon] = random.choice([True, False])
             self.randomized_list.append('mq_dungeons_count')
-        elif self.settings.mq_dungeons_mode in ['mq', 'vanilla']:
+        elif self.settings.mq_dungeons_mode in ('mq', 'vanilla'):
             for dung in self.dungeon_mq.keys():
                 self.dungeon_mq[dung] = (self.settings.mq_dungeons_mode == 'mq')
         elif self.settings.mq_dungeons_mode != 'specific':
@@ -655,7 +660,7 @@ class World:
         item_dict = defaultdict(list)
         for item in items:
             item_dict[item.name].append(item)
-            if (self.settings.shuffle_hideoutkeys in ['fortress', 'regional'] and item.type == 'HideoutSmallKey') or (self.settings.shuffle_tcgkeys == 'regional' and item.type == 'TCGSmallKey'):
+            if (self.settings.shuffle_hideoutkeys in ('fortress', 'regional') and item.type == 'HideoutSmallKey') or (self.settings.shuffle_tcgkeys == 'regional' and item.type == 'TCGSmallKey'):
                 item.priority = True
 
         for dungeon in self.dungeons:
@@ -678,7 +683,7 @@ class World:
 
                 if dungeon_collection is not None and item not in dungeon_collection:
                     dungeon_collection.append(item)
-                if shuffle_setting in ['any_dungeon', 'overworld', 'regional']:
+                if shuffle_setting in ('any_dungeon', 'overworld', 'regional'):
                     item.priority = True
 
     def random_shop_prices(self) -> None:
@@ -708,7 +713,7 @@ class World:
 
     def set_scrub_prices(self) -> None:
         # Get Deku Scrub Locations
-        scrub_locations = [location for location in self.get_locations() if location.type in ['Scrub', 'GrottoScrub']]
+        scrub_locations = [location for location in self.get_locations() if location.type in ('Scrub', 'GrottoScrub')]
         scrub_dictionary = {}
         for location in scrub_locations:
             if location.default not in scrub_dictionary:
@@ -804,6 +809,7 @@ class World:
         gbk = GoalCategory('ganon_bosskey', 20)
         trials = GoalCategory('trials', 30, minimum_goals=1)
         th = GoalCategory('triforce_hunt', 30, goal_count=round(self.settings.triforce_goal_per_world / 10), minimum_goals=1)
+        ganon = GoalCategory('ganon', 40, goal_count=1)
         trial_goal = Goal(self, 'the Tower', 'path to #the Tower#', 'White', items=[], create_empty=True)
 
         if self.settings.triforce_hunt and self.settings.triforce_goal_per_world > 0:
@@ -824,10 +830,9 @@ class World:
         # Ganon's Boss Key can be Stones, Medallions, Dungeons, Skulls, LACS or
         # one of the keysanity variants.
         # Trials is one goal that is only on if at least one trial is on in the world.
-        # If there are no win conditions beyond Kill Ganon (open bridge, GBK removed,
-        # no trials), a fallback "path of the hero" clone of WOTH is created. Path
-        # wording is used to distinguish the hint type even though the hintable location
-        # set is identical to WOTH.
+        # If there are no trials, a "path of the hero" clone of WOTH is created, which
+        # is deprioritized compared to other goals. Path wording is used to distinguish
+        # the hint type even though the hintable location set is identical to WOTH.
         if not self.settings.triforce_hunt:
             if self.settings.starting_age == 'child':
                 dot_items = [{'name': 'Temple of Time Access', 'quantity': 1, 'minimum': 1, 'hintable': True}]
@@ -1005,7 +1010,7 @@ class World:
             # generate a category/goal pair, though locations are not
             # guaranteed if the higher priority Bridge category contains
             # all required locations for GBK
-            if self.settings.shuffle_ganon_bosskey in ['dungeon', 'overworld', 'any_dungeon', 'keysanity', 'regional']:
+            if self.settings.shuffle_ganon_bosskey in ('dungeon', 'overworld', 'any_dungeon', 'keysanity', 'regional'):
                 # Make priority even with trials as the goal is no longer centered around dungeon completion or collectibles
                 gbk.priority = 30
                 gbk.goal_count = 1
@@ -1047,12 +1052,12 @@ class World:
                 trials.add_goal(trial_goal)
                 self.goal_categories[trials.name] = trials
 
-            if (self.shuffle_special_dungeon_entrances or self.settings.bridge == 'open') and (self.settings.shuffle_ganon_bosskey == 'remove' or self.settings.shuffle_ganon_bosskey == 'vanilla') and self.settings.trials == 0:
-                g = GoalCategory('ganon', 30, goal_count=1)
-                # Equivalent to WOTH, but added in case WOTH hints are disabled in favor of goal hints
-                g.add_goal(Goal(self, 'the hero', 'path of #the hero#', 'White', items=[{'name': 'Triforce', 'quantity': 1, 'minimum': 1, 'hintable': True}]))
-                g.minimum_goals = 1
-                self.goal_categories[g.name] = g
+            # In glitched logic or if trials are off, it's possible that some items required to beat the game
+            # (such as bow, magic, light arrows, or anything required to reach Ganon's Castle)
+            # don't appear on any other paths, so a goal specifically for beating the game is added.
+            ganon.add_goal(Goal(self, 'the hero', 'path of #the hero#', 'White', items=[{'name': 'Triforce', 'quantity': 1, 'minimum': 1, 'hintable': True}]))
+            ganon.minimum_goals = 1
+            self.goal_categories[ganon.name] = ganon
 
     def get_region(self, region_name: str | Region) -> Region:
         if isinstance(region_name, Region):
@@ -1166,6 +1171,25 @@ class World:
         dungeon_name = HintArea.at(region).dungeon_name
         return dungeon_name in self.settings.dungeon_shortcuts
 
+    # Returns whether the given dungeon has a keyring.
+    def keyring(self, dungeon_name: str) -> bool:
+        if dungeon_name in ('Forest Temple', 'Fire Temple', 'Water Temple', 'Shadow Temple', 'Spirit Temple', 'Bottom of the Well', 'Gerudo Training Ground', 'Ganons Castle'):
+            return dungeon_name in self.settings.key_rings and self.settings.shuffle_smallkeys != 'vanilla'
+        elif dungeon_name == 'Thieves Hideout':
+            return dungeon_name in self.settings.key_rings and self.settings.gerudo_fortress != 'fast' and self.settings.shuffle_hideoutkeys != 'vanilla'
+        elif dungeon_name == 'Treasure Chest Game':
+            return dungeon_name in self.settings.key_rings and self.settings.shuffle_tcgkeys != 'vanilla'
+        else:
+            raise ValueError(f'Attempted to check keyring for unknown dungeon {dungeon_name!r}')
+
+    # Returns whether the given dungeon has a keyring that includes the boss key.
+    def keyring_give_bk(self, dungeon_name: str) -> bool:
+        return (
+            dungeon_name in ('Forest Temple', 'Fire Temple', 'Water Temple', 'Shadow Temple', 'Spirit Temple')
+            and self.settings.keyring_give_bk
+            and self.keyring(dungeon_name)
+        )
+
     # Function to run exactly once after placing items in drop locations for each world
     # Sets all Drop locations to a unique name in order to avoid name issues and to identify locations in the spoiler
     def set_drop_location_names(self):
@@ -1192,11 +1216,13 @@ class World:
             # and stones are not considered here. This is not really an accurate
             # way of doing this, but it's the only way to allow dungeons to appear.
             # So barren hints do not include these dungeon rewards.
-            if location_hint in excluded_areas or \
-               location.locked or \
-               location.name in self.hint_exclusions or \
-               location.item is None or \
-               location.item.type in ('Event', 'DungeonReward'):
+            if (
+                location_hint in excluded_areas
+                or location.locked
+                or location.name in self.hint_exclusions
+                or location.item is None
+                or location.item.type in ('Event', 'DungeonReward')
+            ):
                 continue
 
             area = location_hint
@@ -1233,7 +1259,7 @@ class World:
             self.settings.shuffle_scrubs == 'off' and not self.settings.shuffle_grotto_entrances):
             # nayru's love may be required to prevent forced damage
             exclude_item_list.append('Nayrus Love')
-        if 'logic_grottos_without_agony' in self.settings.allowed_tricks and self.settings.hints != 'agony':
+        if ('logic_grottos_without_agony' in self.settings.allowed_tricks or self.settings.logic_rules != 'glitchless') and self.settings.hints != 'agony':
             # Stone of Agony skippable if not used for hints or grottos
             exclude_item_list.append('Stone of Agony')
         if not self.shuffle_special_interior_entrances and not self.settings.shuffle_overworld_entrances and not self.settings.warp_songs:
@@ -1377,3 +1403,7 @@ class World:
 
             if useless_area:
                 self.empty_areas[area] = area_info
+
+
+    def __repr__(self) -> str:
+        return "W%d" % (self.id)

@@ -8,6 +8,8 @@ This is a randomizer for _The Legend of Zelda: Ocarina of Time_ for the Nintendo
   * [Settings](#settings)
   * [Known Issues](#known-issues)
 * [Changelog](#changelog)
+  * [8.1](#81)
+  * [8.0](#80)
   * [7.1](#71)
   * [7.0](#70)
   * [6.2](#62)
@@ -26,7 +28,7 @@ https://ootrandomizer.com
 
 If you wish to run the script raw, clone this repository and either run ```Gui.py``` for a
 graphical interface or ```OoTRandomizer.py``` for the command line version. They both require Python 3.8+.
-To use the GUI, [NodeJS](https://nodejs.org/download/release/v18.12.1/) (v18 LTS, with npm) will additionally need to be installed. NodeJS v14.14.0 and earlier are no longer supported.
+To use the GUI, [NodeJS](https://nodejs.org/download/release/v20.11.1/) (v20 LTS, with npm) will additionally need to be installed. NodeJS v14.14.0 and earlier are no longer supported.
 The first time ```Gui.py``` is run it will need to install necessary components, which could take a few minutes. Subsequent instances will run much quicker.
 Supported output formats are .z64 (N64/Emulator), .wad (Wii VC, channel IDs NICE/NRKE recommended), Uncompressed ROM (for developmental purposes, offline build only)
 and .zpf/.zpfz (patch files, for sharing seeds with others).
@@ -36,7 +38,7 @@ the user wishes a pre-decompressed ROM may be supplied as input. Please be sure 
 playing via any means other than on real N64 hardware, the use of the "Compress patched ROM" flag is strongly encouraged as uncompressed ROMs are
 impossible to inject for the Virtual Console and have random crashing problems on all emulators.
 
-For general use, there are four recommended emulators: [Project 64 (v3.0+)](https://wiki.ootrandomizer.com/index.php?title=Project64), [Bizhawk](https://wiki.ootrandomizer.com/index.php?title=Bizhawk), [RetroArch](https://wiki.ootrandomizer.com/index.php?title=Retroarch) and [Dolphin (latest beta)](https://wiki.ootrandomizer.com/index.php?title=Dolphin). All are race-legal when configured appropriately.
+For general use, there are four recommended emulators: [Project64 (v3.0+)](https://wiki.ootrandomizer.com/index.php?title=Project64), [Bizhawk](https://wiki.ootrandomizer.com/index.php?title=Bizhawk), [RetroArch](https://wiki.ootrandomizer.com/index.php?title=Retroarch) and [Dolphin (latest beta)](https://wiki.ootrandomizer.com/index.php?title=Dolphin). All are race-legal when configured appropriately.
 In a nutshell the differences are:
 * Project64 is the lightest emulator and the easiest to setup, however, you will need the 3.0.0 version or later to run OoTR well (and earlier versions are not permitted for use in OoTR races).
 * Bizhawk is the most resource-intensive, but easier to set up than RetroArch and the only race-legal emulator to support [Multiworld](https://wiki.ootrandomizer.com/index.php?title=Multiworld).
@@ -101,7 +103,7 @@ Unfortunately, a few known issues exist. These will hopefully be addressed in fu
 * The fishing minigame sometimes refuses to allow you to catch fish when playing specifically on Bizhawk. Save and Hard Reset (NOT savestate) and return to fix the
 issue. You should always Hard Reset to avoid this issue entirely.
 * Versions older than 3.0 of Project64 have known compatablity issues with OoTR. To avoid this either 
-[update to v3.0 and follow the rest of our PJ64 guide](https://wiki.ootrandomizer.com/index.php?title=Project64) or change to one of our other two supported emulators.
+[update to v3.0 and follow the rest of our Project64 guide](https://wiki.ootrandomizer.com/index.php?title=Project64) or change to one of our other two supported emulators.
 * Executing the collection delay glitch on various NPCs may have unpredictable and undesirable consequences.
 * This randomizer is based on the 1.0 version of _Ocarina of Time_, so some of its specific bugs remain.
 
@@ -110,11 +112,67 @@ issue. You should always Hard Reset to avoid this issue entirely.
 ### Dev
 
 #### New Features
+* New cosmetic option `Input Viewer` for showing control stick values and pressed buttons at the bottom of the screen.
+* A text box has been added when completing the adult shooting gallery without a bow to warn the player that they haven't received the real reward.
+* Settings presets can have aliases. Command-line users may use an alias instead of the name to specify the preset.
+* The plando-only `item_hints` setting can now include special items such as songs or keys.
+* Add new options for chest/pot/etc. textures, including `Stone of Agony Unlocks Chest Textures` which gives new functionality to the Stone of Agony.
+* A boss key icon will now be displayed near the small key icon in dungeons where it has been obtained.
+* The name of the currently playing custom music will now be displayed.
+
+#### Bug Fixes
+* Goal hints can now hint items required to defeat Ganon even if they're not required for the rainbow bridge, Ganon's boss key, or the trials. These items will be hinted as being on the "path of the hero".
+* Fix a softlock present in the original game when damaging Volvagia's second hitbox during the death cutscene.
+* Don't start the trade sequence timer if getting the `ZD King Zora Thawed` item while the Eyeball Frog is in the inventory.
+* Fix the items on the right side of the mask shop being available without paying for all borrowed masks first.
+* The Stone of Agony can now be foolish in Glitched Logic and No Logic, as it already was with the `Hidden Grottos without Stone of Agony` trick enabled.
+* Fix seeds with Plentiful item pool and no adult trade items selected failing to generate.
+* Fix castle courtyard exiting to incorrect area in Ganon's Castle Dungeon ER.
+* Fix heart piece count getting zeroed out incorrectly in certain circumstances.
+
+#### New Speedups
+* Meg will now take less time before respawning after getting hurt.
+* The cutscenes for stealing Epona by jumping over a fence are now sped up. Previously, only the cutscene for jumping over the front gate was shortened.
+* The cutscenes for pulling and dropping the Master Sword are now sped up.
+* The cutscenes changing the water level in Lake Hylia and the Kakariko well are now even faster.
+
+#### Other Changes
+* Clarified the error message shown when an unshuffled trade quest item is used as a starting item.
+* Locations in pre-completed dungeons will no longer be hinted.
+* Treasure Chest Game key and silver rupee options are now included in `Randomize Main Rule Settings`.
+* Pause menu has been modified so that equip swap will work again.
+
+### 8.1
+
+#### New Features
+* **Settings**
+  * `Minor Items in Big/Gold chests` has been converted into a multiselect so you may granularly make bombchus, shields, or stick/nut capacity appear in big chests.
+  * New shuffle `Shuffle Wonderitems` which allows shuffling items the game refers to as Wonderitems. These items are obtained through a few ways: invisible items which drop when Link touches them (such as the rupees above the Hyrule Castle Town drawbridge), interactable switches (such as the torches on Hyrule Castle which drop items when shot with the slingshot), free multitag which gives an item when a certain set of points are touched (the stepping stones in Kokiri Forest), and ordered multitag where a set of points must be touched in a particular order (the grass stepping stones in Kokiri Forest). Wonderitems will indicate their prescence with sparkles color-coded to the type of wonderitem.
+* **Hints**
+  * The `Clearer Hints` option now provides clearer hints for the rainbow bridge text on the altar in the Temple of Time.
+  * New option in hint distribution `combine_trial_hints` which combines multiple trials hints into one.
+
+#### Bug Fixes
+* Fix the `Silver Rupee Pouches` setting not being hidden when `Silver Rupee Pouches Mode` is set to `Random Puzzles`.
+* Fix an issue in the Co-op hint distribution which caused seed generation failures for some settings.
+* Fix bug which causes `Maps and Compasses Give Information` to fail when logic is set to `Glitched`.
+* Put a band-aid on a softlock which occurs when collecting a shuffled silver rupee on the ladder in the Bottom of the Well by disallowing silver rupees on this location.
+* You can no longer wear bunny hood while turning adult, then save and reset before leaving the temple of time to keep bunny hood as adult.
+* If the GUI fails to load Python, it will now display an error message instead of appearing to load forever.
+* Fix bug where specifying custom music sequences via cosmetics plando was incompatible with actively disabling sequences.
+
+#### Other Changes
+* Removing small keys for a dungeon with key rings and `Key Rings give Boss Keys` enabled will now open the boss door instead of giving the player the boss key.
+
+### 8.0
+
+#### New Features
 * **Settings**
   * New setting `Key Rings give Boss Keys` makes it so when picking up a key ring for a certain dungeon, you will also get the boss key for that dungeon, if applicable.
   * New ER setting `Shuffle Gerudo Valley River Exit` allows you to shuffle the one-way exit going down the river in Gerudo Valley.
   * New setting `Add Bombchu Bag and Drops` which, along with the previous changes of `Bombchus in Logic`, makes the first pack of Bombchus you find into a bag which then allows you to purchase bombchus from shops as well as find them hidden in grass or rocks like regular bombs.
   * New multiselects `Shuffled Child Trade Sequence Items` and `Adult Trade Sequence Items` along with toggle `Shuffle All Adult Trade Items` which have reworked the trade quests for both child and adult. Now you can own multiple trade items for each age at the same time and have multiple trade item locations as shufflable checks.
+    * The Scrub grotto Mask of Truth check will no longer be an always hint if the mask of truth is shuffled.
   * Many new SFX shuffle options have been added.
   * New `Rainbow` tunic options.
   * New music option `Speed Up Music For Last Triforce Piece` speeds up the music when you only have 1 Triforce Piece left to find, to drive home the intensity.
@@ -126,6 +184,8 @@ issue. You should always Hard Reset to avoid this issue entirely.
   * New timesaver setting `Ruto Already at F1` which, in Vanilla Jabu Jabu, makes it so that Ruto is already present on the first floor of the dungeon (in the room with all the orifices you fall down) instead of having to carry her up there to set that flag.
   * New setting `Key Appearance Matches Dungeon` which changes the models for small keys and boss keys to indicate which dungeon the key belongs to.
   * New setting `Shuffle Individual Ocarina Notes`, which shuffles items representing each of the 5 ocarina notes into the item pool. You cannot play any note on the ocarina until you find its corresponding item.
+  * New cosmetic setting `Uninvert Y-Axis in First Person Camera` which makes tilting the joystick up or down in first person look those respective directions, instead of the opposite direction.
+  * The setting `Display D-Pad HUD` has been expanded so that the D-Pad can be set to the left of the screen.
 * **Hints**
   * New `Important Checks` hint type which hints at how many major items are in a given region.
     * Double Defense and Biggoron's Sword are counted as major for this hint type.
@@ -137,6 +197,10 @@ issue. You should always Hard Reset to avoid this issue entirely.
   * New options for hint distributions, both of which are lists of gossip stones defined inside the entry for a hint type:
     * `remove_stones`: When defined, each gossip stone in the list will be excluded from receiving this hint type. For example, if `ToT (Left)` is inserted into the `remove_stones` list inside the dictionary for `always` hints, then no `always` hint will be placed on `ToT (Left)`.
     * `priority_stones`: When defined, gossip stones in this list will be given priority when placing the specified hint type, in the order they're defined. For example, if `ToT (Left)` and `ToT (Right)` are inserted into the `priority_stones` list, in that order, inside the dictionary for `always` hints, the first `always` hint will be placed on `ToT (Left)` and the second `always` hint will be placed on `ToT (Right)`.
+  * New Dual hint for King Zora checks: Unfreezing him and trading the prescription for an eyeball frog.
+  * The credits music can now be shuffled into the music pool.
+  * Many hints had clearer hints added and/or were reworded.
+  * New `Chaos!!! (no goal hints)` hint distribution which is the same as the normal "Chaos" distribution, but without goal hints.
 * **Other**
   * When picking up a small key, the text box will now inform you how many you've found total.
   * The longstanding vanilla bug where using Din's Fire on a white bubble crashes the game has been fixed.
@@ -144,6 +208,7 @@ issue. You should always Hard Reset to avoid this issue entirely.
   * Custom music has moved to a new format. See `data/Music/README.md` for more details.
   * New and improved model for key rings.
   * Several new tricks have been added.
+  * Multiworld plugins now have the ability to show the proper progressive item based on the inventory state of the receiving player.
 
 #### Bug Fixes
 * **Misc.**
@@ -158,10 +223,17 @@ issue. You should always Hard Reset to avoid this issue entirely.
   * A rare softlock when fighting Gohma present in the original game has been fixed.
   * A crash when diving and resurfacing in very shallow water present in the original game has been fixed.
   * Various miscellaneous logic issues have been addressed.
+  * A minor bug related to checking time of day access has been corrected.
+  * Fix a softlock caused by 8-note Sun's Songs when using `Randomize Ocarina Song Notes`, again.
+  * Fix pause screen rendering causing graphical issues on some platforms.
+  * Fix a long-standing bug where certain fanfares kill the currently-playing backgroud music.
+  * Fix a bug which would cause the Lost Woods bridge ocarina check, if ocarinas are unshuffled and overworld Entrance Randomizer is disabled, to give a Fairy Ocarina when it should give the Ocarina of Time.
+  * Disallow excluding the bombchu bowling bombchu refill locations, since this didn't do anything.
 * **Hints**
   * Fix the cryptic hint for Ganon's Castle Boss Key.
   * Fix missing punctuation in dual hints.
   * Fix a bug in Multiworld Goal hints causing the incorrect path to be generated for the hint.
+  * Fix a bug which would cause hints to the "Link's Pocket" goal to be generated.
 
 #### Other Changes
 * `Closed Forest` is no longer changed to `Closed Deku` when `Shuffle Boss Entrances` is enabled.
@@ -188,6 +260,9 @@ issue. You should always Hard Reset to avoid this issue entirely.
 * Python 3.6 and 3.7 are no longer supported.
 * Some inescapable entrances are no longer valid targets for Overworld Spawn entrances.
 * Using Farore's Wind to warp between dungeons is now considered in logic.
+* Various text changes such as singular Temple of Time Altar bridge conditions, grammar changes to region hints, and adding apostrophes to shop items.
+* Updated fill error message to add suggestions for resolving the error.
+* Updated some trick tool tips for grammar and clarity.
 
 #### New Speedups
 * Various cutscenes removed or shortened, such as Water Temple and Gerudo Fortress gates and scarecrow spawn cutscenes.
@@ -203,6 +278,7 @@ issue. You should always Hard Reset to avoid this issue entirely.
 * Gossip stone text colors are no longer specified in reverse order.
 * Music groups will now add to each other if you have multiple groups of the same name, instead of the last one simply overwriting the others.
 * The legacy starting items dictionary has been renamed to `starting_inventory` to make it more distinct from the new `starting_items` which is part of the Settings dictionary.
+* The `#Vanilla` item category is now usable for dungeon rewards.
 
 ### 7.1
 
