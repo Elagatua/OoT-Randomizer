@@ -1469,7 +1469,7 @@
     "SGL 2024 Tournament": {
         "create_spoiler": true,
         "show_seed_info": true,
-        "user_message": "SGL 2024",
+        "user_message": "SGL 2024 (Experimental)",
         "world_count": 1,
         "randomize_settings": false,
         "logic_rules": "glitchless",
@@ -1546,7 +1546,8 @@
             "logic_lens_shadow",
             "logic_lens_shadow_platform",
             "logic_lens_bongo",
-            "logic_lens_spirit"
+            "logic_lens_spirit",
+            "logic_deku_b1_skip"
         ],
         "starting_equipment": [
             "deku_shield"
@@ -1577,7 +1578,7 @@
         "big_poe_count_random": false,
         "big_poe_count": 1,
         "easier_fire_arrow_entry": false,
-        "ruto_already_f1_jabu": false,
+        "ruto_already_f1_jabu": true,
         "ocarina_songs": "off",
         "correct_chest_appearances": "both",
         "chest_textures_specific": [
@@ -1585,10 +1586,11 @@
             "bosskeys",
             "keys",
             "tokens",
-            "hearts"
+            "hearts",
+            "bombchus"
         ],
         "soa_unlocks_chest_texture": false,
-        "minor_items_as_major_chest": "bombchus",
+        "minor_items_as_major_chest": [],
         "invisible_chests": false,
         "correct_potcrate_appearances": "textures_unchecked",
         "potcrate_textures_specific": [
@@ -1601,7 +1603,7 @@
         "soa_unlocks_potcrate_texture": false,
         "clearer_hints": true,
         "hints": "always",
-        "hint_dist": "sgl2023",
+        "hint_dist": "sgl2024",
         "misc_hints": [
             "altar",
             "ganondorf",
