@@ -170,8 +170,8 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         (28, 'texture_crate_heart',         0x18B6020,     0x018B6000,      4096,   ci4_rgba16patch_to_ci8,     'textures/crate/crate_heart_rgba16_patch.bin'),
         (29, 'texture_smallcrate_heart',    0xF7ECA0,      None,            2048,   rgba16_patch,               'textures/crate/smallcrate_heart_rgba16_patch.bin'),
         
-        (30, 'texture_chest_front_bombchu', 0xFEC798,      None,            4096,   rgba16_patch,               'textures/chest/chest_front_bombchu_rgba16_patch.bin'),
-        (31, 'texture_chest_base_bombchu',  0xFED798,      None,            2048,   rgba16_patch,               'textures/chest/chest_base_bombchu_rgba16_patch.bin'),
+        (31, 'texture_chest_front_bombchu', 0xFEC798,      None,            4096,   rgba16_patch,               'textures/chest/chest_front_bombchu_rgba16_patch.bin'),
+        (32, 'texture_chest_base_bombchu',  0xFED798,      None,            2048,   rgba16_patch,               'textures/chest/chest_base_bombchu_rgba16_patch.bin'),
     ]
 
     # Loop through the textures and apply the patch. Add the new textures as a new file in rom.
