@@ -1586,11 +1586,10 @@
             "bosskeys",
             "keys",
             "tokens",
-            "hearts",
-            "bombchus"
+            "hearts"
         ],
         "soa_unlocks_chest_texture": false,
-        "minor_items_as_major_chest": [],
+        "minor_items_as_major_chest": ["bombchus"],
         "invisible_chests": false,
         "correct_potcrate_appearances": "textures_unchecked",
         "potcrate_textures_specific": [
