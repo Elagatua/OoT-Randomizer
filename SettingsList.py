@@ -3277,6 +3277,17 @@ class SettingInfos:
         shared         = True,
     )
 
+    song_of_time_changes_age = Checkbutton(
+        gui_text       = 'Song of Time Changes Age',
+        gui_tooltip    = '''\
+            Playing the Song of Time will offer a choice to switch from
+            child to adult or vice versa.  Changing age will reload the
+            current area.
+        ''',
+        default        = False,
+        shared         = True,
+    )
+
     ocarina_songs = Combobox(
         gui_text       = 'Randomize Ocarina Melodies',
         default        = 'off',

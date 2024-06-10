@@ -2162,6 +2162,11 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         torch_count = world.settings.fae_torch_count
         rom.write_byte(0xCA61E3, torch_count)
 
+    if world.settings.song_of_time_changes_age:
+        # Enable Song of Time age changing behavior
+        symbol = rom.sym('SONG_OF_TIME_CHANGES_AGE')
+        rom.write_byte(symbol, 0x01)
+
     # Fix crash when hitting white bubbles enemies with Dins Fire
     rom.write_byte(0xCB4397, 0x00)
 

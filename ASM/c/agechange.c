@@ -1,4 +1,5 @@
 #include "agechange.h"
+extern uint8_t SONG_OF_TIME_CHANGES_AGE;
 static uint8_t change_age = 0;
 
 void Ocarina_HandleLastPlayedSong(z64_game_t* play, z64_link_t* player, int16_t lastPlayedSong) {
@@ -9,6 +10,10 @@ void Ocarina_HandleLastPlayedSong(z64_game_t* play, z64_link_t* player, int16_t 
     }
     if (lastPlayedSong == 10) { // OCARINA_SONG_TIME
 
+        if (!SONG_OF_TIME_CHANGES_AGE) 
+        {
+            return;
+        }
         // Restrict to ocarina free plays. This avoids checking SoT usage like ocarina spots or frogs.
         if (play->msgContext.ocarinaAction != 0x29) // OCARINA_ACTION_FREE_PLAY_DONE
         {
