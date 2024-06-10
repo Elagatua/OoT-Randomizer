@@ -1616,7 +1616,7 @@
         "deadly_bonks": "none",
         "no_collectible_hearts": false,
         "starting_tod": "default",
-        "blue_fire_arrows": false,
+        "blue_fire_arrows": true,
         "fix_broken_drops": false,
         "item_pool_value": "balanced",
         "junk_ice_traps": "off",
