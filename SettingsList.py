@@ -663,7 +663,7 @@ class SettingInfos:
 
             'Required Only': Only items and locations required to beat the game will be guaranteed reachable.
         ''',
-        gui_params={
+        gui_params     = {
             "hide_when_disabled": True,
         },
         shared         = True,
@@ -738,7 +738,7 @@ class SettingInfos:
             'vanilla':    "Vanilla",
             'stones':     "Stones",
             'medallions': "Medallions",
-            'dungeons':   "Dungeons",
+            'dungeons':   "Dungeon Rewards",
             'tokens':     "Tokens",
             'hearts':     "Hearts",
         },
@@ -749,7 +749,7 @@ class SettingInfos:
             'Vanilla': Shadow and Spirit Medallions.
             'Stones': A configurable amount of Spiritual Stones.
             'Medallions': A configurable amount of Medallions.
-            'Dungeons': A configurable amount of Dungeon Rewards.
+            'Dungeon Rewards': A configurable amount of Dungeon Rewards.
             'Tokens': A configurable amount of Gold Skulltula Tokens.
             'Hearts': A configurable amount of hearts.
         ''',
@@ -868,7 +868,7 @@ class SettingInfos:
             'vanilla':    'Vanilla Requirements',
             'stones':     'Spiritual Stones',
             'medallions': 'Medallions',
-            'dungeons':   'Dungeons',
+            'dungeons':   'Dungeon Rewards',
             'tokens':     'Gold Skulltula Tokens',
             'hearts':     'Hearts',
             'random':     'Random'
@@ -878,7 +878,7 @@ class SettingInfos:
             'Vanilla Requirements': Spirit/Shadow Medallions and Light Arrows.
             'Spiritual Stones': A configurable amount of Spiritual Stones.
             'Medallions': A configurable amount of Medallions.
-            'Dungeons': A configurable amount of Dungeon Rewards.
+            'Dungeon Rewards': A configurable amount of Dungeon Rewards.
             'Gold Skulltula Tokens': A configurable amount of Gold Skulltula Tokens.
             'Hearts': A configurable amount of hearts.
             'Random': A random Rainbow Bridge requirement excluding Gold Skulltula Tokens.
@@ -1033,7 +1033,7 @@ class SettingInfos:
             'on_lacs':         "Light Arrow Cutscene",
             'stones':          "Stones",
             'medallions':      "Medallions",
-            'dungeons':        "Dungeons",
+            'dungeons':        "Dungeon Rewards",
             'tokens':          "Tokens",
             'hearts':          "Hearts",
         },
@@ -1069,7 +1069,7 @@ class SettingInfos:
             'Medallions': Ganon's Castle Boss Key will be awarded
             when reaching the target number of Medallions.
 
-            'Dungeons': Ganon's Castle Boss Key will be awarded
+            'Dungeon Rewards': Ganon's Castle Boss Key will be awarded
             when reaching the target number of Dungeon Rewards.
 
             'Tokens': Ganon's Castle Boss Key will be awarded
@@ -1182,6 +1182,64 @@ class SettingInfos:
         gui_params       = {
             "hide_when_disabled": True,
         },
+    )
+
+    shuffle_dungeon_rewards = Combobox(
+        gui_text       = 'Shuffle Dungeon Rewards',
+        default        = 'reward',
+        choices        = {
+            'vanilla':     'Vanilla Locations',
+            'reward':      'Dungeon Reward Locations',
+            'dungeon':     'Own Dungeon',
+            'regional':    'Regional',
+            'overworld':   'Overworld Only',
+            'any_dungeon': 'Any Dungeon',
+            'anywhere':    'Anywhere',
+        },
+        gui_tooltip    = '''\
+            This controls where Medallions and Spiritual Stones can
+            appear.
+
+            'Vanilla Locations': Medallions and Spiritual Stones will
+            appear in their vanilla locations.
+
+            'Dungeon Reward Locations': Medallions and Spiritual
+            Stones will be awarded when stepping into the blue warps
+            of boss rooms, but not necessarily the boss's vanilla
+            reward. In Multiworld, dungeon rewards will only appear
+            in their own world.
+
+            If you use one of the following options, note that after
+            receiving the last required medallion for the Burning
+            Kakariko cutscene while already in Kakariko, the cutscene
+            doesn't play until you leave and reenter Kakariko (or enter
+            and exit a building).
+
+            'Own Dungeon': Each dungeon reward appears in its respective
+            dungeon, but not necessarily on the boss. If boss entrances
+            are mixed, boss rooms that aren't in a dungeon can't have
+            dungeon rewards. The Light Medallion appears in the Temple
+            of Time, or may be a starting item if the "Free Reward from
+            Rauru" setting is enabled.
+
+            'Regional': Dungeon rewards can only appear in regions
+            near the original dungeon (including the dungeon
+            itself or other dungeons in the region).
+            <a href="https://wiki.ootrandomizer.com/index.php?title=Hints#Hint_Regions" target="_blank">The Wiki has a list of corresponding regions here.</a>
+
+            'Overworld Only': Dungeon rewards can only appear
+            outside of dungeons.
+
+            'Any Dungeon': Dungeon rewards can only appear
+            inside of dungeons.
+
+            'Anywhere': Dungeon rewards can appear anywhere
+            in the world.
+        ''',
+        gui_params     = {
+            'randomize_key': 'randomize_settings',
+        },
+        shared         = True,
     )
 
     shuffle_bosskeys = Combobox(
@@ -1537,9 +1595,9 @@ class SettingInfos:
         ''',
         shared         = True,
         disable        = {
-            'off':    {'settings' : ['silver_rupee_pouches']},
-            'all':    {'settings' : ['silver_rupee_pouches']},
-            'random': {'settings' : ['silver_rupee_pouches']},
+            'off':    {'settings': ['silver_rupee_pouches']},
+            'all':    {'settings': ['silver_rupee_pouches']},
+            'random': {'settings': ['silver_rupee_pouches']},
         },
         gui_params     = {
             "hide_when_disabled": True,
@@ -1989,7 +2047,7 @@ class SettingInfos:
             randomly rolled with no major items, but their dungeon rewards won't
             be given for free.
             - 'Specific Dungeons': Choose which specific dungeons will be pre-completed.
-            - 'Specific Rewards': Choose which specific dungeon rewards will be in pre-completed dungeons.
+            - 'Specific Rewards': Choose which specific dungeon rewards will be in pre-completed dungeons. Not compatible with shuffled dungeon rewards.
             - 'Count': Choose how many pre-completed dungeons will be randomly chosen.
 
             A same dungeon won't be both MQ and pre-completed unless it has been
@@ -2012,7 +2070,8 @@ class SettingInfos:
         disable        = {
             '!specific': {'settings': ['empty_dungeons_specific']},
             '!rewards':  {'settings': ['empty_dungeons_rewards']},
-            '!count':    {'settings': ['empty_dungeons_count']}
+            '!count':    {'settings': ['empty_dungeons_count']},
+            'rewards':   {'settings': ['shuffle_dungeon_rewards']},
         },
         gui_params     = {
             'distribution':  [
@@ -2047,23 +2106,23 @@ class SettingInfos:
     empty_dungeons_rewards = MultipleSelect(
         gui_text        = 'Pre-completed Dungeon Rewards',
         choices         = {
-            'Kokiri Emerald':         "Kokiri Emerald",
-            'Goron Ruby':             "Goron Ruby",
-            'Zora Sapphire':          "Zora Sapphire",
-            'Light Medallion':        "Light Medallion",
-            'Forest Medallion':       "Forest Medallion",
-            'Fire Medallion':         "Fire Medallion",
-            'Water Medallion':        "Water Medallion",
-            'Shadow Medallion':       "Shadow Medallion",
-            'Spirit Medallion':       "Spirit Medallion"
+            'Kokiri Emerald':   "Kokiri Emerald",
+            'Goron Ruby':       "Goron Ruby",
+            'Zora Sapphire':    "Zora Sapphire",
+            'Light Medallion':  "Light Medallion",
+            'Forest Medallion': "Forest Medallion",
+            'Fire Medallion':   "Fire Medallion",
+            'Water Medallion':  "Water Medallion",
+            'Shadow Medallion': "Shadow Medallion",
+            'Spirit Medallion': "Spirit Medallion",
         },
         default         = [],
         gui_tooltip     = '''\
-            Select the specific dungeons rewards you would
-            like to be pre-completed.
+            Select the specific dungeons rewards whose
+            dungeons you would like to be pre-completed.
         ''',
         shared          = True,
-        gui_params     = {
+        gui_params      = {
             "hide_when_disabled": True,
         },
     )
@@ -2637,9 +2696,6 @@ class SettingInfos:
             Overworld Only: Only overworld pots/flying pots are shuffled.
             Dungeons Only: Only dungeon pots/flying pots are shuffled.
 
-            Note: Only pots which normally drop an item are shuffled.
-            Empty pots are not shuffled. Pots containing fairies are not shuffled.
-
             When this setting is enabled, the pots in Ganon's Tower will be
             accessible without Ganon's Boss Key. Proceeding up the tower out
             of the room with the pots will require Ganon's Boss Key.
@@ -2648,6 +2704,22 @@ class SettingInfos:
             'randomize_key': 'randomize_settings',
         },
         shared         = True,
+        disable        = {
+            'off': {'settings': ['shuffle_empty_pots']},
+        }
+    )
+
+    shuffle_empty_pots = Checkbutton(
+        gui_text       = 'Include Empty Pots',
+        default        = False,
+        gui_tooltip    = '''\
+            Enabling this will include empty pots into the location
+            pool based on the Shuffle Pots setting chosen.
+        ''',
+        gui_params     = {
+            "hide_when_disabled": True,
+        },
+        shared         = True
     )
 
     shuffle_crates = Combobox(
@@ -2673,6 +2745,22 @@ class SettingInfos:
             'randomize_key': 'randomize_settings',
         },
         shared         = True,
+        disable        = {
+            'off': {'settings': ['shuffle_empty_crates']},
+        }
+    )
+
+    shuffle_empty_crates = Checkbutton(
+        gui_text       = 'Include Empty Crates',
+        default        = False,
+        gui_tooltip    = '''\
+            Enabling this will include empty crates into the location
+            pool based on the Shuffle Crates setting chosen.
+        ''',
+        gui_params     = {
+            "hide_when_disabled": True,
+        },
+        shared         = True
     )
 
     shuffle_cows = Checkbutton(
@@ -3017,6 +3105,16 @@ class SettingInfos:
 
     # Other
 
+    skip_reward_from_rauru = Checkbutton(
+        gui_text       = 'Free Reward from Rauru',
+        gui_tooltip    = '''\
+            The item given by Rauru beyond the Door of Time
+            (the Light Medallion in the vanilla game) is
+            given as a starting item instead.
+        ''',
+        shared         = True,
+    )
+
     no_escape_sequence = Checkbutton(
         gui_text       = 'Skip Tower Escape Sequence',
         gui_tooltip    = '''\
@@ -3143,7 +3241,7 @@ class SettingInfos:
             number of Cuccos.
         ''',
         disable        = {
-            True: {'settings' : ['chicken_count']},
+            True: {'settings': ['chicken_count']},
         },
         shared         = True,
     )
@@ -3170,7 +3268,7 @@ class SettingInfos:
             in a random number of Big Poes.
         ''',
         disable        = {
-            True: {'settings' : ['big_poe_count']},
+            True: {'settings': ['big_poe_count']},
         },
         shared         = True,
     )
@@ -3342,7 +3440,7 @@ class SettingInfos:
         shared         = True,
         default        = [],
         gui_params     = {
-            "hide_when_disabled" : True,
+            "hide_when_disabled": True,
         },
     )
 
@@ -3478,7 +3576,7 @@ class SettingInfos:
         },
         shared         = True,
         disable        = {
-            '!bingo' : {'settings' : ['bingosync_url']},
+            '!bingo' : {'settings': ['bingosync_url']},
         },
     )
 
