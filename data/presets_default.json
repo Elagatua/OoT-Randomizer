@@ -1591,7 +1591,7 @@
             "prelude"
         ],
         "start_with_consumables": true,
-        "start_with_rupees": true,
+        "start_with_rupees": false,
         "starting_hearts": 3,
         "no_escape_sequence": true,
         "no_guard_stealth": true,
