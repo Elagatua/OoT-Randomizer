@@ -25,7 +25,8 @@
         {"location": "Spirit Temple Silver Gauntlets Chest", "types": ["sometimes"]},
         {"location": "Spirit Temple Mirror Shield Chest", "types": ["sometimes"]},
         {"location": "Shadow Temple Freestanding Key", "types": ["sometimes"]},
-        {"location": "Ice Cavern Iron Boots Chest", "types": ["sometimes"]}
+        {"location": "Ice Cavern Iron Boots Chest", "types": ["sometimes"]},
+        {"location": "DMT Biggoron", "types": ["sometimes"]}
     ],
     "add_items":             [],
     "remove_items":          [

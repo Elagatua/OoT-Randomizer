@@ -1555,6 +1555,7 @@
         "starting_inventory": [
             "ocarina",
             "zeldas_letter",
+            "lens",
             "farores_wind"
         ],
         "starting_songs": [
@@ -1622,9 +1623,6 @@
         "ice_trap_appearance": "junk_only",
         "adult_trade_shuffle": false,
         "adult_trade_start": [
-            "Prescription",
-            "Eyeball Frog",
-            "Eyedrops",
             "Claim Check"
         ]
     },
