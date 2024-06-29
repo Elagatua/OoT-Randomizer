@@ -588,6 +588,8 @@ def get_goal_category(spoiler: Spoiler, world: World, goal_categories: dict[str,
     zero_weights = True
     goal_category = None
     for cat_name, category in goal_categories.items():
+        if cat_name in world.hint_dist_user.get('excluded_goal_categories', []):
+            continue
         # Only add weights if the category has goals with hintable items
         if world.id in spoiler.goal_locations and cat_name in spoiler.goal_locations[world.id]:
             # Build lists for weighted choice
