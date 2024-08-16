@@ -15,7 +15,7 @@ from EntranceShuffle import EntranceShuffleError, change_connections, confirm_re
 from Fill import FillError
 from Hints import HintArea, gossipLocations, shopHints, GossipText
 from Item import ItemFactory, ItemInfo, ItemIterator, is_item, Item
-from ItemPool import item_groups, get_junk_item, song_list, trade_items, child_trade_items, triforce_blitz_items
+from ItemPool import item_groups, get_junk_item, song_list, trade_items, child_trade_items, triforce_blitz_items, triforce_hunt_lefty_items
 from JSONDump import dump_obj, CollapseList, CollapseDict, AlignedDict, SortedDict
 from Location import Location, LocationIterator, LocationFactory
 from LocationList import location_groups, location_table
@@ -364,6 +364,8 @@ class WorldDistribution:
                         self.major_group.append('Triforce Piece')
                     if self.distribution.settings.triforce_blitz:
                         self.major_group.extend(triforce_blitz_items)
+                    if self.distribution.settings.triforce_hunt_lefty:
+                        self.major_group.extend(triforce_hunt_lefty_items)
                     major_tokens = ((self.distribution.settings.shuffle_ganon_bosskey == 'on_lacs' and
                             self.distribution.settings.lacs_condition == 'tokens') or
                             self.distribution.settings.shuffle_ganon_bosskey == 'tokens' or self.distribution.settings.bridge == 'tokens')
@@ -1239,6 +1241,16 @@ class Distribution:
         for world in worlds:
             total_count = 0
             for item in triforce_blitz_items:
+                total_count += world.distribution.item_pool[item].count 
+            
+            world.triforce_count = total_count
+            world.triforce_goal = total_count * len(worlds)
+
+    def configure_triforce_hunt_lefty(self, worlds) -> None:
+
+        for world in worlds:
+            total_count = 0
+            for item in triforce_hunt_lefty_items:
                 total_count += world.distribution.item_pool[item].count 
             
             world.triforce_count = total_count

@@ -1030,6 +1030,22 @@ class SettingInfos:
         disabled_default = 0,
     )
 
+    triforce_hunt_lefty = Checkbutton(
+        gui_text       = 'Lefty\'s Triforce Hunt',
+        gui_tooltip    = '''\
+            Find twelve custom named triforce pieces.
+        ''',
+        shared         = True,
+        gui_params     = {
+            'randomize_key': 'randomize_settings',
+        },
+        disable        = {
+            True  : {'settings' : ['shuffle_ganon_bosskey', 'ganon_bosskey_stones', 'ganon_bosskey_medallions', 
+                                   'ganon_bosskey_rewards', 'ganon_bosskey_tokens', 'triforce_hunt', 'triforce_goal_per_world']},
+            False : {'settings' : []}
+        },
+    )
+
     triforce_blitz = Checkbutton(
         gui_text       = 'Triforce Blitz',
         gui_tooltip    = '''\

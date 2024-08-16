@@ -3,7 +3,7 @@ import logging
 from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING, Optional
 
-from ItemPool import song_list, triforce_blitz_items
+from ItemPool import song_list, triforce_blitz_items, triforce_hunt_lefty_items
 from Location import Location, DisableType
 from RulesCommon import AccessRule
 from Search import Search
@@ -65,6 +65,9 @@ def set_rules(world: World) -> None:
                 forbid_item(location, 'Triforce Piece')
             if world.settings.triforce_blitz:
                 for item in triforce_blitz_items:
+                    forbid_item(location, item)
+            if world.settings.triforce_hunt_lefty:
+                for item in triforce_hunt_lefty_items:
                     forbid_item(location, item)
 
         # These locations need to be small keys. Make sure the boss key isn't placed here.

@@ -178,6 +178,7 @@
             "triforce_hunt",
             "triforce_count_per_world",
             "triforce_goal_per_world",
+            "triforce_hunt_lefty",
             "triforce_blitz",
             "triforce_blitz_minimum_path_count",
             "triforce_blitz_maximum_empty_paths",

@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional, Any
 
 from Item import Item, ItemInfo
-from ItemPool import triforce_blitz_items
+from ItemPool import triforce_blitz_items, triforce_hunt_lefty_items
 from RulesCommon import escape_name
 
 if TYPE_CHECKING:
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from World import World
 
 Triforce_Blitz_Pieces: list[int] = list(map(lambda item: ItemInfo.solver_ids[escape_name(item)], triforce_blitz_items))
+Triforce_Hunt_Lefty_Pieces: list[int] = list(map(lambda item: ItemInfo.solver_ids[escape_name(item)], triforce_hunt_lefty_items))
 Triforce_Piece: int = ItemInfo.solver_ids['Triforce_Piece']
 Triforce: int = ItemInfo.solver_ids['Triforce']
 Rutos_Letter: int = ItemInfo.solver_ids['Rutos_Letter']
@@ -46,6 +47,8 @@ class State:
     def won(self) -> bool:
         if self.world.settings.triforce_blitz:
             return self.won_triforce_blitz()
+        if self.world.settings.triforce_hunt_lefty:
+            return self.won_triforce_hunt_lefty()
         if self.world.settings.triforce_hunt:
             return self.won_triforce_hunt()
         else:
@@ -56,6 +59,9 @@ class State:
 
     def won_triforce_blitz(self) -> bool:
         return self.has_all_of(Triforce_Blitz_Pieces)
+    
+    def won_triforce_hunt_lefty(self) -> bool:
+        return self.has_all_of(Triforce_Hunt_Lefty_Pieces)
 
     def won_normal(self) -> bool:
         return self.has(Triforce)

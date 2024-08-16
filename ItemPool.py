@@ -269,6 +269,12 @@ triforce_blitz_items: list[str] = ([
     'Triforce of Courage'
 ])
 
+triforce_hunt_lefty_items: list[str] = ([
+    'Triforce of Power', 
+    'Triforce of Wisdom', 
+    'Triforce of Courage'
+])
+
 triforce_blitz_hint_shop_items: list[str] = ([
     'Bomb Bag Hint',
     'Bow Hint',
@@ -567,6 +573,9 @@ def get_pool_core(world: World) -> tuple[list[str], dict[str, Item]]:
 
     if world.settings.triforce_blitz:
         pending_junk_pool.extend(triforce_blitz_items)
+
+    if world.settings.triforce_hunt_lefty:
+        pending_junk_pool.extend(triforce_hunt_lefty_items)
 
     # Use the vanilla items in the world's locations when appropriate.
     vanilla_items_processed = Counter()

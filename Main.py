@@ -168,6 +168,8 @@ def build_world_graphs(settings: Settings) -> list[World]:
         settings.distribution.configure_triforce_hunt(worlds)
     if settings.triforce_blitz:
         settings.distribution.configure_triforce_blitz(worlds)
+    if settings.triforce_hunt_lefty:
+        settings.distribution.configure_triforce_hunt_lefty(worlds)
 
     logger.info('Setting Entrances.')
     set_entrances(worlds, savewarps_to_connect)
