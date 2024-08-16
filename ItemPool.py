@@ -256,13 +256,6 @@ item_difficulty_max: dict[str, dict[str, int]] = {
     },
 }
 
-triforce_items: list[str] = ([
-    'Triforce Piece', 
-    'Triforce of Power', 
-    'Triforce of Wisdom', 
-    'Triforce of Courage'
-])
-
 triforce_blitz_items: list[str] = ([
     'Triforce of Power', 
     'Triforce of Wisdom', 
@@ -283,6 +276,12 @@ triforce_hunt_lefty_items: list[str] = ([
     'Triforce of Wrckingcrew', 
     'Triforce of Lefty'
 ])
+
+triforce_items: list[str] = ([
+    'Triforce Piece'
+])
+triforce_items.extend(triforce_blitz_items)
+triforce_items.extend(triforce_hunt_lefty_items)
 
 triforce_blitz_hint_shop_items: list[str] = ([
     'Bomb Bag Hint',

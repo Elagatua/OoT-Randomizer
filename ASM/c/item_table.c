@@ -369,7 +369,7 @@ item_row_t item_table[] = {
     [0x1028] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90EB, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Jusby
     [0x1029] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90EC, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Dome6634
     [0x102A] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90ED, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Wrckingcrew
-    [0x102B] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90EE, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Lefty
+    [0x1030] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90EE, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Lefty
 };
 
 /*  Determine which message to display based on the number of silver rupees collected.
