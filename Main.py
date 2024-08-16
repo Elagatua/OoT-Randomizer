@@ -158,7 +158,11 @@ def build_world_graphs(settings: Settings) -> list[World]:
         generate_itempool(world)
         set_shop_rules(world)
         world.set_drop_location_names()
-        world.fill_bosses()
+        if world.settings.shuffle_dungeon_rewards in ('vanilla', 'reward'):
+            world.fill_bosses()
+
+        if settings.empty_dungeons_mode == 'rewards':
+            world.set_empty_dungeon_rewards(settings.empty_dungeons_rewards)
 
     if settings.triforce_hunt:
         settings.distribution.configure_triforce_hunt(worlds)
@@ -192,6 +196,7 @@ def make_spoiler(settings: Settings, worlds: list[World]) -> Spoiler:
     if settings.triforce_blitz_hint_shop:
         build_hint_shop_hints(spoiler, worlds)
     spoiler.build_file_hash()
+    spoiler.build_password(settings.password_lock)
     return spoiler
 
 
