@@ -304,8 +304,8 @@ ITEM_MESSAGES: list[tuple[int, str]] = [
     (0x90F7, "\x08You found the \x05\x45Triforce of Kish15\x05\x40!"),
     (0x90F8, "\x08You found the \x05\x42Triforce of Jusby\x05\x40!"),
     (0x90F9, "\x08You found the \x05\x41Triforce of Dome6634\x05\x40!"),
-    (0x90FA, "\x08You found the \x05\x45Triforce of Wrckingcrew\x05\x40!"),
-    (0x90FB, "\x08You found the \x05\x42Triforce of Lefty\x05\x40!"),
+    (0x90FB, "\x08You found the \x05\x45Triforce of Wrckingcrew\x05\x40!"),
+    (0x90FC, "\x08You found the \x05\x42Triforce of Lefty\x05\x40!"),
 ]
 
 KEYSANITY_MESSAGES: list[tuple[int, str]] = [
