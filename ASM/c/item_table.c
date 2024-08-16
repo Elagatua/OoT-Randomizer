@@ -356,6 +356,20 @@ item_row_t item_table[] = {
     [0x1015] = ITEM_ROW(0x4D,       BROWN_CHEST, 0x83,  3, 0x90F5, 0x0147, 0x58, no_upgrade, no_effect, -1, -1, NULL), // Goron Bracelet Hint
     [0x1016] = ITEM_ROW(0x4D,       BROWN_CHEST, 0x83,  3, 0x90F6, 0x00DB, 0x2A, no_upgrade, no_effect, -1, -1, NULL), // Silver Scale Hint
     [0x1017] = ITEM_ROW(0x4D,       BROWN_CHEST, 0x83,  3, 0x90F7, 0x00D1, 0x22, no_upgrade, no_effect, -1, -1, NULL), // Wallet Hint
+
+    // Triforce Hunt Lefty Items
+    [0x1020] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F0, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Thetoolmon
+    [0x1021] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F1, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of JarJarChapstick
+    [0x1022] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F2, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Shives
+    [0x1023] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F3, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Tobin91
+    [0x1024] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F4, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of KeipDaddy
+    [0x1025] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F5, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of GENHARTALLCAPS
+    [0x1026] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F6, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of CTESPNfantasy
+    [0x1027] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F7, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Kish15
+    [0x1028] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F8, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Jusby
+    [0x1029] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90F9, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Dome6634
+    [0x102A] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90FA, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Wrckingcrew
+    [0x102B] = ITEM_ROW(0x53,      GILDED_CHEST, 0x41, -1, 0x90FB, 0x0193, 0x76, no_upgrade, give_triforce_piece, -1, -1, NULL), // Triforce of Lefty
 };
 
 /*  Determine which message to display based on the number of silver rupees collected.

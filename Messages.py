@@ -293,6 +293,19 @@ ITEM_MESSAGES: list[tuple[int, str]] = [
     (0x90E0, "\x08You found the \x05\x41Triforce of Power\x05\x40!"),
     (0x90E1, "\x08You found the \x05\x45Triforce of Wisdom\x05\x40!"),
     (0x90E2, "\x08You found the \x05\x42Triforce of Courage\x05\x40!"),
+
+    (0x90F0, "\x08You found the \x05\x41Triforce of Thetoolmon\x05\x40!"),
+    (0x90F1, "\x08You found the \x05\x45Triforce of JarJarChapstick\x05\x40!"),
+    (0x90F2, "\x08You found the \x05\x42Triforce of Shives\x05\x40!"),
+    (0x90F3, "\x08You found the \x05\x41Triforce of Tobin91\x05\x40!"),
+    (0x90F4, "\x08You found the \x05\x45Triforce of KeipDaddy\x05\x40!"),
+    (0x90F5, "\x08You found the \x05\x42Triforce of GENHARTALLCAPS\x05\x40!"),
+    (0x90F6, "\x08You found the \x05\x41Triforce of CTESPNfantasy\x05\x40!"),
+    (0x90F7, "\x08You found the \x05\x45Triforce of Kish15\x05\x40!"),
+    (0x90F8, "\x08You found the \x05\x42Triforce of Jusby\x05\x40!"),
+    (0x90F9, "\x08You found the \x05\x41Triforce of Dome6634\x05\x40!"),
+    (0x90FA, "\x08You found the \x05\x45Triforce of Wrckingcrew\x05\x40!"),
+    (0x90FB, "\x08You found the \x05\x42Triforce of Lefty\x05\x40!"),
 ]
 
 KEYSANITY_MESSAGES: list[tuple[int, str]] = [

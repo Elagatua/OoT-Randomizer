@@ -270,9 +270,18 @@ triforce_blitz_items: list[str] = ([
 ])
 
 triforce_hunt_lefty_items: list[str] = ([
-    'Triforce of Power', 
-    'Triforce of Wisdom', 
-    'Triforce of Courage'
+    'Triforce of Thetoolmon', 
+    'Triforce of JarJarChapstick', 
+    'Triforce of Shives',
+    'Triforce of Tobin91', 
+    'Triforce of KeipDaddy', 
+    'Triforce of GENHARTALLCAPS', 
+    'Triforce of CTESPNfantasy', 
+    'Triforce of Kish15', 
+    'Triforce of Jusby', 
+    'Triforce of Dome6634', 
+    'Triforce of Wrckingcrew', 
+    'Triforce of Lefty'
 ])
 
 triforce_blitz_hint_shop_items: list[str] = ([
