@@ -669,6 +669,21 @@ class SettingInfos:
         shared         = True,
     )
 
+    escape_from_market = Checkbutton(
+        gui_text       = 'Escape from Market',
+        gui_tooltip    = '''\
+            Enables Escape from the Market game mode.
+        ''',
+        shared         = True,
+        gui_params     = {
+            'randomize_key': 'randomize_settings',
+        },
+        disable        = {
+            True:  {'settings': ['triforce_hunt', 'shuffle_ganon_bosskey', 'ganon_bosskey_stones', 'ganon_bosskey_medallions', 'ganon_bosskey_rewards', 'ganon_bosskey_tokens', 'ganon_bosskey_hearts']},
+            False: {'settings': []},
+        },
+    )
+
     triforce_hunt = Checkbutton(
         gui_text       = 'Triforce Hunt',
         gui_tooltip    = '''\
