@@ -54,7 +54,7 @@ class World:
 
         self.parser: Rule_AST_Transformer = Rule_AST_Transformer(self)
         self.event_items: set[str] = set()
-        self.settings: Settings = settings
+        self.settings: Settings = settings.copy()
         self.distribution: WorldDistribution = settings.distribution.world_dists[world_id]
 
         # rename a few attributes...
@@ -302,6 +302,11 @@ class World:
         self.goal_categories: dict[str, GoalCategory] = OrderedDict()
         if self.hint_dist_user['use_default_goals']:
             self.set_goals()
+            for cat in self.hint_dist_user.get('excluded_goal_categories', []):
+                try:
+                    del self.goal_categories[cat]
+                except KeyError:
+                    pass # don't crash when a hint distro doesn't exist due to selected settings
 
         # import goals from hint plando
         if 'custom_goals' in self.hint_dist_user:
@@ -762,6 +767,14 @@ class World:
             elif self.settings.shuffle_dungeon_rewards == 'reward':
                 item = prizepool.pop()
             self.push_item(loc, item)
+
+    def set_empty_dungeon_rewards(self, empty_rewards: list[str] = []) -> None:
+        empty_dungeon_bosses = list(map(lambda reward: self.find_items(reward)[0].name, empty_rewards))
+        for boss in empty_dungeon_bosses:
+            for dungeon_item in self.empty_dungeons.items():
+                if dungeon_item[1].boss_name == boss:
+                    dungeon_item[1].empty = True
+                    self.hint_type_overrides['barren'].append(dungeon_item[1].hint_name)
 
     def set_goals(self) -> None:
         # Default goals are divided into 3 primary categories:

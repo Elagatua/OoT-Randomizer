@@ -16,7 +16,7 @@ from Hints import GossipText, HintArea, write_gossip_stone_hints, build_altar_hi
         build_ganon_text, build_misc_item_hints, build_misc_location_hints, get_simple_hint_no_prefix, get_item_generic_name
 from Item import Item
 from ItemList import REWARD_COLORS
-from ItemPool import song_list, trade_items, child_trade_items
+from ItemPool import reward_list, song_list, trade_items, child_trade_items
 from Location import Location, DisableType
 from LocationList import business_scrubs
 from Messages import read_messages, update_message_by_id, read_shop_items, update_warp_song_text, \
@@ -27,7 +27,7 @@ from OcarinaSongs import patch_songs
 from MQ import patch_files, File, update_dmadata, insert_space, add_relocations
 from Rom import Rom
 from SaveContext import SaveContext, Scenes, FlagType
-from SceneFlags import get_alt_list_bytes, get_collectible_flag_table, get_collectible_flag_table_bytes
+from SceneFlags import build_xflag_tables, build_xflags_from_world, get_alt_list_bytes
 from Sounds import move_audiobank_table
 from Spoiler import Spoiler
 from TextBox import line_wrap
@@ -425,22 +425,27 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
     rom.write_bytes(0xCD5E76, [0x0E, 0xDC])
     rom.write_bytes(0xCD5E12, [0x0E, 0xDC])
 
-    # songs as items flag
+    # Some types of locations (boss rewards, songs, and the fairy ocarina) have special behavior,
+    # but need to use the normal Get Item mechanism if shuffled into the main item pool.
+    rewards_as_items = (
+        world.settings.shuffle_dungeon_rewards not in ('vanilla', 'reward')
+        or world.distribution.rewards_as_items
+        or any(name in reward_list and record.count for name, record in world.settings.starting_items.items())
+    )
+    if rewards_as_items:
+        rom.write_byte(rom.sym('REWARDS_AS_ITEMS'), 1)
     songs_as_items = (
         world.settings.shuffle_song_items != 'song'
-        or world.distribution.song_as_items
+        or world.distribution.songs_as_items
         or any(name in song_list and record.count for name, record in world.settings.starting_items.items())
         or world.settings.shuffle_individual_ocarina_notes
     )
-
     if songs_as_items:
         rom.write_byte(rom.sym('SONGS_AS_ITEMS'), 1)
+    if world.settings.shuffle_ocarinas:
+        rom.write_byte(rom.sym('OCARINAS_SHUFFLED'), 0x01)
 
     patch_cutscenes(rom, songs_as_items)
-
-    if world.settings.shuffle_ocarinas:
-        symbol = rom.sym('OCARINAS_SHUFFLED')
-        rom.write_byte(symbol, 0x01)
 
     # Speed Pushing of All Pushable Objects (other than armos statues, which are handled in ASM)
     rom.write_bytes(0xDD2B86, [0x40, 0x80])  # block speed
@@ -834,6 +839,7 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
     configure_dungeon_info(rom, world)
 
     rom.write_bytes(rom.sym('CFG_FILE_SELECT_HASH'), spoiler.file_hash)
+    rom.write_bytes(rom.sym('PASSWORD'), spoiler.password)
 
     save_context = SaveContext()
 
@@ -1006,10 +1012,9 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
     rom.write_int16(0x00E1F3CA, 0x5036)
     rom.write_int16(0x00E1F3CC, 0x5036)
 
-    # Make the Kakariko Gate not open with the MS
-    if world.settings.open_kakariko != 'open':
-        rom.write_int32(0xDD3538, 0x34190000)  # li t9, 0
-    if world.settings.open_kakariko != 'closed':
+    if world.settings.open_kakariko == 'open':
+        rom.write_byte(rom.sym('OPEN_KAKARIKO'), 2)
+    elif world.settings.open_kakariko != 'closed':
         rom.write_byte(rom.sym('OPEN_KAKARIKO'), 1)
 
     # Mark starting trade items as owned
@@ -1379,7 +1384,7 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
 
     # Update "Princess Ruto got the Spiritual Stone!" text before the midboss in Jabu
     location = world.bigocto_location()
-    if location is None or location.item is None:
+    if location is None or location.item is None or location.item.name == 'Nothing':
         jabu_item = None
         new_message = f"\x08Princess Ruto got \x01\x05\x43nothing\x05\x40!\x01Well, that's disappointing...\x02"
     elif location.item.looks_like_item is not None:
@@ -1454,8 +1459,6 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
 
         for location in actor_override_locations:
             patch_actor_override(location, rom)
-        for location in rupeetower_locations:
-            patch_rupee_tower(location, rom)
 
     if world.shuffle_silver_rupees:
         rom.write_byte(rom.sym('SHUFFLE_SILVER_RUPEES'), 1)
@@ -1476,24 +1479,31 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
             rom.write_int16(0x32E92C6, 0xFD78)
 
     # Write flag table data
-    collectible_flag_table, alt_list = get_collectible_flag_table(world)
-    collectible_flag_table_bytes, num_collectible_flags = get_collectible_flag_table_bytes(collectible_flag_table)
+    xflags_tables, alt_list = build_xflags_from_world(world)
+    xflag_scene_table, xflag_room_table, xflag_room_blob, max_bit = build_xflag_tables(xflags_tables)
+    rom.write_bytes(rom.sym('xflag_scene_table'), xflag_scene_table)
+    if len(xflag_room_table) > rom.sym_length('xflag_room_table'):
+        raise RuntimeError(f'Exceeded xflag room table size: {len(xflag_room_table)}')
+    if len(xflag_room_blob) > rom.sym_length('xflag_room_blob'):
+        raise RuntimeError(f'Exceed xflag blob table size: {len(xflag_room_blob)}')
+    rom.write_bytes(rom.sym('xflag_room_table'), xflag_room_table)
+    rom.write_bytes(rom.sym('xflag_room_blob'), xflag_room_blob)
+    num_collectible_flag_bytes = int(max_bit / 8) + 1
+    num_collectible_flag_bytes += num_collectible_flag_bytes % 8
+    rom.write_bytes(rom.sym('num_override_flags'), num_collectible_flag_bytes.to_bytes(2, 'big'))
+
     alt_list_bytes = get_alt_list_bytes(alt_list)
-    if(len(collectible_flag_table_bytes) > 1000):
-        raise(RuntimeError(f'Exceeded collectible override table size: {len(collectible_flag_table_bytes)}'))
-    rom.write_bytes(rom.sym('collectible_scene_flags_table'), collectible_flag_table_bytes)
-    num_collectible_flags += num_collectible_flags % 8
-    rom.write_bytes(rom.sym('num_override_flags'), num_collectible_flags.to_bytes(2, 'big'))
-    if len(alt_list) >= 90:
+    if len(alt_list_bytes) > rom.sym_length('alt_overrides'):
         raise RuntimeError(f'Exceeded alt override table size: {len(alt_list)}')
     rom.write_bytes(rom.sym('alt_overrides'), alt_list_bytes)
 
     # Write item overrides
     check_location_dupes(world)
     override_table = get_override_table(world)
-    if len(override_table) >= 2200:
-        raise(RuntimeError("Exceeded override table size: " + str(len(override_table))))
-    rom.write_bytes(rom.sym('cfg_item_overrides'), get_override_table_bytes(override_table))
+    override_table_bytes = get_override_table_bytes(override_table)
+    if len(override_table_bytes) >= rom.sym_length('cfg_item_overrides'):
+        raise RuntimeError("Exceeded override table size: " + str(len(override_table)))
+    rom.write_bytes(rom.sym('cfg_item_overrides'), override_table_bytes)
     rom.write_byte(rom.sym('PLAYER_ID'), world.id + 1)  # Write player ID
 
     # Revert Song Get Override Injection
@@ -2254,6 +2264,8 @@ NUM_VANILLA_OBJECTS: int = 0x192
 def add_to_extended_object_table(rom: Rom, object_id: int, start_address: int, end_address: int) -> None:
     extended_id = object_id - NUM_VANILLA_OBJECTS - 1
     extended_object_table = rom.sym('EXTENDED_OBJECT_TABLE')
+    if (extended_id + 1) * 8 > rom.sym_length('EXTENDED_OBJECT_TABLE'):
+        raise RuntimeError(f'Exceeded EXTENDED_OBJECT_TABLE size: {extended_id}')
     rom.write_int32s(extended_object_table + extended_id * 8, [start_address, end_address])
 
 
@@ -2299,10 +2311,8 @@ def write_rom_texture(rom: Rom, texture_id: int, texture: dict[str, Any]) -> Non
 def get_override_table(world: World):
     return list(filter(lambda val: val is not None, map(get_override_entry, world.get_filled_locations())))
 
-
-override_key_struct = struct.Struct('>BBH')  # match override_key_t in get_items.h
-override_struct = struct.Struct('>BBHxxxxHBxHxx')  # match override_t in get_items.h
-
+override_key_struct = struct.Struct('>BBxxI')  # match override_key_t in get_items.h
+override_struct = struct.Struct('>BBxxIHBxHxx')  # match override_t in get_items.h
 
 def get_override_table_bytes(override_table):
     return b''.join(sorted(itertools.starmap(override_struct.pack, override_table)))
@@ -2316,7 +2326,7 @@ def get_override_entry(location: Location) -> Optional[OverrideEntry]:
         return None
 
     # Don't add freestanding items, pots/crates, beehives to the override table if they're disabled. We use this check to determine how to draw and interact with them
-    if location.type in ["ActorOverride", "Freestanding", "RupeeTower", "Pot", "Crate", "FlyingPot", "SmallCrate", "Beehive", "Wonderitem"] and location.disabled != DisableType.ENABLED:
+    if location.type in ('ActorOverride', 'Freestanding', 'RupeeTower', 'Pot', 'Crate', 'FlyingPot', 'SmallCrate', 'Beehive', 'Wonderitem') and location.disabled != DisableType.ENABLED:
         return None
 
     player_id = location.item.world.id + 1
@@ -2325,19 +2335,28 @@ def get_override_entry(location: Location) -> Optional[OverrideEntry]:
     else:
         looks_like_item_id = 0
 
-    if location.type in ('NPC', 'Scrub', 'BossHeart', 'Boss'):
+    if location.type in ('NPC', 'Scrub', 'BossHeart'):
         type = 0
     elif location.type == 'Chest':
         type = 1
         default &= 0x1F
-    elif location.type in ['Freestanding', 'Pot', 'Crate', 'FlyingPot', 'SmallCrate', 'RupeeTower', 'Beehive', 'SilverRupee', 'Wonderitem']:
+    elif location.type in ('Freestanding', 'Pot', 'Crate', 'FlyingPot', 'SmallCrate', 'RupeeTower', 'Beehive', 'SilverRupee', 'Wonderitem'):
         type = 6
         if not (isinstance(location.default, list) or isinstance(location.default, tuple)):
             raise Exception("Not right")
         if isinstance(location.default, list):
             default = location.default[0]
-        room, scene_setup, flag = default
-        default = (room << 8) + (scene_setup << 14) + flag
+
+        if len(default) == 3:
+            room, scene_setup, flag = default
+            subflag = 0
+        elif len(default) == 4:
+            room, scene_setup, flag, subflag = default
+
+        if location.scene == 0x3E: # handle grottos separately...
+            default = ((scene_setup & 0x1F) << 19) + ((room & 0x0F) << 15) + ((flag & 0x7F) << 8) + ((subflag & 0xFF)) #scene_setup = grotto_id
+        else:
+            default = (scene_setup << 22) + (room << 16) + (flag << 8) + (subflag)
     elif location.type in ('Collectable', 'ActorOverride'):
         type = 2
     elif location.type == 'GS Token':
@@ -2348,7 +2367,7 @@ def get_override_entry(location: Location) -> Optional[OverrideEntry]:
         type = 0
     elif location.type == 'GrottoScrub' and location.item.type != 'Shop':
         type = 4
-    elif location.type in ('Song', 'Cutscene'):
+    elif location.type in ('Song', 'Cutscene', 'Boss'):
         type = 5
     else:
         return None
@@ -2632,7 +2651,7 @@ def create_fake_name(name: str) -> str:
     # keeping the game E...
     new_name = ''.join(list_name)
     censor = ['cum', 'cunt', 'dike', 'penis', 'puss', 'rape', 'shit']
-    new_name_az = re.sub(r'[^a-zA-Z]', '', new_name.lower(), re.UNICODE)
+    new_name_az = re.sub(r'[^a-zA-Z]', '', new_name.lower())
     for cuss in censor:
         if cuss in new_name_az:
             return create_fake_name(name)
@@ -2810,7 +2829,7 @@ def patch_rupee_tower(location: Location, rom: Rom) -> None:
     else:
         raise Exception(f"Location does not have compatible data for patch_rupee_tower: {location.name}")
 
-    flag = flag + (room << 8)
+    flag = flag | (room << 8) | (scene_setup << 14)
     if location.address:
         for address in location.address:
             rom.write_bytes(address + 12, flag.to_bytes(2, byteorder='big'))

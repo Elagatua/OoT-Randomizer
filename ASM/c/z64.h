@@ -5,6 +5,7 @@
 #include "z64_math.h"
 #include "color.h"
 #include "z64collision_check.h"
+#include "save.h"
 
 #define Z64_OOT10             0x00
 #define Z64_OOT11             0x01
@@ -26,6 +27,7 @@
 #define Z64_ETAB_LENGTH       0x0614
 
 #define NA_BGM_SMALL_ITEM_GET 0x39
+#define NA_SE_SY_CORRECT_CHIME 0x4802
 #define NA_SE_SY_GET_RUPY     0x4803
 #define NA_SE_SY_GET_ITEM     0x4824
 #define NA_SE_SY_ERROR 0x4806
@@ -365,7 +367,7 @@ typedef enum {
   PLAYER_AP_MASK_GERUDO,
   PLAYER_AP_MASK_TRUTH,
   PLAYER_AP_LENS,
-  PLAYER_AP_MAX
+  PLAYER_AP_MAX,
 } z64_action_parameter_t;
 
 typedef enum {
@@ -419,7 +421,7 @@ typedef enum {
   SI_BOMBS_5_R35,
   SI_RED_POTION_R40,
   SI_RED_POTION_R50,
-  SI_MAX
+  SI_MAX,
 } z64_shop_item_t;
 
 typedef enum {
@@ -455,6 +457,22 @@ typedef enum {
   Z64_ITEMBTN_CD,
   Z64_ITEMBTN_CR,
 } z64_itembtn_t;
+
+typedef enum {
+    /* 0x00 */ ACTORCAT_SWITCH,
+    /* 0x01 */ ACTORCAT_BG,
+    /* 0x02 */ ACTORCAT_PLAYER,
+    /* 0x03 */ ACTORCAT_EXPLOSIVE,
+    /* 0x04 */ ACTORCAT_NPC,
+    /* 0x05 */ ACTORCAT_ENEMY,
+    /* 0x06 */ ACTORCAT_PROP,
+    /* 0x07 */ ACTORCAT_ITEMACTION,
+    /* 0x08 */ ACTORCAT_MISC,
+    /* 0x09 */ ACTORCAT_BOSS,
+    /* 0x0A */ ACTORCAT_DOOR,
+    /* 0x0B */ ACTORCAT_CHEST,
+    /* 0x0C */ ACTORCAT_MAX,
+} ActorCategory;
 
 typedef struct {
   char      unk_00_[0x006E];        /* 0x0000 */
@@ -791,13 +809,18 @@ typedef struct {
 } SramContext; // size = 0x4
 
 typedef struct {
-  uint8_t data[0xBA8];
+  union {
+    uint8_t data[0xBA8];
+    extended_savecontext_static_t extended;
+  };
 } extended_save_data_t;
 
 typedef struct {
   z64_file_t      original_save;
   extended_save_data_t additional_save_data;
 } extended_sram_file_t;
+
+void Sram_WriteSave(SramContext* sramCtx, extended_sram_file_t* sramFile);
 
 typedef struct {
     uint8_t               sound_options;           /* 0x0000 */
@@ -980,7 +1003,9 @@ struct z64_actor_s
   uint8_t         damage_effect;    /* 0x00B1 */
   char            unk_0E_[0x0002];  /* 0x00B2 */
   z64_rot_t       rot_2;            /* 0x00B4 */
-  char            unk_0F_[0x0046];  /* 0x00BA */
+  int16_t         face;             /* 0x00BA */
+  float           yOffset;          /* 0x00BC */
+  char            unk_0F_[0x0040];  /* 0x00C0 */
   z64_xyzf_t      pos_4;            /* 0x0100 */
   uint16_t        unk_10_;          /* 0x010C */
   uint16_t        text_id;          /* 0x010E */
@@ -1336,7 +1361,7 @@ typedef enum {
     /* 0x12 */ CAM_MODE_STILL, // Attacks without Z pressed, falling in air from knockback
     /* 0x13 */ CAM_MODE_PUSH_PULL,
     /* 0x14 */ CAM_MODE_FOLLOW_BOOMERANG, // Boomerang has been thrown, force-target the boomerang as it flies
-    /* 0x15 */ CAM_MODE_MAX
+    /* 0x15 */ CAM_MODE_MAX,
 } CameraModeType;
 
 /* game context */
@@ -2439,5 +2464,8 @@ typedef void(*z64_Play_SetupRespawnPoint_proc)(z64_game_t *game, int32_t respawn
 #define ITEMGETINF_3A 0x3A
 #define ITEMGETINF_3B 0x3B
 #define ITEMGETINF_3F 0x3F
+
+extern void Fault_AddHungupAndCrashImpl(const char* msg1, const char* msg2);
+extern int32_t sprintf(char* dst, char* fmt, ...);
 
 #endif

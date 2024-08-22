@@ -575,7 +575,7 @@ def get_checked_areas(world: World, checked: set[str]) -> set[HintArea | str]:
         except Exception:
             return check
         # Don't consider dungeons as already hinted from the reward hint on the Temple of Time altar
-        if (location.type == 'Boss' or location.name == 'ToT Reward from Rauru') and world.settings.shuffle_dungeon_rewards in ('vanilla', 'reward'):
+        if location.type == 'Boss' and world.settings.shuffle_dungeon_rewards in ('vanilla', 'reward'):
             return None
         return HintArea.at(location)
 
@@ -721,7 +721,7 @@ def get_barren_hint(spoiler: Spoiler, world: World, checked: set[str], all_check
             and location.name not in world.hint_exclusions
             and location.name not in hint_exclusions(world)
             and HintArea.at(location) == area
-            for location in world.get_locations()
+            for location in world.get_filled_locations()
         ),
         world.empty_areas))
 
@@ -1322,6 +1322,12 @@ def build_gossip_hints(spoiler: Spoiler, worlds: list[World]) -> None:
                 if item_world.id not in checked_locations:
                     checked_locations[item_world.id] = set()
                 checked_locations[item_world.id].add(location.name)
+        for dungeon_name, info in world.empty_dungeons.items():
+            if info.empty:
+                for region in world.regions:
+                    if region.dungeon != None and region.dungeon.name == dungeon_name:
+                        precompleted_locations = list(map(lambda location: location.name, region.locations))
+                        checked_locations[world.id].update(precompleted_locations)
 
     # Build all the hints.
     for world in worlds:
@@ -1700,9 +1706,8 @@ def build_boss_string(reward: str, color: str, world: World) -> str:
 
 
 def build_bridge_reqs_string(world: World) -> str:
-    string = "\x13\x3C" # Master Sword icon
     if world.settings.bridge == 'open':
-        string += "The awakened ones will have #already created a bridge# to the castle where the evil dwells."
+        string = "The awakened ones will have #already created a bridge# to the castle where the evil dwells."
     else:
         if world.settings.bridge == 'vanilla':
             item_req_string = "the #Shadow and Spirit Medallions# as well as the #Light Arrows#"
@@ -1716,9 +1721,9 @@ def build_bridge_reqs_string(world: World) -> str:
             }[world.settings.bridge]
             item_req_string = f'{count} {singular if count == 1 else plural}'
         if world.settings.clearer_hints:
-            string += f"The rainbow bridge will be built once the Hero collects {item_req_string}."
+            string = f"The rainbow bridge will be built once the Hero collects {item_req_string}."
         else:
-            string += f"The awakened ones will await for the Hero to collect {item_req_string}."
+            string = f"The awakened ones will await for the Hero to collect {item_req_string}."
     return str(GossipText(string, ['Green'], prefix=''))
 
 

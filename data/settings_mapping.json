@@ -163,6 +163,7 @@
             "mq_dungeons_count",
             "empty_dungeons_mode",
             "empty_dungeons_specific",
+            "empty_dungeons_rewards",
             "empty_dungeons_count",
             "shuffle_interior_entrances",
             "shuffle_hideout_entrances",
@@ -197,7 +198,9 @@
             "adult_trade_start",
             "shuffle_freestanding_items",
             "shuffle_pots",
+            "shuffle_empty_pots",
             "shuffle_crates",
+            "shuffle_empty_crates",
             "shuffle_cows",
             "shuffle_beehives",
             "shuffle_wonderitems",
@@ -541,6 +544,7 @@
           "settings": [
             "custom_music_directorypicker",
             "background_music",
+            "display_custom_song_names",
             "fanfares",
             "ocarina_fanfares",
             "credits_music"

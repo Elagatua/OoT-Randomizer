@@ -571,6 +571,18 @@ class SettingInfos:
             ''',
     )
 
+    password_lock = Checkbutton(
+        gui_text         = "Lock Seed Behind Password",
+        gui_tooltip      = '''\
+            Starting the seed will be locked behind a password provided in the spoiler log.
+            The password is a sequence of 6 button presses (A and C).
+        ''',
+        shared           = True,
+        gui_params       = {
+            'optional': True,
+        },
+    )
+
     # Main Rules (and "Guarantee Reachable Locations")
 
     randomize_settings = Checkbutton(
@@ -663,7 +675,7 @@ class SettingInfos:
 
             'Required Only': Only items and locations required to beat the game will be guaranteed reachable.
         ''',
-        gui_params={
+        gui_params     = {
             "hide_when_disabled": True,
         },
         shared         = True,
@@ -1610,9 +1622,9 @@ class SettingInfos:
         ''',
         shared         = True,
         disable        = {
-            'off':    {'settings' : ['silver_rupee_pouches']},
-            'all':    {'settings' : ['silver_rupee_pouches']},
-            'random': {'settings' : ['silver_rupee_pouches']},
+            'off':    {'settings': ['silver_rupee_pouches']},
+            'all':    {'settings': ['silver_rupee_pouches']},
+            'random': {'settings': ['silver_rupee_pouches']},
         },
         gui_params     = {
             "hide_when_disabled": True,
@@ -2049,6 +2061,7 @@ class SettingInfos:
         choices        = {
             'none':       'Off',
             'specific':   'Specific Dungeons',
+            'rewards':    'Specific Rewards',
             'count':      'Count',
         },
         gui_tooltip    = '''\
@@ -2061,6 +2074,7 @@ class SettingInfos:
             randomly rolled with no major items, but their dungeon rewards won't
             be given for free.
             - 'Specific Dungeons': Choose which specific dungeons will be pre-completed.
+            - 'Specific Rewards': Choose which specific dungeon rewards will be in pre-completed dungeons. Not compatible with shuffled dungeon rewards.
             - 'Count': Choose how many pre-completed dungeons will be randomly chosen.
 
             A same dungeon won't be both MQ and pre-completed unless it has been
@@ -2082,7 +2096,9 @@ class SettingInfos:
         shared         = True,
         disable        = {
             '!specific': {'settings': ['empty_dungeons_specific']},
-            '!count':    {'settings': ['empty_dungeons_count']}
+            '!rewards':  {'settings': ['empty_dungeons_rewards']},
+            '!count':    {'settings': ['empty_dungeons_count']},
+            'rewards':   {'settings': ['shuffle_dungeon_rewards']},
         },
         gui_params     = {
             'distribution':  [
@@ -2110,6 +2126,30 @@ class SettingInfos:
         ''',
         shared          = True,
         gui_params     = {
+            "hide_when_disabled": True,
+        },
+    )
+
+    empty_dungeons_rewards = MultipleSelect(
+        gui_text        = 'Pre-completed Dungeon Rewards',
+        choices         = {
+            'Kokiri Emerald':   "Kokiri Emerald",
+            'Goron Ruby':       "Goron Ruby",
+            'Zora Sapphire':    "Zora Sapphire",
+            'Light Medallion':  "Light Medallion",
+            'Forest Medallion': "Forest Medallion",
+            'Fire Medallion':   "Fire Medallion",
+            'Water Medallion':  "Water Medallion",
+            'Shadow Medallion': "Shadow Medallion",
+            'Spirit Medallion': "Spirit Medallion",
+        },
+        default         = [],
+        gui_tooltip     = '''\
+            Select the specific dungeons rewards whose
+            dungeons you would like to be pre-completed.
+        ''',
+        shared          = True,
+        gui_params      = {
             "hide_when_disabled": True,
         },
     )
@@ -2683,9 +2723,6 @@ class SettingInfos:
             Overworld Only: Only overworld pots/flying pots are shuffled.
             Dungeons Only: Only dungeon pots/flying pots are shuffled.
 
-            Note: Only pots which normally drop an item are shuffled.
-            Empty pots are not shuffled. Pots containing fairies are not shuffled.
-
             When this setting is enabled, the pots in Ganon's Tower will be
             accessible without Ganon's Boss Key. Proceeding up the tower out
             of the room with the pots will require Ganon's Boss Key.
@@ -2694,6 +2731,22 @@ class SettingInfos:
             'randomize_key': 'randomize_settings',
         },
         shared         = True,
+        disable        = {
+            'off': {'settings': ['shuffle_empty_pots']},
+        }
+    )
+
+    shuffle_empty_pots = Checkbutton(
+        gui_text       = 'Include Empty Pots',
+        default        = False,
+        gui_tooltip    = '''\
+            Enabling this will include empty pots into the location
+            pool based on the Shuffle Pots setting chosen.
+        ''',
+        gui_params     = {
+            "hide_when_disabled": True,
+        },
+        shared         = True
     )
 
     shuffle_crates = Combobox(
@@ -2719,6 +2772,22 @@ class SettingInfos:
             'randomize_key': 'randomize_settings',
         },
         shared         = True,
+        disable        = {
+            'off': {'settings': ['shuffle_empty_crates']},
+        }
+    )
+
+    shuffle_empty_crates = Checkbutton(
+        gui_text       = 'Include Empty Crates',
+        default        = False,
+        gui_tooltip    = '''\
+            Enabling this will include empty crates into the location
+            pool based on the Shuffle Crates setting chosen.
+        ''',
+        gui_params     = {
+            "hide_when_disabled": True,
+        },
+        shared         = True
     )
 
     shuffle_cows = Checkbutton(
@@ -3199,7 +3268,7 @@ class SettingInfos:
             number of Cuccos.
         ''',
         disable        = {
-            True: {'settings' : ['chicken_count']},
+            True: {'settings': ['chicken_count']},
         },
         shared         = True,
     )
@@ -3226,7 +3295,7 @@ class SettingInfos:
             in a random number of Big Poes.
         ''',
         disable        = {
-            True: {'settings' : ['big_poe_count']},
+            True: {'settings': ['big_poe_count']},
         },
         shared         = True,
     )
@@ -3408,15 +3477,15 @@ class SettingInfos:
         shared         = True,
         default        = [],
         gui_params     = {
-            "hide_when_disabled" : True,
+            "hide_when_disabled": True,
         },
     )
 
     invisible_chests = Checkbutton(
         gui_text       = 'Invisible Chests',
         gui_tooltip    = '''\
-            Chests will be only be visible with
-            the Lens of Truth. Lens is not logically
+            Chests will only be visible with the
+            Lens of Truth. Lens is not logically
             required for normally visible chests.
         ''',
         shared         = True,
@@ -3544,7 +3613,7 @@ class SettingInfos:
         },
         shared         = True,
         disable        = {
-            '!bingo' : {'settings' : ['bingosync_url']},
+            '!bingo' : {'settings': ['bingosync_url']},
         },
     )
 
