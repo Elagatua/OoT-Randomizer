@@ -11,6 +11,7 @@
         "randomize_settings": false,
         "logic_rules": "glitchless",
         "reachable_locations": "all",
+        "escape_from_market": true,
         "triforce_hunt": true,
         "triforce_count_per_world": 3,
         "triforce_goal_per_world": 3,
@@ -54,7 +55,7 @@
         "gerudo_fortress": "fast",
         "dungeon_shortcuts_choice": "off",
         "dungeon_shortcuts": [],
-        "starting_age": "random",
+        "starting_age": "child",
         "mq_dungeons_mode": "vanilla",
         "mq_dungeons_specific": [],
         "mq_dungeons_count": 0,
@@ -71,7 +72,9 @@
         "shuffle_gerudo_valley_river_exit": false,
         "owl_drops": false,
         "warp_songs": false,
-        "spawn_positions": [],
+        "spawn_positions": [
+            "child"
+        ],
         "free_bombchu_drops": false,
         "one_item_per_dungeon": false,
         "shuffle_song_items": "any",

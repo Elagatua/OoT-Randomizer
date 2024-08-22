@@ -563,9 +563,13 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                 for target in one_way_target_entrance_pools[pool_type]:
                     target.set_rule(lambda state, age=None, **kwargs: age == 'child')
             elif pool_type == 'Spawn':
-                valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
-                # Restrict spawn entrances from linking to regions with no or extremely specific glitchless itemless escapes.
-                one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types, exclude=['Volvagia Boss Room -> DMC Central Local', 'Bolero of Fire Warp -> DMC Central Local', 'Queen Gohma Boss Room -> KF Outside Deku Tree'])
+                if worlds[0].settings.escape_from_market:
+                    market_entrance = world.get_entrance('ToT Entrance -> Market')
+                    one_way_target_entrance_pools[pool_type] = [market_entrance.get_new_target()]
+                else: 
+                    valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
+                    # Restrict spawn entrances from linking to regions with no or extremely specific glitchless itemless escapes.
+                    one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types, exclude=['Volvagia Boss Room -> DMC Central Local', 'Bolero of Fire Warp -> DMC Central Local', 'Queen Gohma Boss Room -> KF Outside Deku Tree'])
             elif pool_type == 'WarpSong':
                 valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
                 one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types)
