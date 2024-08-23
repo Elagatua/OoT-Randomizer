@@ -544,6 +544,20 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
         if worlds[0].settings.shuffle_overworld_entrances:
             entrance_pools['Overworld'] = world.get_shufflable_entrances(type='Overworld')
 
+        if worlds[0].settings.escape_from_market:
+            all_dungeons = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
+            boss_dungeons = list(filter(lambda location: location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
+            side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
+            escape_from_market_boss_pool = boss_dungeons
+            escape_from_market_boss_pool.append(world.get_entrance('Market -> Market Shooting Gallery'))
+            escape_from_market_boss_pool.append(world.get_entrance('Market -> Market Mask Shop'))
+            escape_from_market_boss_pool.append(world.get_entrance('Market -> Market Potion Shop'))
+            entrance_pools['EscapeBossDungeons'] = escape_from_market_boss_pool
+
+            escape_from_market_side_pool = side_dungeons
+            escape_from_market_side_pool.append(world.get_entrance('Market -> Market Bombchu Bowling'))
+            entrance_pools['EscapeSideDungeons'] = escape_from_market_side_pool
+
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):
             entrance.shuffled = True
@@ -989,7 +1003,10 @@ def validate_world(world: World, worlds: list[World], entrance_placed: Optional[
         # Note this creates new empty states rather than reuse the worlds' states (which already have starting items)
         no_items_search = Search([State(w) for w in worlds])
 
-        valid_starting_regions = ('Kokiri Forest', 'Kakariko Village')
+        if not world.settings.escape_from_market:
+            valid_starting_regions = ('Kokiri Forest', 'Kakariko Village')
+        else:
+            valid_starting_regions = ('Kokiri Forest', 'Kakariko Village', 'Market')
         if not any(no_items_search.can_reach(world.get_region(region)) for region in valid_starting_regions):
             raise EntranceShuffleError('Invalid starting area')
 

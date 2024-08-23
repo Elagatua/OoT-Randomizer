@@ -1196,7 +1196,7 @@
         "scene": "Market Entrance",
         "hint": "MARKET",
         "exits": {
-            "Hyrule Field": "is_adult or at_day",
+            "Hyrule Field": "is_adult or at_day and not escape_from_market",
             "Market": "True",
             "Market Guard House": "True"
         }
@@ -1245,7 +1245,7 @@
             "Market Bazaar": "is_child and at_day",
             "Market Mask Shop": "(is_child and at_day) or escape_from_market",
             "Market Shooting Gallery": "(is_child and at_day) or escape_from_market",
-            "Market Bombchu Bowling": "is_child",
+            "Market Bombchu Bowling": "is_child or escape_from_market",
             "Market Potion Shop": "(is_child and at_day) or escape_from_market",
             "Market Treasure Chest Game": "is_child and at_night",
             "Market Back Alley": "is_child"
