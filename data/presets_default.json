@@ -100,6 +100,9 @@
         "shuffle_individual_ocarina_notes": false,
         "shuffle_loach_reward": "off",
         "logic_no_night_tokens_without_suns_song": false,
+        "plandomized_locations": {
+            "ToT Reward from Rauru": "Light Medallion"
+        },
         "disabled_locations": [
             "Deku Theater Mask of Truth"
         ],
