@@ -566,6 +566,9 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             entrance_pools['EscapeBossDungeon2'] = [market_entrances[1], escape_from_market_boss_pool[1]]
             entrance_pools['EscapeBossDungeon3'] = [market_entrances[2], escape_from_market_boss_pool[2]]
 
+            for boss_entrance in escape_from_market_boss_pool:
+                world.distribution.add_location(boss_entrance.connected_region.dungeon.boss_heart_location_name, 'Triforce Piece')
+
             side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
             escape_from_market_side_pool = side_dungeons
             escape_from_market_side_pool.append(world.get_entrance('Market -> Market Bombchu Bowling'))

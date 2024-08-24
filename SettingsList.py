@@ -691,7 +691,7 @@ class SettingInfos:
             'randomize_key': 'randomize_settings',
         },
         disable        = {
-            True:  {'settings': ['triforce_hunt']},
+            True:  {'settings': []},
             False: {'settings': []},
         },
     )
