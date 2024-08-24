@@ -133,6 +133,9 @@ class World:
                 self['Water Temple'] = self.EmptyDungeonInfo('Morpha')
                 self['Spirit Temple'] = self.EmptyDungeonInfo('Twinrova')
                 self['Shadow Temple'] = self.EmptyDungeonInfo('Bongo Bongo')
+                self['Gerudo Training Ground'] = self.EmptyDungeonInfo(None)
+                self['Ice Cavern'] = self.EmptyDungeonInfo(None)
+                self['Bottom of the Well'] = self.EmptyDungeonInfo(None)
 
                 for area in HintArea:
                     if area.is_dungeon and area.dungeon_name in self:

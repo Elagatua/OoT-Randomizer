@@ -575,7 +575,8 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             entrance_pools['EscapeSideDungeon'] = escape_from_market_side_pool
 
             # Mark all other dungeons as empty
-            empty_dungeon_entrances = list(filter(lambda entrance: entrance not in escape_from_market_boss_pool, all_dungeons))
+            empty_dungeon_entrances = list(filter(lambda entrance: entrance not in escape_from_market_boss_pool and
+                                                  entrance not in escape_from_market_side_pool, all_dungeons))
             for empty_entrance in empty_dungeon_entrances:
                 world.empty_dungeons[empty_entrance.connected_region.dungeon.name].empty = True
 
