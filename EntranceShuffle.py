@@ -412,6 +412,12 @@ priority_entrance_table = {
     'Requiem': (['Desert Colossus', 'Desert Colossus From Spirit Lobby'], ['OwlDrop', 'Spawn', 'WarpSong', 'OverworldOneWay']),
 }
 
+escape_from_market_spawn = 'ToT Entrance -> Market'
+escape_from_market_entrances = [
+    'Market -> Market Shooting Gallery',
+    'Market -> Market Mask Shop',
+    'Market -> Market Potion Shop'
+]
 
 class EntranceShuffleError(ShuffleError):
     pass
@@ -546,14 +552,21 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
 
         if worlds[0].settings.escape_from_market:
             all_dungeons = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
-            boss_dungeons = list(filter(lambda location: location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
-            side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
-            escape_from_market_boss_pool = boss_dungeons
-            escape_from_market_boss_pool.append(world.get_entrance('Market -> Market Shooting Gallery'))
-            escape_from_market_boss_pool.append(world.get_entrance('Market -> Market Mask Shop'))
-            escape_from_market_boss_pool.append(world.get_entrance('Market -> Market Potion Shop'))
-            entrance_pools['EscapeBossDungeons'] = escape_from_market_boss_pool
+            kokiri_emerald_location_name = world.find_items('Kokiri Emerald')[0].name
+            kokiri_emerald_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == kokiri_emerald_location_name, all_dungeons))
+            goron_ruby_location_name = world.find_items('Goron Ruby')[0].name
+            goron_ruby_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == goron_ruby_location_name, all_dungeons))
+            zora_sapphire_location_name = world.find_items('Zora Sapphire')[0].name
+            zora_sapphire_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == zora_sapphire_location_name, all_dungeons))
 
+            escape_from_market_boss_pool = [kokiri_emerald_entrance, goron_ruby_entrance, zora_sapphire_entrance]
+            market_entrances = list(map(lambda entrance: world.get_entrance(entrance), escape_from_market_entrances))
+
+            entrance_pools['EscapeBossDungeon1'] = [market_entrances[0], escape_from_market_boss_pool[0]]
+            entrance_pools['EscapeBossDungeon2'] = [market_entrances[1], escape_from_market_boss_pool[1]]
+            entrance_pools['EscapeBossDungeon3'] = [market_entrances[2], escape_from_market_boss_pool[2]]
+
+            side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
             escape_from_market_side_pool = side_dungeons
             escape_from_market_side_pool.append(world.get_entrance('Market -> Market Bombchu Bowling'))
             entrance_pools['EscapeSideDungeons'] = escape_from_market_side_pool
@@ -578,7 +591,7 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                     target.set_rule(lambda state, age=None, **kwargs: age == 'child')
             elif pool_type == 'Spawn':
                 if worlds[0].settings.escape_from_market:
-                    market_entrance = world.get_entrance('ToT Entrance -> Market')
+                    market_entrance = world.get_entrance(escape_from_market_spawn)
                     one_way_target_entrance_pools[pool_type] = [market_entrance.get_new_target()]
                 else: 
                     valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
@@ -894,6 +907,10 @@ def shuffle_entrances(worlds: list[World], entrances: list[Entrance], target_ent
 
         for target in target_entrances:
             if target.connected_region is None:
+                continue
+
+            # Force a entrance to actually get swapped to a different target in the pool
+            if target.replaces.name == entrance.name and worlds[0].settings.escape_from_market:
                 continue
 
             if replace_entrance(worlds, entrance, target, rollbacks, locations_to_ensure_reachable, complete_itempool, placed_one_way_entrances=placed_one_way_entrances):
