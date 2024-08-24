@@ -418,6 +418,7 @@ escape_from_market_entrances = [
     'Market -> Market Mask Shop',
     'Market -> Market Potion Shop'
 ]
+escape_from_market_side_entrance = 'Market -> Market Bombchu Bowling'
 
 class EntranceShuffleError(ShuffleError):
     pass
@@ -570,9 +571,13 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                 world.distribution.add_location(boss_entrance.connected_region.dungeon.boss_heart_location_name, 'Triforce Piece')
 
             side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
-            escape_from_market_side_pool = side_dungeons
-            escape_from_market_side_pool.append(world.get_entrance('Market -> Market Bombchu Bowling'))
-            entrance_pools['EscapeSideDungeons'] = escape_from_market_side_pool
+            escape_from_market_side_pool = [random.choice(side_dungeons), world.get_entrance(escape_from_market_side_entrance)]
+            entrance_pools['EscapeSideDungeon'] = escape_from_market_side_pool
+
+            # Mark all other dungeons as empty
+            empty_dungeon_entrances = list(filter(lambda entrance: entrance not in escape_from_market_boss_pool, all_dungeons))
+            for empty_entrance in empty_dungeon_entrances:
+                world.empty_dungeons[empty_entrance.connected_region.dungeon.name].empty = True
 
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):

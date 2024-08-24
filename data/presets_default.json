@@ -59,7 +59,7 @@
         "mq_dungeons_mode": "vanilla",
         "mq_dungeons_specific": [],
         "mq_dungeons_count": 0,
-        "empty_dungeons_mode": "none",
+        "empty_dungeons_mode": "specific",
         "empty_dungeons_specific": [],
         "empty_dungeons_rewards": [],
         "empty_dungeons_count": 1,
@@ -143,7 +143,9 @@
         ],
         "starting_inventory": [
             "ocarina",
-            "zeldas_letter"
+            "zeldas_letter",
+            "magic",
+            "farores_wind"
         ],
         "start_with_consumables": true,
         "start_with_rupees": false,
