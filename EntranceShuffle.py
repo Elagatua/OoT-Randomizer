@@ -412,13 +412,13 @@ priority_entrance_table = {
     'Requiem': (['Desert Colossus', 'Desert Colossus From Spirit Lobby'], ['OwlDrop', 'Spawn', 'WarpSong', 'OverworldOneWay']),
 }
 
-escape_from_kak_spawn = 'Kakariko Village -> Kak House of Skulltula'
+escape_from_kak_spawn = 'Kak House of Skulltula -> Kakariko Village'
 escape_from_kak_entrances = [
-    'Kakariko Village -> Kak Impas House',
-    'Kakariko Village -> Kak Windmill',
-    'Kakariko Village -> Kak Carpenter Boss House'
+    'Kakariko Village -> Hyrule Field',
+    'Kak Behind Gate -> Death Mountain',
+    'Kakariko Village -> Graveyard'
 ]
-escape_from_kak_side_entrance = 'Kakariko Village -> Kak Shooting Gallery'
+escape_from_kak_side_entrance = 'Kakariko Village -> Kak Windmill'
 
 class EntranceShuffleError(ShuffleError):
     pass
@@ -561,25 +561,27 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             zora_sapphire_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == zora_sapphire_location_name, all_dungeons))
 
             escape_from_kak_boss_pool = [kokiri_emerald_entrance, goron_ruby_entrance, zora_sapphire_entrance]
-            market_entrances = list(map(lambda entrance: world.get_entrance(entrance), escape_from_kak_entrances))
+            kak_entrances = list(map(lambda entrance: world.get_entrance(entrance), escape_from_kak_entrances))
 
-            entrance_pools['EscapeBossDungeon1'] = [market_entrances[0], escape_from_kak_boss_pool[0]]
-            entrance_pools['EscapeBossDungeon2'] = [market_entrances[1], escape_from_kak_boss_pool[1]]
-            entrance_pools['EscapeBossDungeon3'] = [market_entrances[2], escape_from_kak_boss_pool[2]]
+            entrance_pools['EscapeBossDungeon1'] = [kak_entrances[0], escape_from_kak_boss_pool[0]]
+            entrance_pools['EscapeBossDungeon2'] = [kak_entrances[1], escape_from_kak_boss_pool[1]]
+            entrance_pools['EscapeBossDungeon3'] = [kak_entrances[2], escape_from_kak_boss_pool[2]]
 
             for boss_entrance in escape_from_kak_boss_pool:
                 world.distribution.add_location(boss_entrance.connected_region.dungeon.boss_heart_location_name, 'Triforce Piece')
 
             side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
-            escape_from_kak_side_pool = [random.choice(side_dungeons), world.get_entrance(escape_from_kak_side_entrance)]
+            side_dungeon_choice = random.choice(side_dungeons)
+            escape_from_kak_side_pool = [side_dungeon_choice, world.get_entrance(escape_from_kak_side_entrance)]
             entrance_pools['EscapeSideDungeon'] = escape_from_kak_side_pool
 
-            # entrance_pools['EscapeMarketLock1'] = [world.get_entrance('Market -> Market Entrance'), 
-                                                #    world.get_entrance('Kokiri Forest -> KF Know It All House')]
-            # entrance_pools['EscapeMarketLock2'] = [world.get_entrance('Market -> ToT Entrance'), 
-            #                                        world.get_entrance('Kokiri Forest -> KF Sarias House')]
-            # entrance_pools['EscapeMarketLock3'] = [world.get_entrance('Market -> Castle Grounds'), 
-                                                #    world.get_entrance('Kokiri Forest -> KF House of Twins')]
+            entrance_pools['EscapeKakLock1'] = [world.get_entrance('Kakariko Village -> Kak House of Skulltula'),
+                                                world.get_entrance('Market -> ToT Entrance')]
+            entrance_pools['EscapeKakLock2'] = [world.get_entrance('Kak Carpenter Boss House -> Kakariko Village'),
+                                                world.get_entrance('ToT Entrance -> Temple of Time')]
+            if side_dungeon_choice.connected_region.dungeon_name is not 'Bottom of the Well':
+                entrance_pools['EscapeKakLock3'] = [world.get_entrance('Kakariko Village -> Bottom of the Well'), 
+                                                    world.get_entrance('Kokiri Forest -> KF House of Twins')]
 
             # Mark all other dungeons as empty
             empty_dungeon_entrances = list(filter(lambda entrance: entrance not in escape_from_kak_boss_pool and
