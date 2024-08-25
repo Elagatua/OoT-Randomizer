@@ -681,7 +681,7 @@ class SettingInfos:
         shared         = True,
     )
 
-    escape_from_market = Checkbutton(
+    escape_from_kak = Checkbutton(
         gui_text       = 'Escape from Market',
         gui_tooltip    = '''\
             Enables Escape from the Market game mode.

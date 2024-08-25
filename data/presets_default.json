@@ -11,7 +11,7 @@
         "randomize_settings": false,
         "logic_rules": "glitchless",
         "reachable_locations": "beatable",
-        "escape_from_market": true,
+        "escape_from_kak": true,
         "triforce_hunt": true,
         "triforce_count_per_world": 3,
         "triforce_goal_per_world": 3,

@@ -71,7 +71,7 @@ class World:
         self.entrance_shuffle: bool = bool(
             self.shuffle_interior_entrances or settings.shuffle_grotto_entrances or self.shuffle_dungeon_entrances
             or settings.shuffle_overworld_entrances or settings.shuffle_gerudo_valley_river_exit or settings.owl_drops or settings.warp_songs
-            or settings.spawn_positions or (settings.shuffle_bosses != 'off') or settings.escape_from_market
+            or settings.spawn_positions or (settings.shuffle_bosses != 'off') or settings.escape_from_kak
         )
 
         self.mixed_pools_bosses = False # this setting is still in active development at https://github.com/Roman971/OoT-Randomizer

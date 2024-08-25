@@ -18,9 +18,7 @@
                 (skipped_trials[Shadow] or 'Shadow Trial Clear') and
                 (skipped_trials[Spirit] or 'Spirit Trial Clear') and
                 (skipped_trials[Light] or 'Light Trial Clear')",
-            "Farores Wind Warp": "can_use(Farores_Wind)",
-            # Fake exit to trick the logic into thinking that all locations are reachable after rainbow bridge
-            "Hyrule Field": "escape_from_market"
+            "Farores Wind Warp": "can_use(Farores_Wind)"
         }
     },
     {
