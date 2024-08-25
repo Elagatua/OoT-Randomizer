@@ -580,6 +580,10 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             for empty_entrance in empty_dungeon_entrances:
                 world.empty_dungeons[empty_entrance.connected_region.dungeon.name].empty = True
 
+            for location in locations_to_ensure_reachable:
+                if not location.parent_region.dungeon_name and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart']:
+                    world.distribution.add_location(location.name, 'Nothing')
+
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):
             entrance.shuffled = True
