@@ -175,6 +175,7 @@
             "owl_drops",
             "warp_songs",
             "spawn_positions",
+            "escape_from_kak",
             "triforce_hunt",
             "triforce_count_per_world",
             "triforce_goal_per_world",
@@ -355,7 +356,8 @@
             "easier_fire_arrow_entry",
             "fae_torch_count",
             "ruto_already_f1_jabu",
-            "lock_reverse_shadow"
+            "lock_reverse_shadow",
+            "song_of_time_changes_age"
           ]
         },
         {

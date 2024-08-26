@@ -91,6 +91,9 @@ class Dungeon:
             'Spirit Temple': 'Twinrova',
         }.get(self.name)
 
+    @property
+    def boss_heart_location_name(self) -> Optional[str]:
+        return self.name + " " + self.vanilla_boss_name + " Heart"
 
     @property
     def vanilla_reward(self) -> Optional[str]:

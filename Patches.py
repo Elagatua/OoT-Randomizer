@@ -824,6 +824,7 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         world.settings.shuffle_overworld_entrances
         or world.shuffle_dungeon_entrances
         or world.settings.shuffle_bosses != 'off'
+        or world.settings.escape_from_kak
     )
     set_entrance_updates(entrance for entrance in world.get_shufflable_entrances() if entrance.shuffled or (patch_blue_warps and entrance.type == 'BlueWarp'))
 
@@ -2203,6 +2204,11 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         rom.write_int16(actor + 4, 0x002E) # Change actor type from door to shutter
         rom.write_int16(actor + 12, 0x8000) # Rotate door so front and back sides of the door flip
         rom.write_int16(actor + 14, 0x00D5) # Back side permanently locked
+
+    if world.settings.song_of_time_changes_age:
+        # Enable Song of Time age changing behavior
+        symbol = rom.sym('SONG_OF_TIME_CHANGES_AGE')
+        rom.write_byte(symbol, 0x01)
 
     # Fix crash when hitting white bubbles enemies with Dins Fire
     rom.write_byte(0xCB4397, 0x00)

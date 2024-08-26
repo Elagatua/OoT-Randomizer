@@ -412,6 +412,13 @@ priority_entrance_table = {
     'Requiem': (['Desert Colossus', 'Desert Colossus From Spirit Lobby'], ['OwlDrop', 'Spawn', 'WarpSong', 'OverworldOneWay']),
 }
 
+escape_from_kak_spawn = 'Kak House of Skulltula -> Kakariko Village'
+escape_from_kak_entrances = [
+    'Kakariko Village -> Hyrule Field',
+    'Kak Behind Gate -> Death Mountain',
+    'Kakariko Village -> Graveyard'
+]
+escape_from_kak_side_entrance = 'Kakariko Village -> Kak Windmill'
 
 class EntranceShuffleError(ShuffleError):
     pass
@@ -544,6 +551,49 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
         if worlds[0].settings.shuffle_overworld_entrances:
             entrance_pools['Overworld'] = world.get_shufflable_entrances(type='Overworld')
 
+        if worlds[0].settings.escape_from_kak:
+            all_dungeons = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
+            kokiri_emerald_location_name = world.find_items('Kokiri Emerald')[0].name
+            kokiri_emerald_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == kokiri_emerald_location_name, all_dungeons))
+            goron_ruby_location_name = world.find_items('Goron Ruby')[0].name
+            goron_ruby_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == goron_ruby_location_name, all_dungeons))
+            zora_sapphire_location_name = world.find_items('Zora Sapphire')[0].name
+            zora_sapphire_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == zora_sapphire_location_name, all_dungeons))
+
+            escape_from_kak_boss_pool = [kokiri_emerald_entrance, goron_ruby_entrance, zora_sapphire_entrance]
+            kak_entrances = list(map(lambda entrance: world.get_entrance(entrance), escape_from_kak_entrances))
+
+            entrance_pools['EscapeBossDungeon1'] = [kak_entrances[0], escape_from_kak_boss_pool[0]]
+            entrance_pools['EscapeBossDungeon2'] = [kak_entrances[1], escape_from_kak_boss_pool[1]]
+            entrance_pools['EscapeBossDungeon3'] = [kak_entrances[2], escape_from_kak_boss_pool[2]]
+
+            for boss_entrance in escape_from_kak_boss_pool:
+                world.distribution.add_location(boss_entrance.connected_region.dungeon.boss_heart_location_name, 'Triforce Piece')
+
+            side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
+            side_dungeon_choice = random.choice(side_dungeons)
+            escape_from_kak_side_pool = [side_dungeon_choice, world.get_entrance(escape_from_kak_side_entrance)]
+            entrance_pools['EscapeSideDungeon'] = escape_from_kak_side_pool
+
+            entrance_pools['EscapeKakLock1'] = [world.get_entrance('Kakariko Village -> Kak House of Skulltula'),
+                                                world.get_entrance('Market -> ToT Entrance')]
+            entrance_pools['EscapeKakLock2'] = [world.get_entrance('Kak Carpenter Boss House -> Kakariko Village'),
+                                                world.get_entrance('ToT Entrance -> Temple of Time')]
+            if side_dungeon_choice.connected_region.dungeon_name != 'Bottom of the Well':
+                entrance_pools['EscapeKakLock3'] = [world.get_entrance('Kakariko Village -> Bottom of the Well'), 
+                                                    world.get_entrance('Kokiri Forest -> KF House of Twins')]
+
+            # Mark all other dungeons as empty
+            empty_dungeon_entrances = list(filter(lambda entrance: entrance not in escape_from_kak_boss_pool and
+                                                  entrance not in escape_from_kak_side_pool, all_dungeons))
+            for empty_entrance in empty_dungeon_entrances:
+                world.empty_dungeons[empty_entrance.connected_region.dungeon.name].empty = True
+
+            # Mark all overworld locations as empty
+            for location in locations_to_ensure_reachable:
+                if not location.parent_region.dungeon_name and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart']:
+                    world.distribution.add_location(location.name, 'Nothing')
+
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):
             entrance.shuffled = True
@@ -563,9 +613,13 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                 for target in one_way_target_entrance_pools[pool_type]:
                     target.set_rule(lambda state, age=None, **kwargs: age == 'child')
             elif pool_type == 'Spawn':
-                valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
-                # Restrict spawn entrances from linking to regions with no or extremely specific glitchless itemless escapes.
-                one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types, exclude=['Volvagia Boss Room -> DMC Central Local', 'Bolero of Fire Warp -> DMC Central Local', 'Queen Gohma Boss Room -> KF Outside Deku Tree'])
+                if worlds[0].settings.escape_from_kak:
+                    kak_entrance = world.get_entrance(escape_from_kak_spawn)
+                    one_way_target_entrance_pools[pool_type] = [kak_entrance.get_new_target()]
+                else: 
+                    valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
+                    # Restrict spawn entrances from linking to regions with no or extremely specific glitchless itemless escapes.
+                    one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types, exclude=['Volvagia Boss Room -> DMC Central Local', 'Bolero of Fire Warp -> DMC Central Local', 'Queen Gohma Boss Room -> KF Outside Deku Tree'])
             elif pool_type == 'WarpSong':
                 valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
                 one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types)
@@ -573,6 +627,16 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             for target in one_way_target_entrance_pools[pool_type]:
                 target.add_rule((lambda entrances=entrance_pool: (lambda state, **kwargs: any(
                     entrance.connected_region is None for entrance in entrances)))())
+
+        if worlds[0].settings.escape_from_kak:
+            # Set blue warp targets
+            blue_warps = world.get_shufflable_entrances(type='BlueWarp')
+            for index, dungeon_entrance in enumerate(escape_from_kak_boss_pool):
+                boss_name = dungeon_entrance.connected_region.dungeon.vanilla_boss_name
+                dungeon_blue_warp = next(filter(lambda exit: boss_name in exit.name, blue_warps))
+                one_way_entrance_pools[f'EscapeKakBlueWarp{index}'] = [dungeon_blue_warp]
+                one_way_target_entrance_pools[f'EscapeKakBlueWarp{index}'] = [world.get_entrance(escape_from_kak_entrances[index]).reverse.get_new_target()]       
+        
         # Disconnect all one way entrances at this point (they need to be connected during all of the above process)
         for entrance in chain.from_iterable(one_way_entrance_pools.values()):
             entrance.disconnect()
@@ -878,6 +942,10 @@ def shuffle_entrances(worlds: list[World], entrances: list[Entrance], target_ent
             if target.connected_region is None:
                 continue
 
+            # Force a entrance to actually get swapped to a different target in the pool
+            if target.replaces.name == entrance.name and worlds[0].settings.escape_from_kak:
+                continue
+
             if replace_entrance(worlds, entrance, target, rollbacks, locations_to_ensure_reachable, complete_itempool, placed_one_way_entrances=placed_one_way_entrances):
                 break
 
@@ -985,7 +1053,10 @@ def validate_world(world: World, worlds: list[World], entrance_placed: Optional[
         # Note this creates new empty states rather than reuse the worlds' states (which already have starting items)
         no_items_search = Search([State(w) for w in worlds])
 
-        valid_starting_regions = ('Kokiri Forest', 'Kakariko Village')
+        if not world.settings.escape_from_kak:
+            valid_starting_regions = ('Kokiri Forest', 'Kakariko Village')
+        else:
+            valid_starting_regions = ('Kokiri Forest', 'Kakariko Village', 'Market')
         if not any(no_items_search.can_reach(world.get_region(region)) for region in valid_starting_regions):
             raise EntranceShuffleError('Invalid starting area')
 
@@ -1025,7 +1096,7 @@ def validate_world(world: World, worlds: list[World], entrance_placed: Optional[
             for idx2 in range(idx1):
                 try:
                     entrance2 = placed_one_way_entrances[idx2][0]
-                    if entrance1.type == entrance2.type and hint_area1 == HintArea.at(entrance2.connected_region):
+                    if entrance1.type == entrance2.type and hint_area1 == HintArea.at(entrance2.connected_region) and not world.settings.escape_from_kak:
                         raise EntranceShuffleError(f'Multiple {entrance1.type} entrances lead to {hint_area1}')
                 except HintAreaNotFound:
                     pass

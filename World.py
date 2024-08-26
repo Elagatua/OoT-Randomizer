@@ -54,7 +54,7 @@ class World:
 
         self.parser: Rule_AST_Transformer = Rule_AST_Transformer(self)
         self.event_items: set[str] = set()
-        self.settings: Settings = settings
+        self.settings: Settings = settings.copy()
         self.distribution: WorldDistribution = settings.distribution.world_dists[world_id]
 
         # rename a few attributes...
@@ -71,7 +71,7 @@ class World:
         self.entrance_shuffle: bool = bool(
             self.shuffle_interior_entrances or settings.shuffle_grotto_entrances or self.shuffle_dungeon_entrances
             or settings.shuffle_overworld_entrances or settings.shuffle_gerudo_valley_river_exit or settings.owl_drops or settings.warp_songs
-            or settings.spawn_positions or (settings.shuffle_bosses != 'off')
+            or settings.spawn_positions or (settings.shuffle_bosses != 'off') or settings.escape_from_kak
         )
 
         self.mixed_pools_bosses = False # this setting is still in active development at https://github.com/Roman971/OoT-Randomizer
@@ -133,6 +133,9 @@ class World:
                 self['Water Temple'] = self.EmptyDungeonInfo('Morpha')
                 self['Spirit Temple'] = self.EmptyDungeonInfo('Twinrova')
                 self['Shadow Temple'] = self.EmptyDungeonInfo('Bongo Bongo')
+                self['Gerudo Training Ground'] = self.EmptyDungeonInfo(None)
+                self['Ice Cavern'] = self.EmptyDungeonInfo(None)
+                self['Bottom of the Well'] = self.EmptyDungeonInfo(None)
 
                 for area in HintArea:
                     if area.is_dungeon and area.dungeon_name in self:
@@ -308,6 +311,11 @@ class World:
         self.goal_categories: dict[str, GoalCategory] = OrderedDict()
         if self.hint_dist_user['use_default_goals']:
             self.set_goals()
+            for cat in self.hint_dist_user.get('excluded_goal_categories', []):
+                try:
+                    del self.goal_categories[cat]
+                except KeyError:
+                    pass # don't crash when a hint distro doesn't exist due to selected settings
 
         # import goals from hint plando
         if 'custom_goals' in self.hint_dist_user:
