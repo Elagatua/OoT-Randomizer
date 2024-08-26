@@ -944,7 +944,7 @@ def get_area_woth_count_hint(spoiler, world, checked) -> HintReturn:
     
     hint_area = HintArea.at(dungeon_to_hint.regions[0])
     location_text = hint_area.text(world.settings.clearer_hints)
-    item_count = 4
+    item_count = len(list(filter(lambda location: location.dungeon.name == dungeon_to_hint.name, spoiler.required_locations[world.id])))
     item_text = 'step' if item_count == 1 else 'steps'
 
     checked.add(dungeon_to_hint.worldAndName)
