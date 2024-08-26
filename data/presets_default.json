@@ -1,10 +1,10 @@
 {
-    "Prototyping": {
+    "Escape from Kakariko": {
         "aliases": [
-            "prototype"
+            "escape"
         ],
         "show_seed_info": true,
-        "user_message": "Hope this works",
+        "user_message": "Escape from Kakariko",
         "world_count": 1,
         "create_spoiler": true,
         "password_lock": false,
