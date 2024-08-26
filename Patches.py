@@ -821,6 +821,7 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         world.settings.shuffle_overworld_entrances
         or world.shuffle_dungeon_entrances
         or world.settings.shuffle_bosses != 'off'
+        or world.settings.escape_from_kak
     )
     set_entrance_updates(entrance for entrance in world.get_shufflable_entrances() if entrance.shuffled or (patch_blue_warps and entrance.type == 'BlueWarp'))
 
