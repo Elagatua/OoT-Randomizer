@@ -94,6 +94,13 @@ class Dungeon:
     @property
     def boss_heart_location_name(self) -> Optional[str]:
         return self.name + " " + self.vanilla_boss_name + " Heart"
+    
+    @property
+    def worldAndName(self) -> str:
+        if self.world is not None:
+            return "W" + str(self.world.id) + ":" + self.name
+        else:
+            return self.name
 
     @property
     def vanilla_reward(self) -> Optional[str]:

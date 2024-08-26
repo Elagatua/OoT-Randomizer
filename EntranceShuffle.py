@@ -412,7 +412,7 @@ priority_entrance_table = {
     'Requiem': (['Desert Colossus', 'Desert Colossus From Spirit Lobby'], ['OwlDrop', 'Spawn', 'WarpSong', 'OverworldOneWay']),
 }
 
-escape_from_kak_spawn = 'Kak House of Skulltula -> Kakariko Village'
+escape_from_kak_spawn = 'Temple of Time -> ToT Entrance'
 escape_from_kak_entrances = [
     'Kakariko Village -> Hyrule Field',
     'Kak Behind Gate -> Death Mountain',

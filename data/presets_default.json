@@ -194,7 +194,7 @@
         "key_appearance_match_dungeon": false,
         "clearer_hints": true,
         "hints": "always",
-        "hint_dist": "weekly",
+        "hint_dist": "escape-from-kak",
         "item_hints": [],
         "hint_dist_user": {},
         "misc_hints": [
