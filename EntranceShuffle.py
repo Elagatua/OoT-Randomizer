@@ -412,7 +412,9 @@ priority_entrance_table = {
     'Requiem': (['Desert Colossus', 'Desert Colossus From Spirit Lobby'], ['OwlDrop', 'Spawn', 'WarpSong', 'OverworldOneWay']),
 }
 
-escape_from_kak_spawn = 'Temple of Time -> ToT Entrance'
+escape_from_kak_child_spawn = 'Temple of Time -> ToT Entrance'
+escape_from_kak_adult_spawn = 'Kak Backyard -> Kak Open Grotto'
+
 escape_from_kak_entrances = [
     'Kakariko Village -> Hyrule Field',
     'Kak Behind Gate -> Death Mountain',
@@ -552,6 +554,10 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             entrance_pools['Overworld'] = world.get_shufflable_entrances(type='Overworld')
 
         if worlds[0].settings.escape_from_kak:
+            del one_way_entrance_pools['Spawn']
+            one_way_entrance_pools['ChildSpawn'] = [world.get_entrance('Child Spawn -> KF Links House')]
+            one_way_entrance_pools['AdultSpawn'] = [world.get_entrance('Adult Spawn -> Temple of Time')]
+
             all_dungeons = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
             kokiri_emerald_location_name = world.find_items('Kokiri Emerald')[0].name
             kokiri_emerald_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == kokiri_emerald_location_name, all_dungeons))
@@ -613,13 +619,13 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                 for target in one_way_target_entrance_pools[pool_type]:
                     target.set_rule(lambda state, age=None, **kwargs: age == 'child')
             elif pool_type == 'Spawn':
-                if worlds[0].settings.escape_from_kak:
-                    kak_entrance = world.get_entrance(escape_from_kak_spawn)
-                    one_way_target_entrance_pools[pool_type] = [kak_entrance.get_new_target()]
-                else: 
-                    valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
-                    # Restrict spawn entrances from linking to regions with no or extremely specific glitchless itemless escapes.
-                    one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types, exclude=['Volvagia Boss Room -> DMC Central Local', 'Bolero of Fire Warp -> DMC Central Local', 'Queen Gohma Boss Room -> KF Outside Deku Tree'])
+                valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
+                # Restrict spawn entrances from linking to regions with no or extremely specific glitchless itemless escapes.
+                one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types, exclude=['Volvagia Boss Room -> DMC Central Local', 'Bolero of Fire Warp -> DMC Central Local', 'Queen Gohma Boss Room -> KF Outside Deku Tree'])
+            elif pool_type == 'ChildSpawn' and worlds[0].settings.escape_from_kak:
+                one_way_target_entrance_pools['ChildSpawn'] = [world.get_entrance(escape_from_kak_child_spawn).get_new_target()]
+            elif pool_type == 'AdultSpawn' and worlds[0].settings.escape_from_kak:
+                one_way_target_entrance_pools['AdultSpawn'] = [world.get_entrance(escape_from_kak_adult_spawn).get_new_target()]
             elif pool_type == 'WarpSong':
                 valid_target_types = ('Spawn', 'WarpSong', 'BlueWarp', 'OwlDrop', 'OverworldOneWay', 'Overworld', 'Interior', 'SpecialInterior', 'Extra')
                 one_way_target_entrance_pools[pool_type] = build_one_way_targets(world, valid_target_types)

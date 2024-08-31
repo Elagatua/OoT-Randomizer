@@ -73,7 +73,8 @@
         "owl_drops": false,
         "warp_songs": false,
         "spawn_positions": [
-            "child"
+            "child",
+            "adult"
         ],
         "free_bombchu_drops": false,
         "one_item_per_dungeon": false,
