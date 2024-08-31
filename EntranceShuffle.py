@@ -413,7 +413,7 @@ priority_entrance_table = {
 }
 
 escape_from_kak_child_spawn = 'Temple of Time -> ToT Entrance'
-escape_from_kak_adult_spawn = 'Kak Backyard -> Kak Open Grotto'
+escape_from_kak_adult_spawn = 'DMT Owl Flight -> Kak Impas Rooftop'
 
 escape_from_kak_entrances = [
     'Kakariko Village -> Hyrule Field',
@@ -581,9 +581,9 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             escape_from_kak_side_pool = [side_dungeon_choice, world.get_entrance(escape_from_kak_side_entrance)]
             entrance_pools['EscapeSideDungeon'] = escape_from_kak_side_pool
 
-            entrance_pools['EscapeKakLock1'] = [world.get_entrance('Kakariko Village -> Kak House of Skulltula'),
+            entrance_pools['EscapeKakLock1'] = [world.get_entrance('Kakariko Village -> Kak Carpenter Boss House'),
                                                 world.get_entrance('Market -> ToT Entrance')]
-            entrance_pools['EscapeKakLock2'] = [world.get_entrance('Kak Carpenter Boss House -> Kakariko Village'),
+            entrance_pools['EscapeKakLock2'] = [world.get_entrance('Kak Impas House -> Kakariko Village'),
                                                 world.get_entrance('ToT Entrance -> Temple of Time')]
             if side_dungeon_choice.connected_region.dungeon_name != 'Bottom of the Well':
                 entrance_pools['EscapeKakLock3'] = [world.get_entrance('Kakariko Village -> Bottom of the Well'), 
