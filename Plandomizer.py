@@ -1092,7 +1092,7 @@ class WorldDistribution:
                 skipped_locations += [iter_world.get_location('HC Zeldas Letter'), iter_world.get_location('Song from Impa')]
             if iter_world.settings.gerudo_fortress == 'open' and not iter_world.settings.shuffle_gerudo_card:
                 skipped_locations.append(iter_world.get_location('Hideout Gerudo Membership Card'))
-            if iter_world.settings.empty_dungeons_mode != 'none':
+            if iter_world.settings.empty_dungeons_mode != 'none' and not iter_world.settings.escape_from_kak:
                 skipped_locations_from_dungeons: list[Location] = []
                 if iter_world.settings.shuffle_dungeon_rewards in ('vanilla', 'reward'):
                     skipped_locations_from_dungeons += [world.get_location(loc_name) for loc_name in location_groups['Boss'] if loc_name != 'ToT Reward from Rauru']

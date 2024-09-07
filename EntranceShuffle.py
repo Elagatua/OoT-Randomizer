@@ -599,7 +599,8 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             for location in locations_to_ensure_reachable:
                 if not location.parent_region.dungeon_name \
                 and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart'] \
-                and 'Kak' not in location.name:
+                and not location.locked \
+                and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
                     world.distribution.add_location(location.name, 'Nothing')
 
         # Set shuffled entrances as such
