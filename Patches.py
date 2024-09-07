@@ -2205,6 +2205,13 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         rom.write_int16(actor + 12, 0x8000) # Rotate door so front and back sides of the door flip
         rom.write_int16(actor + 14, 0x00D5) # Back side permanently locked
 
+    if world.settings.escape_from_kak:
+        # Permanently lock the door to the Spirit hands to prevent access to Colossus
+        actor = 0x02ADE118 # Right hand transition actor
+        rom.write_int16(actor + 14, 0x00D5) # Back side permanently locked
+        actor = 0x02ADE108 # Left hand transition actor
+        rom.write_int16(actor + 14, 0x00D5) # Back side permanently locked
+
     if world.settings.song_of_time_changes_age:
         # Enable Song of Time age changing behavior
         symbol = rom.sym('SONG_OF_TIME_CHANGES_AGE')
