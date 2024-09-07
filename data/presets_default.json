@@ -53,8 +53,8 @@
         "open_door_of_time": true,
         "zora_fountain": "closed",
         "gerudo_fortress": "fast",
-        "dungeon_shortcuts_choice": "off",
-        "dungeon_shortcuts": [],
+        "dungeon_shortcuts_choice": "choice",
+        "dungeon_shortcuts": ["Forest Temple"],
         "starting_age": "child",
         "mq_dungeons_mode": "vanilla",
         "mq_dungeons_specific": [],
@@ -81,7 +81,7 @@
         "shuffle_song_items": "any",
         "shopsanity": "off",
         "shopsanity_prices": "random",
-        "tokensanity": "off",
+        "tokensanity": "dungeons",
         "shuffle_scrubs": "off",
         "shuffle_child_trade": [],
         "shuffle_freestanding_items": "off",
@@ -115,7 +115,12 @@
             "Ganons Tower Pot 10":   "Requiem of Spirit"
         },
         "disabled_locations": [
-            "Deku Theater Mask of Truth"
+            "Deku Theater Mask of Truth",
+            "Kak 20 Gold Skulltula Reward",
+            "Kak 30 Gold Skulltula Reward",
+            "Kak 40 Gold Skulltula Reward",
+            "Kak 50 Gold Skulltula Reward",
+            "Kak Windmill Freestanding PoH"
         ],
         "allowed_tricks": [
             "logic_fewer_tunic_requirements",

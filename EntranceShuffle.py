@@ -597,7 +597,9 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
 
             # Mark all overworld locations as empty
             for location in locations_to_ensure_reachable:
-                if not location.parent_region.dungeon_name and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart']:
+                if not location.parent_region.dungeon_name \
+                and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart'] \
+                and 'Kak' not in location.name:
                     world.distribution.add_location(location.name, 'Nothing')
 
         # Set shuffled entrances as such
