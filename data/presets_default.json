@@ -85,7 +85,7 @@
         "shuffle_scrubs": "off",
         "shuffle_child_trade": [],
         "shuffle_freestanding_items": "off",
-        "shuffle_pots": "off",
+        "shuffle_pots": "dungeons",
         "shuffle_empty_pots": false,
         "shuffle_crates": "off",
         "shuffle_empty_crates": false,

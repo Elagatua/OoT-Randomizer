@@ -603,6 +603,18 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                 and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
                     world.distribution.add_location(location.name, 'Nothing')
 
+            # Fill all pots in our accessible dungeons with their vanilla item; we need to do this so that we have enough
+            # locations overall to fill the playthrough in beginner mode
+            non_empty_dungeons = list(map(lambda entrance: entrance.connected_region.dungeon, escape_from_kak_boss_pool))
+            non_empty_dungeons.append(side_dungeon_choice.connected_region.dungeon)
+            for location in locations_to_ensure_reachable:
+                # Hack to detect if we're in beginner mode
+                if worlds[0].settings.shuffle_pots == 'dungeons' \
+                and location.parent_region.dungeon_name and location.parent_region.dungeon in non_empty_dungeons \
+                and location.name not in world.distribution.locations and location.type in ['Pot', 'FlyingPot'] \
+                and not location.locked:
+                    world.distribution.add_location(location.name, location.vanilla_item)
+
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):
             entrance.shuffled = True
