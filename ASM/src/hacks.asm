@@ -3653,6 +3653,24 @@ DemoEffect_DrawJewel_AfterHook:
     jal     chestgame_delayed_chest_open
     nop
 
+; Show a key in the unopened chest regardless of chest
+; contents if the tcg_requires_lens setting is enabled.
+; Left/right do the same check for the get item ID,
+; but use different registers for the actor spawn branch
+; and chest actor references for coordinates.
+; Replaces:
+;   lwc1    $f0, 0x0024(v1)
+;   lwc1    $f2, 0x0028(v1)
+.orga 0xE43964
+    jal chestgame_force_game_loss_left
+    nop
+; Replaces:
+;   lwc1    $f0, 0x0024(v0)
+;   lwc1    $f2, 0x0028(v0)
+.orga 0xE43A0C
+    jal chestgame_force_game_loss_right
+    nop
+
 ;==================================================================================================
 ; Bombchu Ticking Color
 ;==================================================================================================
@@ -4135,6 +4153,16 @@ DemoEffect_DrawJewel_AfterHook:
 ;          andi    t6, a1, 0x0002
 .orga 0xCEA41C
     jal     volvagia_flying_hitbox
+    nop
+
+;================================================================================
+; Reset choiceNum when decoding a new message
+; prevents weird text alignment when going from message box with icon to no icon
+;================================================================================
+; Replaces sh   $zero, 0x4c0(at)
+;          lhu  a3, 0x4c0(a3)
+.org 0x800DA34C
+    j       Message_Decode_reset_msgCtx.textPosX
     nop
 
 .include "hacks/en_item00.asm"
