@@ -220,12 +220,19 @@ xflag_t resolve_alternative_flag(xflag_t* flag) {
     return alt_flag;
 }
 
+bool is_triforce_piece(uint16_t item_id) {
+    return item_id == GI_TRIFORCE_PIECE || 
+        item_id == GI_TRIFORCE_OF_POWER ||
+        item_id == GI_TRIFORCE_OF_WISDOM ||
+        item_id == GI_TRIFORCE_OF_COURAGE;
+}
+
 void activate_override(override_t override) {
     uint16_t resolved_item_id = resolve_upgrades(override);
     item_row_t* item_row = get_item_row(resolved_item_id);
 
     active_override = override;
-    if (resolved_item_id == GI_TRIFORCE_PIECE || (resolved_item_id >= 0x1000 && resolved_item_id < 0x1007)) { // Triforce piece
+    if (is_triforce_piece(resolved_item_id)) { // Triforce piece
         active_override_is_outgoing = 2; // Send to everyone
     } else {
         active_override_is_outgoing = override.value.base.player != PLAYER_ID;
@@ -281,10 +288,10 @@ void push_outgoing_override(override_t* override) {
 
 void move_outgoing_queue() {
     if (OUTGOING_KEY.all == 0) {
-        if (outgoing_queue[0].value.base.item_id >= 0x1000 && outgoing_queue[0].value.base.item_id < 0x1007) {
+        if (is_triforce_piece(outgoing_queue[0].value.base.item_id)) {
             // Multiworld plugins (at least Bizhawk Shuffler 2 and Mido's House Multiworld) have special cases for Triforce pieces.
             // To make sure Triforce Blitz pieces are handled the same way, they're sent as normal Triforce pieces.
-            OUTGOING_ITEM = 0xCA;
+            OUTGOING_ITEM = GI_TRIFORCE_PIECE;
         } else {
             OUTGOING_ITEM = outgoing_queue[0].value.base.item_id;
         }
@@ -421,7 +428,7 @@ void try_pending_item() {
 
     uint16_t resolved_item_id = resolve_upgrades(override);
     item_row_t* item_row = get_item_row(resolved_item_id);
-    if ((override.value.base.item_id == GI_TRIFORCE_PIECE || (override.value.base.item_id >= 0x1000 && override.value.base.item_id < 0x1007)) && override.value.base.player != PLAYER_ID) { // Triforce piece
+    if (is_triforce_piece(override.value.base.item_id) && override.value.base.player != PLAYER_ID) { // Triforce piece
         call_effect_function(item_row);
         pop_pending_item();
         after_key_received(override.key);
@@ -898,7 +905,7 @@ int16_t get_override_drop_id(int16_t dropId) {
 
 void dispatch_item(uint16_t resolved_item_id, uint8_t player, override_t* override, item_row_t* item_row) {
     // Give the item to the right place
-    if (resolved_item_id == GI_TRIFORCE_PIECE || (resolved_item_id >= 0x1000 && resolved_item_id < 0x1007)) { // Triforce piece
+    if (is_triforce_piece(resolved_item_id)) { // Triforce piece
         // Send triforce to everyone
         push_outgoing_override(override);
         call_effect_function(item_row);
