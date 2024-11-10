@@ -1947,6 +1947,7 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
     rom.write_byte(rom.sym('CHEST_SILVER_TEXTURE'), 'keys' in world.settings.chest_textures_specific)
     rom.write_byte(rom.sym('CHEST_SKULL_TEXTURE'), 'tokens' in world.settings.chest_textures_specific)
     rom.write_byte(rom.sym('CHEST_HEART_TEXTURE'), 'hearts' in world.settings.chest_textures_specific)
+    rom.write_byte(rom.sym('CHEST_BOMBCHU_TEXTURE'), 'bombchus' in world.settings.chest_textures_specific)
 
     rom.write_byte(rom.sym('SOA_UNLOCKS_CHEST_TEXTURE'), world.settings.soa_unlocks_chest_texture)
 
