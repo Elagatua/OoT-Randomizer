@@ -1884,32 +1884,21 @@ def patch_rom(spoiler: Spoiler, world: World, rom: Rom) -> Rom:
         item = read_rom_item(rom, 0x0071)
         item['chest_type'] = BROWN_CHEST
         write_rom_item(rom, 0x0071, item)
-    if world.settings.free_bombchu_drops or 'bombchus' in world.settings.minor_items_as_major_chest or 'bombchus' in world.settings.minor_items_special_texture:
-        if 'bombchus' in world.settings.minor_items_special_texture:
-            if world.settings.free_bombchu_drops or 'bombchus' in world.settings.minor_items_as_major_chest:
-                bombchu_texture = BOMBCHU_CHEST_BIG
-            else:
-                bombchu_texture = BOMBCHU_CHEST_SMALL
-        else: 
-            bombchu_texture = GILDED_CHEST
+    if world.settings.free_bombchu_drops or 'bombchus' in world.settings.minor_items_as_major_chest:
         bombchu_ids = [0x006A, 0x0003, 0x006B]
         for i in bombchu_ids:
             item = read_rom_item(rom, i)
-            item['chest_type'] = bombchu_texture
+            item['chest_type'] = GILDED_CHEST
             write_rom_item(rom, i, item)
     if world.settings.bridge == 'tokens' or world.settings.lacs_condition == 'tokens' or world.settings.shuffle_ganon_bosskey == 'tokens':
         item = read_rom_item(rom, 0x005B)
         item['chest_type'] = SKULL_CHEST_BIG
         write_rom_item(rom, 0x005B, item)
-    if 'hearts' in world.settings.minor_items_special_texture:
-        if world.settings.bridge == 'hearts' or world.settings.lacs_condition == 'hearts' or world.settings.shuffle_ganon_bosskey == 'hearts':
-            heart_texture = HEART_CHEST_BIG
-        else:
-            heart_texture = HEART_CHEST_SMALL
-        heart_ids = [0x003D, 0x003E, 0x004F, 0x0076, 0x007D, 0x007E, 0x007F]
+    if world.settings.bridge == 'hearts' or world.settings.lacs_condition == 'hearts' or world.settings.shuffle_ganon_bosskey == 'hearts':
+        heart_ids = [0x003D, 0x003E, 0x0076]
         for i in heart_ids:
             item = read_rom_item(rom, i)
-            item['chest_type'] = heart_texture
+            item['chest_type'] = HEART_CHEST_BIG
             write_rom_item(rom, i, item)
     if 'shields' in world.settings.minor_items_as_major_chest:
         # Deku
