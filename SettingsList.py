@@ -3401,6 +3401,17 @@ class SettingInfos:
         shared         = True,
     )
 
+    lock_reverse_shadow = Checkbutton(
+        gui_text       = 'Lock Reverse Shadow Temple',
+        gui_tooltip    = '''\
+            The door leading to the boat room in Shadow Temple will
+            be one-way only.  This also removes the lock on the door,
+            since one-way doors cannot be locked by small keys. 
+        ''',
+        default        = False,
+        shared         = True,
+    )
+
     fast_shadow_boat = Checkbutton(
         gui_text       = 'Fast Shadow Boat',
         gui_tooltip    = '''\
