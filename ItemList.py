@@ -320,20 +320,23 @@ class GetItemId(IntEnum):
     GI_SHADOW_MEDALLION = 0x012E
     GI_SPIRIT_MEDALLION = 0x012F
 
-    GI_BOMB_BAG_HINT = 0x0130
-    GI_BOW_HINT = 0x0131
-    GI_HOOKSHOT_HINT = 0x0132
-    GI_MAGIC_HINT = 0x0133
-    GI_SILVER_GAUNTLETS_HINT = 0x0134
-    GI_GORON_BRACELET_HINT = 0x0135
-    GI_SILVER_SCALE_HINT = 0x0136
-    GI_WALLET_HINT = 0x0137
+    # New items on blitz branch which are not in main Dev
+    # The ID range is shared with the dev-fenhl branch, avoid overlap to make multiworld and auto-trackers work
 
-    GI_TRIFORCE_OF_POWER = 0x013D
-    GI_TRIFORCE_OF_WISDOM = 0x013E
-    GI_TRIFORCE_OF_COURAGE = 0x013F
+    GI_TRIFORCE_OF_POWER = 0x1004
+    GI_TRIFORCE_OF_WISDOM = 0x1005
+    GI_TRIFORCE_OF_COURAGE = 0x1006
 
-    GI_RANDO_MAX = 0x0140
+    GI_BOMB_BAG_HINT = 0x1025
+    GI_BOW_HINT = 0x1026
+    GI_HOOKSHOT_HINT = 0x1027
+    GI_MAGIC_HINT = 0x1028
+    GI_SILVER_GAUNTLETS_HINT = 0x1029
+    GI_GORON_BRACELET_HINT = 0x102A
+    GI_SILVER_SCALE_HINT = 0x102B
+    GI_WALLET_HINT = 0x102C
+
+    GI_RANDO_MAX = 0x102D
 
 # Progressive: True  -> Advancement
 #              False -> Priority

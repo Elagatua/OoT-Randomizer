@@ -341,23 +341,26 @@ typedef enum GetItemID {
     /* 0x012E */ GI_SHADOW_MEDALLION,
     /* 0x012F */ GI_SPIRIT_MEDALLION,
 
-    /* 0x0130 */ GI_BOMB_BAG_HINT = 0x0130,
-    /* 0x0131 */ GI_BOW_HINT,
-    /* 0x0132 */ GI_HOOKSHOT_HINT,
-    /* 0x0133 */ GI_MAGIC_HINT,
-    /* 0x0134 */ GI_SILVER_GAUNTLETS_HINT,
-    /* 0x0135 */ GI_GORON_BRACELET_HINT,
-    /* 0x0136 */ GI_SILVER_SCALE_HINT,
-    /* 0x0137 */ GI_WALLET_HINT,
+    // New items on blitz branch which are not in main Dev
+    // The ID range is shared with the dev-fenhl branch, avoid overlap to make multiworld and auto-trackers work
 
-    /* 0x013D */ GI_TRIFORCE_OF_POWER = 0x013D,
-    /* 0x013E */ GI_TRIFORCE_OF_WISDOM,
-    /* 0x013F */ GI_TRIFORCE_OF_COURAGE,
+    /* 0x1004 */ GI_TRIFORCE_OF_POWER = 0x1004,
+    /* 0x1005 */ GI_TRIFORCE_OF_WISDOM,
+    /* 0x1006 */ GI_TRIFORCE_OF_COURAGE,
 
-    /* 0x0140 */ GI_RANDO_MAX
+    /* 0x1025 */ GI_BOMB_BAG_HINT = 0x1025,
+    /* 0x1026 */ GI_BOW_HINT,
+    /* 0x1027 */ GI_HOOKSHOT_HINT,
+    /* 0x1028 */ GI_MAGIC_HINT,
+    /* 0x1029 */ GI_SILVER_GAUNTLETS_HINT,
+    /* 0x102A */ GI_GORON_BRACELET_HINT,
+    /* 0x102B */ GI_SILVER_SCALE_HINT,
+    /* 0x102C */ GI_WALLET_HINT,
+
+    /* 0x102D */ GI_RANDO_MAX
 } GetItemId;
 
-_Static_assert(GI_RANDO_MAX == 0x0140, "Remember to update the comment and the assert for the value of GI_RANDO_MAX when adding new items");
+_Static_assert(GI_RANDO_MAX == 0x102D, "Remember to update the comment and the assert for the value of GI_RANDO_MAX when adding new items");
 
 typedef enum {
     /*  0 */ BROWN_CHEST,            // big default chest
