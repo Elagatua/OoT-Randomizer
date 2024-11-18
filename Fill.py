@@ -522,6 +522,18 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
         # decrement count
         count -= 1
 
+        if item_to_place.name in triforce_blitz_items:
+            logger.debug('Placed %s (%d) at %s', item_to_place.name, item_to_place.world.id, spot_to_fill.worldAndName)
+            trinity_item = get_trinity_item(item_to_place, itempool, len(worlds))
+            if trinity_item:
+                trinity_spot = trinity_item.world.get_location(spot_to_fill.name)
+                trinity_item.world.push_item(trinity_spot, trinity_item)
+                itempool.remove(trinity_item)
+                locations.remove(trinity_spot)
+                count -= 1
+                logger.debug('Placed %s (%d) at %s', trinity_item.name, trinity_item.world.id, trinity_spot.worldAndName)
+                logger.debug('Trinity of piece %s (%d) is %s (%d)', item_to_place.name, item_to_place.world.id, trinity_item.name, trinity_item.world.id)
+
     # assert that the specified number of items were placed
     if count > 0:
         raise FillError(f'Could not place the specified number of item. {count} remaining to be placed.')
@@ -530,6 +542,34 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
     # re-add unplaced items that were skipped
     itempool.extend(unplaced_items)
 
+def get_trinity_item(item: Item, itempool: list[Item], world_count: int) -> Optional[Item]:
+    if item.name not in triforce_blitz_items: return None
+    tf_index = triforce_blitz_items.index(item.name)
+    triforce_piece_count = len(triforce_blitz_items)
+
+    # Get a trinity piece in the next world
+    if item.world.id % triforce_piece_count == tf_index:
+        for _, unplaced_item in enumerate(itempool):
+            # Handles an edge case where every 4th world would have a collision for the Triforce of Power.  
+            # Use world 0's Triforce of Courage instead.
+            if tf_index == 0 and ((item.world.id + 1) % world_count) == 0:
+                if unplaced_item.world.id == 0 and unplaced_item.name == triforce_blitz_items[(len(triforce_blitz_items) - 1)]:
+                    return unplaced_item
+            elif unplaced_item.name == item.name and unplaced_item.world.id == ((item.world.id + 1) % world_count):
+                return unplaced_item
+            
+    # Get a trinity piece from the previous world
+    if (item.world.id - 1 + triforce_piece_count) % triforce_piece_count == tf_index:
+        for _, unplaced_item in enumerate(itempool):
+            # Handles an edge case where every 4th world would have a collision for the Triforce of Power.  
+            # Use last world's Triforce of Power.
+            if tf_index == (len(triforce_blitz_items) - 1) and item.world.id == 0:
+                if unplaced_item.world.id == (world_count - 1) and unplaced_item.name == triforce_blitz_items[0]:
+                    return unplaced_item
+            elif unplaced_item.name == item.name and unplaced_item.world.id == ((item.world.id - 1 + world_count) % world_count):
+                return unplaced_item
+            
+    return None
 
 # This places items in the itempool into the locations
 # It does not check for reachability, only that the item is
