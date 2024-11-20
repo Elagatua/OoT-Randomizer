@@ -523,16 +523,21 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
         count -= 1
 
         if item_to_place.name in triforce_blitz_items:
-            logger.debug('Placed %s (%d) at %s', item_to_place.name, item_to_place.world.id, spot_to_fill.worldAndName)
-            trinity_item = get_trinity_item(item_to_place, itempool, len(worlds))
-            if trinity_item:
-                trinity_spot = trinity_item.world.get_location(spot_to_fill.name)
-                trinity_item.world.push_item(trinity_spot, trinity_item)
-                itempool.remove(trinity_item)
-                locations.remove(trinity_spot)
+            logger.info('Placed %s (%d) at %s', item_to_place.name, item_to_place.world.id, spot_to_fill.worldAndName)
+            linked_item = get_linked_item(item_to_place, itempool, len(worlds))
+            if linked_item:
+                linked_spot = linked_item.world.get_location(spot_to_fill.name)
+                linked_item.world.push_item(linked_spot, linked_item)
+                logger.info('Trinity of piece %s (%d) is %s (%d)', item_to_place.name, item_to_place.world.id, linked_item.name, linked_item.world.id)
+                logger.info('Placed %s (%d) at %s', linked_item.name, linked_item.world.id, linked_spot.worldAndName)
+                
+                itempool.remove(linked_item)
+                if linked_spot in locations:
+                    locations.remove(linked_spot)
+                else:
+                    raise FillError(f'Generation failed: Trinity {item_to_place} [World {item_to_place.world.id + 1}] could not be placed at {linked_spot.worldAndName} because the location is already filled')
+                
                 count -= 1
-                logger.debug('Placed %s (%d) at %s', trinity_item.name, trinity_item.world.id, trinity_spot.worldAndName)
-                logger.debug('Trinity of piece %s (%d) is %s (%d)', item_to_place.name, item_to_place.world.id, trinity_item.name, trinity_item.world.id)
 
     # assert that the specified number of items were placed
     if count > 0:
@@ -542,31 +547,23 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
     # re-add unplaced items that were skipped
     itempool.extend(unplaced_items)
 
-def get_trinity_item(item: Item, itempool: list[Item], world_count: int) -> Optional[Item]:
+def get_linked_item(item: Item, itempool: list[Item], world_count: int) -> Optional[Item]:
     if item.name not in triforce_blitz_items: return None
     tf_index = triforce_blitz_items.index(item.name)
     triforce_piece_count = len(triforce_blitz_items)
 
-    # Get a trinity piece in the next world
-    if item.world.id % triforce_piece_count == tf_index:
+    # Get the previous world's Triforce of Courage
+    if tf_index == 0:
         for _, unplaced_item in enumerate(itempool):
-            # Handles an edge case where every 4th world would have a collision for the Triforce of Power.  
-            # Use world 0's Triforce of Courage instead.
-            if tf_index == 0 and ((item.world.id + 1) % world_count) == 0:
-                if unplaced_item.world.id == 0 and unplaced_item.name == triforce_blitz_items[(len(triforce_blitz_items) - 1)]:
-                    return unplaced_item
-            elif unplaced_item.name == item.name and unplaced_item.world.id == ((item.world.id + 1) % world_count):
+            target_world_id = ((item.world.id - 1 + world_count) % world_count)
+            if target_world_id == unplaced_item.world.id and unplaced_item.name == triforce_blitz_items[(triforce_piece_count - 1)]:
                 return unplaced_item
-            
-    # Get a trinity piece from the previous world
-    if (item.world.id - 1 + triforce_piece_count) % triforce_piece_count == tf_index:
+    
+    # Get the next world's Triforce of Power
+    if tf_index == (triforce_piece_count - 1):
         for _, unplaced_item in enumerate(itempool):
-            # Handles an edge case where every 4th world would have a collision for the Triforce of Power.  
-            # Use last world's Triforce of Power.
-            if tf_index == (len(triforce_blitz_items) - 1) and item.world.id == 0:
-                if unplaced_item.world.id == (world_count - 1) and unplaced_item.name == triforce_blitz_items[0]:
-                    return unplaced_item
-            elif unplaced_item.name == item.name and unplaced_item.world.id == ((item.world.id - 1 + world_count) % world_count):
+            target_world_id = ((item.world.id + 1) % world_count)
+            if target_world_id == unplaced_item.world.id and unplaced_item.name == triforce_blitz_items[0]:
                 return unplaced_item
             
     return None
