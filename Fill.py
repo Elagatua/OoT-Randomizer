@@ -424,6 +424,8 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
         dungeon_locations = [location for region in dungeon.regions for location in region.locations]
         all_dungeon_locations.extend(dungeon_locations)
 
+    chose_tfb_duality_piece = False
+
     # loop until there are no items or locations
     while itempool and locations:
         # if remaining count is 0, return. Negative means unbounded.
@@ -522,7 +524,6 @@ def fill_restrictive(worlds: list[World], base_search: Search, locations: list[L
         # decrement count
         count -= 1
 
-        chose_tfb_duality_piece = False
         if item_to_place.name in triforce_blitz_items:
             logger.debug('Placed %s (%d) at %s', item_to_place.name, item_to_place.world.id, spot_to_fill.worldAndName)
             if worlds[0].settings.triforce_blitz_mw_duality_tf_pieces and not chose_tfb_duality_piece and len(worlds) == 2:
