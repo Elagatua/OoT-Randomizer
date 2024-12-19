@@ -266,10 +266,13 @@ def add_hint(spoiler: Spoiler, world: World, groups: list[list[int]], gossip_tex
                                 make_event_item(stone_name, stone_locations[i], event_item)
                         assert event_item is not None
 
-                        # This mostly guarantees that we don't lock the player out of an item hint
-                        # by establishing a (hint -> item) -> hint -> item -> (first hint) loop
-                        for location in locations:
-                            location.add_rule(world.parser.parse_rule(repr(event_item.name)))
+                        # Disable this logic for TFB.  It is better for our gameplay to place inaccessible hints
+                        # instead of not placing a hint that otherwise would exist.
+                        if not world.settings.triforce_blitz:
+                            # This mostly guarantees that we don't lock the player out of an item hint
+                            # by establishing a (hint -> item) -> hint -> item -> (first hint) loop
+                            for location in locations:
+                                location.add_rule(world.parser.parse_rule(repr(event_item.name)))
 
                     total -= 1
                     first = False
