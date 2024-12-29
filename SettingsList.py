@@ -702,6 +702,21 @@ class SettingInfos:
         shared         = True,
     )
 
+    escape_from_kak = Checkbutton(
+        gui_text       = 'Escape from Market',
+        gui_tooltip    = '''\
+            Enables Escape from the Market game mode.
+        ''',
+        shared         = True,
+        gui_params     = {
+            'randomize_key': 'randomize_settings',
+        },
+        disable        = {
+            True:  {'settings': []},
+            False: {'settings': []},
+        },
+    )
+
     triforce_hunt = Checkbutton(
         gui_text       = 'Triforce Hunt',
         gui_tooltip    = '''\
@@ -3508,7 +3523,18 @@ class SettingInfos:
         gui_tooltip    = '''\
             The door leading to the boat room in Shadow Temple will
             be one-way only.  This also removes the lock on the door,
-            since one-way doors cannot be locked by small keys. 
+            since one-way doors cannot be locked by small keys.
+        ''',
+        default        = False,
+        shared         = True,
+    )
+
+    song_of_time_changes_age = Checkbutton(
+        gui_text       = 'Song of Time Changes Age',
+        gui_tooltip    = '''\
+            Playing the Song of Time will offer a choice to switch from
+            child to adult or vice versa.  Changing age will reload the
+            current area.
         ''',
         default        = False,
         shared         = True,

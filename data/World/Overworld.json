@@ -1266,7 +1266,10 @@
             "Market Bombchu Bowling": "is_child",
             "Market Potion Shop": "is_child and at_day",
             "Market Treasure Chest Game": "is_child and at_night",
-            "Market Back Alley": "is_child"
+            "Market Back Alley": "is_child",
+            # Fake exit to keep reachable locations happy
+            "Kakariko Village": "escape_from_kak",
+            "Temple of Time": "escape_from_kak"
         }
     },
     {
@@ -1313,7 +1316,9 @@
         },
         "exits": {
             "ToT Entrance": "True",
-            "Beyond Door of Time": "can_play(Song_of_Time) or open_door_of_time"
+            "Beyond Door of Time": "can_play(Song_of_Time) or open_door_of_time",
+            # Fake exit to keep reachable locations happy
+            "Market": "escape_from_kak"
         }
     },
     {
@@ -1757,7 +1762,9 @@
             "Kak Backyard": "is_adult or at_day",
             "Graveyard": "True",
             # The seemingly redundant `open_kakariko == 'open'` check is to allow supplementary searches, which can't collect events, to use this path.
-            "Kak Behind Gate": "is_adult or 'Kakariko Village Gate Open' or open_kakariko == 'open'"
+            "Kak Behind Gate": "is_adult or 'Kakariko Village Gate Open' or open_kakariko == 'open'",
+            # Fake exit to keep reachable locations happy
+            "Market": "escape_from_kak"
         }
     },
     {

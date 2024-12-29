@@ -24,7 +24,7 @@
 #include "debug.h"
 #include "inputviewer.h"
 #include "message.h"
-
+#include "agechange.h"
 void Gameplay_InitSkybox(z64_game_t* globalCtx, int16_t skyboxId);
 
 void c_init() {
@@ -65,6 +65,7 @@ void after_game_state_update() {
     }
     close_rando_display_buffer();
     give_sage_gifts();
+    manage_age_change();
 }
 
 void before_skybox_init(z64_game_t* game, int16_t skyboxId) {

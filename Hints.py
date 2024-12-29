@@ -931,6 +931,29 @@ def get_goal_count_hint(spoiler, world, checked):
 
     return (GossipText('the %s requires #%d# %s.' % (goal.hint_text, item_count, item_text), [goal.color, 'Light Blue']), None)
 
+def get_area_woth_count_hint(spoiler, world, checked) -> HintReturn:
+
+    def get_dungeon_for_item(world, item_name):
+        boss_name = world.find_items(item_name)[0].name
+        return next(filter(lambda dungeon: dungeon.vanilla_boss_name == boss_name, world.dungeons))
+
+    stones = ['Kokiri Emerald', 'Goron Ruby', 'Zora Sapphire']
+    stone_dungeons = list(map(lambda stone: get_dungeon_for_item(world, stone), stones))
+    side_dungeon_name = next(filter(lambda dungeon_name: not world.empty_dungeons[dungeon_name].empty and not world.empty_dungeons[dungeon_name].boss_name, world.empty_dungeons.keys()))
+    side_dungeon = next(filter(lambda dungeon: dungeon.name == side_dungeon_name and dungeon.worldAndName not in checked, world.dungeons), None)
+    dungeon_to_hint = next(filter(lambda dungeon: dungeon.worldAndName not in checked, stone_dungeons), side_dungeon)
+    if not dungeon_to_hint:
+        return None
+    
+    hint_area = HintArea.at(dungeon_to_hint.regions[0])
+    location_text = hint_area.text(world.settings.clearer_hints)
+    item_count = len(list(filter(lambda location: location.dungeon and location.dungeon.name == dungeon_to_hint.name, spoiler.required_locations[world.id])))
+    item_text = 'step' if item_count == 1 else 'steps'
+
+    checked.add(dungeon_to_hint.worldAndName)
+
+    return GossipText('%s hides #%d# %s towards the escape from Kakariko.' % (location_text, item_count, item_text), ['Red', 'Light Blue'], [], []), []
+
 def get_wanderer_hint(spoiler, world, checked):
 
     hint_types = [get_playthrough_location_hint, get_unlock_playthrough_hint]
@@ -1545,6 +1568,7 @@ hint_func: dict[str, HintFunc | BarrenFunc] = {
     'goal-legacy-single':   get_goal_legacy_hint,
     'echo':             get_echo_hint,
     'goal-count':       get_goal_count_hint,
+    'area-woth-count':  get_area_woth_count_hint,
     'wanderer':         get_wanderer_hint,
     'playthrough-location': get_playthrough_location_hint,
     'unlock-woth':      get_unlock_woth_hint,

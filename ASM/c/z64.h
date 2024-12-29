@@ -2005,6 +2005,7 @@ typedef enum {
 #define Interface_LoadItemIcon1_addr            0x8006FB50
 #define Rupees_ChangeBy_addr                    0x800721CC
 #define Message_ContinueTextbox_addr            0x800DCE80
+#define Message_ShouldAdvance_addr              0x800D6110
 #define PlaySFX_addr                            0x800646F0
 #define z64_ScalePitchAndTempo_addr             0x800C64A0
 #define Font_LoadChar_addr                      0x8005BCE4
@@ -2094,6 +2095,7 @@ typedef void(*Interface_LoadItemIcon1_proc) (z64_game_t* game, uint16_t button);
 typedef void(*Rupees_ChangeBy_proc)         (int16_t rupeeChange);
 
 typedef void(*Message_ContinueTextbox_proc) (z64_game_t* play, uint16_t textId);
+typedef uint8_t(*Message_ShouldAdvance_proc) (z64_game_t* play);
 
 typedef void(*PlaySFX_proc) (uint16_t sfxId);
 typedef void(*z64_ScalePitchAndTempo_proc)(float scaleTempoAndFreq, uint8_t duration);
@@ -2193,6 +2195,7 @@ typedef void(*z64_Play_SetupRespawnPoint_proc)(z64_game_t *game, int32_t respawn
 #define z64_ScalePitchAndTempo        ((z64_ScalePitchAndTempo_proc)z64_ScalePitchAndTempo_addr)
 #define z64_Audio_GetActiveSeqId ((z64_Audio_GetActiveSeqId_proc)z64_Audio_GetActiveSeqId_addr)
 #define z64_Play_SetupRespawnPoint ((z64_Play_SetupRespawnPoint_proc)z64_Play_SetupRespawnPoint_addr)
+#define Message_ShouldAdvance ((Message_ShouldAdvance_proc)Message_ShouldAdvance_addr)
 
 #define PlaySFX ((PlaySFX_proc)PlaySFX_addr)
 #define Font_LoadChar ((Font_LoadChar_proc)Font_LoadChar_addr)
