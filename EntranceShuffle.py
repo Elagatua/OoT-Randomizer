@@ -565,42 +565,32 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             one_way_entrance_pools['ChildSpawn'] = [world.get_entrance('Child Spawn -> KF Links House')]
             one_way_entrance_pools['AdultSpawn'] = [world.get_entrance('Adult Spawn -> Temple of Time')]
 
-            all_dungeons = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
-            kokiri_emerald_location_name = world.find_items('Kokiri Emerald')[0].name
-            kokiri_emerald_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == kokiri_emerald_location_name, all_dungeons))
-            goron_ruby_location_name = world.find_items('Goron Ruby')[0].name
-            goron_ruby_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == goron_ruby_location_name, all_dungeons))
-            zora_sapphire_location_name = world.find_items('Zora Sapphire')[0].name
-            zora_sapphire_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon.vanilla_boss_name == zora_sapphire_location_name, all_dungeons))
+            all_dungeons_entrances = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
+            chosen_dungeons = world.escape_from_kak_data['boss_dungeons']
 
-            escape_from_kak_boss_pool = [kokiri_emerald_entrance, goron_ruby_entrance, zora_sapphire_entrance]
+            escape_from_kak_boss_pool = [
+                next(filter(lambda entrance: entrance.connected_region.dungeon_name == chosen_dungeons[0].name, all_dungeons_entrances)),
+                next(filter(lambda entrance: entrance.connected_region.dungeon_name == chosen_dungeons[1].name, all_dungeons_entrances)),
+                next(filter(lambda entrance: entrance.connected_region.dungeon_name == chosen_dungeons[2].name, all_dungeons_entrances))
+            ]
             kak_entrances = list(map(lambda entrance: world.get_entrance(entrance), escape_from_kak_entrances))
 
             entrance_pools['EscapeBossDungeon1'] = [kak_entrances[0], escape_from_kak_boss_pool[0]]
             entrance_pools['EscapeBossDungeon2'] = [kak_entrances[1], escape_from_kak_boss_pool[1]]
             entrance_pools['EscapeBossDungeon3'] = [kak_entrances[2], escape_from_kak_boss_pool[2]]
 
-            for boss_entrance in escape_from_kak_boss_pool:
-                world.distribution.add_location(boss_entrance.connected_region.dungeon.boss_heart_location_name, 'Triforce Piece')
-
-            side_dungeons = list(filter(lambda location: not location.connected_region.dungeon.vanilla_boss_name, all_dungeons))
-            side_dungeon_choice = random.choice(side_dungeons)
-            escape_from_kak_side_pool = [side_dungeon_choice, world.get_entrance(escape_from_kak_side_entrance)]
+            chosen_side_dungeon = world.escape_from_kak_data['side_dungeon']
+            chosen_side_dungeon_entrance = next(filter(lambda entrance: entrance.connected_region.dungeon_name == chosen_side_dungeon.name, all_dungeons_entrances))
+            escape_from_kak_side_pool = [chosen_side_dungeon_entrance, world.get_entrance(escape_from_kak_side_entrance)]
             entrance_pools['EscapeSideDungeon'] = escape_from_kak_side_pool
 
             entrance_pools['EscapeKakLock1'] = [world.get_entrance('Kakariko Village -> Kak Carpenter Boss House'),
                                                 world.get_entrance('Market -> ToT Entrance')]
             entrance_pools['EscapeKakLock2'] = [world.get_entrance('Kak Impas House -> Kakariko Village'),
                                                 world.get_entrance('ToT Entrance -> Temple of Time')]
-            if side_dungeon_choice.connected_region.dungeon_name != 'Bottom of the Well':
+            if chosen_side_dungeon.name != 'Bottom of the Well':
                 entrance_pools['EscapeKakLock3'] = [world.get_entrance('Kakariko Village -> Bottom of the Well'), 
                                                     world.get_entrance('Kokiri Forest -> KF House of Twins')]
-
-            # Mark all other dungeons as empty
-            empty_dungeon_entrances = list(filter(lambda entrance: entrance not in escape_from_kak_boss_pool and
-                                                  entrance not in escape_from_kak_side_pool, all_dungeons))
-            for empty_entrance in empty_dungeon_entrances:
-                world.empty_dungeons[empty_entrance.connected_region.dungeon.name].empty = True
 
             # Mark all overworld locations as empty
             for location in locations_to_ensure_reachable:
@@ -609,18 +599,6 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
                 and not location.locked \
                 and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
                     world.distribution.add_location(location.name, 'Nothing')
-
-            # Fill all pots in our accessible dungeons with their vanilla item; we need to do this so that we have enough
-            # locations overall to fill the playthrough in beginner mode
-            non_empty_dungeons = list(map(lambda entrance: entrance.connected_region.dungeon, escape_from_kak_boss_pool))
-            non_empty_dungeons.append(side_dungeon_choice.connected_region.dungeon)
-            for location in locations_to_ensure_reachable:
-                # Hack to detect if we're in beginner mode
-                if worlds[0].settings.shuffle_pots == 'dungeons' \
-                and location.parent_region.dungeon_name and location.parent_region.dungeon in non_empty_dungeons \
-                and location.name not in world.distribution.locations and location.type in ['Pot', 'FlyingPot'] \
-                and not location.locked:
-                    world.distribution.add_location(location.name, location.vanilla_item)
 
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):

@@ -377,6 +377,8 @@ class World:
         self.locked_goal_categories: dict[str, GoalCategory] = {name: category for (name, category) in self.goal_categories.items() if category.lock_entrances}
         self.unlocked_goal_categories: dict[str, GoalCategory] = {name: category for (name, category) in self.goal_categories.items() if not category.lock_entrances}
 
+        self.escape_from_kak_data: dict[str, any] = {}
+
     def copy(self) -> World:
         new_world = World(self.id, self.settings, False)
 
@@ -408,6 +410,8 @@ class World:
         new_world.available_tokens = self.available_tokens
 
         new_world.song_notes = copy.copy(self.song_notes)
+
+        new_world.escape_from_kak_data = copy.copy(self.escape_from_kak_data)
 
         return new_world
 

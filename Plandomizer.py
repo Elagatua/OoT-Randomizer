@@ -1234,6 +1234,24 @@ class Distribution:
             world.triforce_count = total_count
             world.triforce_goal = total_count * len(worlds)
 
+    def configure_escape_from_kak(self, world: World) -> None:    
+        all_boss_dungeons = [dungeon for dungeon in world.dungeons if dungeon.vanilla_boss_name]
+        all_side_dungeons = [dungeon for dungeon in world.dungeons if not dungeon.vanilla_boss_name and dungeon.name != 'Ganons Castle']
+
+        chosen_boss_dungeons = random.sample(all_boss_dungeons, 3)
+        chosen_side_dungeon = random.choice(all_side_dungeons)
+
+        world.escape_from_kak_data['boss_dungeons'] = chosen_boss_dungeons
+        world.escape_from_kak_data['side_dungeon'] = chosen_side_dungeon
+
+        for boss_dungeon in chosen_boss_dungeons:
+            world.distribution.add_location(boss_dungeon.boss_heart_location_name, 'Triforce Piece')
+
+        # Mark all other dungeons as empty
+        all_empty_dungeons = [dungeon for dungeon in world.dungeons if dungeon not in chosen_boss_dungeons and dungeon is not chosen_side_dungeon]
+        for empty_dungeon in all_empty_dungeons:
+            world.empty_dungeons[empty_dungeon.name].empty = True
+
     def reset(self) -> None:
         for world in self.world_dists:
             world.update({}, update_all=True)
