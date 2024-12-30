@@ -1252,6 +1252,14 @@ class Distribution:
         for empty_dungeon in all_empty_dungeons:
             world.empty_dungeons[empty_dungeon.name].empty = True
 
+        # Mark all overworld locations as empty
+        for location in world.get_locations():
+            if not location.parent_region.dungeon_name \
+            and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart'] \
+            and not location.locked \
+            and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
+                world.distribution.add_location(location.name, 'Nothing')
+
     def reset(self) -> None:
         for world in self.world_dists:
             world.update({}, update_all=True)
