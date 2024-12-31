@@ -17,7 +17,7 @@ from Hints import HintArea, gossipLocations, shopHints, GossipText
 from Item import ItemFactory, ItemInfo, ItemIterator, is_item, Item
 from ItemPool import item_groups, get_junk_item, song_list, trade_items, child_trade_items, triforce_blitz_items
 from JSONDump import dump_obj, CollapseList, CollapseDict, AlignedDict, SortedDict
-from Location import Location, LocationIterator, LocationFactory
+from Location import Location, LocationIterator, LocationFactory, DisableType
 from LocationList import location_groups, location_table
 from Search import Search
 from SettingsList import build_close_match, validate_settings, settings_versioning
@@ -1092,7 +1092,7 @@ class WorldDistribution:
                 skipped_locations += [iter_world.get_location('HC Zeldas Letter'), iter_world.get_location('Song from Impa')]
             if iter_world.settings.gerudo_fortress == 'open' and not iter_world.settings.shuffle_gerudo_card:
                 skipped_locations.append(iter_world.get_location('Hideout Gerudo Membership Card'))
-            if iter_world.settings.empty_dungeons_mode != 'none':
+            if iter_world.settings.empty_dungeons_mode != 'none' and not iter_world.settings.escape_from_kak:
                 skipped_locations_from_dungeons: list[Location] = []
                 if iter_world.settings.shuffle_dungeon_rewards in ('vanilla', 'reward'):
                     skipped_locations_from_dungeons += [world.get_location(loc_name) for loc_name in location_groups['Boss'] if loc_name != 'ToT Reward from Rauru']
@@ -1233,6 +1233,37 @@ class Distribution:
             
             world.triforce_count = total_count
             world.triforce_goal = total_count * len(worlds)
+
+    def configure_escape_from_kak(self, world: World) -> None:    
+        all_boss_dungeons = [dungeon for dungeon in world.dungeons if dungeon.vanilla_boss_name]
+        all_side_dungeons = [dungeon for dungeon in world.dungeons if not dungeon.vanilla_boss_name and dungeon.name != 'Ganons Castle']
+
+        chosen_boss_dungeons = random.sample(all_boss_dungeons, 3)
+        chosen_side_dungeon = random.choice(all_side_dungeons)
+
+        world.escape_from_kak_data['boss_dungeons'] = chosen_boss_dungeons
+        world.escape_from_kak_data['side_dungeon'] = chosen_side_dungeon
+
+        for boss_dungeon in chosen_boss_dungeons:
+            world.distribution.add_location(boss_dungeon.boss_heart_location_name, 'Triforce Piece')
+
+        # Mark all other dungeons as empty
+        all_empty_dungeons = [dungeon for dungeon in world.dungeons if dungeon not in chosen_boss_dungeons and dungeon is not chosen_side_dungeon]
+        for empty_dungeon in all_empty_dungeons:
+            world.empty_dungeons[empty_dungeon.name].empty = True
+
+        # Mark all overworld locations as empty
+        disabled_locations = set()
+        for location in world.get_locations():
+            if not location.parent_region.dungeon_name \
+            and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart', 'Drop'] \
+            and not location.locked \
+            and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
+                disabled_locations.add(location)
+        
+        world.escape_from_kak_data['disabled_locations'] = disabled_locations
+        for location in disabled_locations:
+            location.disabled = DisableType.DISABLED
 
     def reset(self) -> None:
         for world in self.world_dists:

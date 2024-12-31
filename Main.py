@@ -154,6 +154,10 @@ def build_world_graphs(settings: Settings) -> list[World]:
         logger.info('Calculating Access Rules.')
         set_rules(world)
 
+        if settings.escape_from_kak:
+            logger.info('Configuring Escape From Kakariko.')
+            settings.distribution.configure_escape_from_kak(world)
+
         logger.info('Generating Item Pool.')
         generate_itempool(world)
         set_shop_rules(world)

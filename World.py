@@ -77,7 +77,7 @@ class World:
         self.entrance_shuffle: bool = bool(
             self.shuffle_interior_entrances or settings.shuffle_grotto_entrances or self.shuffle_dungeon_entrances
             or settings.shuffle_overworld_entrances or settings.shuffle_gerudo_valley_river_exit or settings.owl_drops or settings.warp_songs
-            or settings.spawn_positions or (settings.shuffle_bosses != 'off')
+            or settings.spawn_positions or (settings.shuffle_bosses != 'off') or settings.escape_from_kak
         )
 
         self.mixed_pools_bosses = False # this setting is still in active development at https://github.com/Roman971/OoT-Randomizer
@@ -141,6 +141,10 @@ class World:
                 self['Water Temple'] = self.EmptyDungeonInfo('Morpha')
                 self['Spirit Temple'] = self.EmptyDungeonInfo('Twinrova')
                 self['Shadow Temple'] = self.EmptyDungeonInfo('Bongo Bongo')
+                self['Gerudo Training Ground'] = self.EmptyDungeonInfo(None)
+                self['Ice Cavern'] = self.EmptyDungeonInfo(None)
+                self['Bottom of the Well'] = self.EmptyDungeonInfo(None)
+                self['Ganons Castle'] = self.EmptyDungeonInfo(None)
 
                 for area in HintArea:
                     if area.is_dungeon and area.dungeon_name in self:
@@ -374,6 +378,8 @@ class World:
         self.locked_goal_categories: dict[str, GoalCategory] = {name: category for (name, category) in self.goal_categories.items() if category.lock_entrances}
         self.unlocked_goal_categories: dict[str, GoalCategory] = {name: category for (name, category) in self.goal_categories.items() if not category.lock_entrances}
 
+        self.escape_from_kak_data: dict[str, any] = {}
+
     def copy(self) -> World:
         new_world = World(self.id, self.settings, False)
 
@@ -405,6 +411,8 @@ class World:
         new_world.available_tokens = self.available_tokens
 
         new_world.song_notes = copy.copy(self.song_notes)
+
+        new_world.escape_from_kak_data = copy.copy(self.escape_from_kak_data)
 
         return new_world
 

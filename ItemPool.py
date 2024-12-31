@@ -916,6 +916,20 @@ def get_pool_core(world: World) -> tuple[list[str], dict[str, Item]]:
         elif location.type in ("Chest", "NPC", "Song", "Collectable", "Cutscene", "BossHeart"):
             shuffle_item = True
 
+        # Unshuffle certain overworld locations
+        if shuffle_item and world.settings.escape_from_kak \
+            and location.vanilla_item not in ludicrous_items_base \
+            and location in world.escape_from_kak_data['disabled_locations']:
+            shuffle_item = False
+            location.disabled = DisableType.DISABLED
+
+        # Unshuffle certain locations in empty dungeons
+        if shuffle_item and world.settings.escape_from_kak \
+            and (location.type in ('Crate', 'SmallCrate', 'Pot', 'FlyingPot', 'Scrub', 'GrottoScrub') or location.vanilla_item == 'Gold Skulltula Token') \
+            and (location.dungeon is None or world.empty_dungeons[location.dungeon.name].empty):
+            shuffle_item = False
+            location.disabled = DisableType.DISABLED
+
         # Now, handle the item as necessary.
         if shuffle_item:
             pool.append(item)
