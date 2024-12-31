@@ -144,6 +144,7 @@ class World:
                 self['Gerudo Training Ground'] = self.EmptyDungeonInfo(None)
                 self['Ice Cavern'] = self.EmptyDungeonInfo(None)
                 self['Bottom of the Well'] = self.EmptyDungeonInfo(None)
+                self['Ganons Castle'] = self.EmptyDungeonInfo(None)
 
                 for area in HintArea:
                     if area.is_dungeon and area.dungeon_name in self:

@@ -103,16 +103,16 @@
         "logic_no_night_tokens_without_suns_song": false,
         "plandomized_locations": {
             "ToT Reward from Rauru": "Light Medallion",
-            "Ganons Castle Fire Trial Pot 1":    "Prelude of Light",
-            "Ganons Castle Fire Trial Pot 2":    "Eponas Song",
-            "Ganons Castle Spirit Trial Pot 1":    "Sarias Song",
-            "Ganons Castle Spirit Trial Pot 2":    "Suns Song",
-            "Ganons Castle Forest Trial Pot 1":    "Song of Storms",
-            "Ganons Castle Forest Trial Pot 2":    "Minuet of Forest",
-            "Ganons Castle Water Trial Pot 1":    "Bolero of Fire",
-            "Ganons Castle Water Trial Pot 2":    "Serenade of Water",
-            "Ganons Castle Shadow Trial Pot 1":    "Nocturne of Shadow",
-            "Ganons Castle Shadow Trial Pot 2":   "Requiem of Spirit"
+            "Ganons Castle Light Trial First Left Chest":    "Prelude of Light",
+            "Ganons Castle Light Trial Second Left Chest":    "Eponas Song",
+            "Ganons Castle Light Trial Third Left Chest":    "Sarias Song",
+            "Ganons Castle Light Trial First Right Chest":    "Suns Song",
+            "Ganons Castle Light Trial Second Right Chest":    "Song of Storms",
+            "Ganons Castle Light Trial Third Right Chest":    "Minuet of Forest",
+            "Ganons Castle Light Trial Invisible Enemies Chest":    "Bolero of Fire",
+            "Ganons Castle Light Trial Lullaby Chest":    "Serenade of Water",
+            "Ganons Castle Spirit Trial Crystal Switch Chest":    "Nocturne of Shadow",
+            "Ganons Castle Spirit Trial Invisible Chest":   "Requiem of Spirit"
         },
         "disabled_locations": [
             "Deku Theater Mask of Truth",
