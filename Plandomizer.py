@@ -17,7 +17,7 @@ from Hints import HintArea, gossipLocations, shopHints, GossipText
 from Item import ItemFactory, ItemInfo, ItemIterator, is_item, Item
 from ItemPool import item_groups, get_junk_item, song_list, trade_items, child_trade_items, triforce_blitz_items
 from JSONDump import dump_obj, CollapseList, CollapseDict, AlignedDict, SortedDict
-from Location import Location, LocationIterator, LocationFactory
+from Location import Location, LocationIterator, LocationFactory, DisableType
 from LocationList import location_groups, location_table
 from Search import Search
 from SettingsList import build_close_match, validate_settings, settings_versioning
@@ -1253,12 +1253,17 @@ class Distribution:
             world.empty_dungeons[empty_dungeon.name].empty = True
 
         # Mark all overworld locations as empty
+        disabled_locations = set()
         for location in world.get_locations():
             if not location.parent_region.dungeon_name \
-            and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart'] \
+            and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart', 'Drop'] \
             and not location.locked \
             and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
-                world.distribution.add_location(location.name, 'Nothing')
+                disabled_locations.add(location)
+        
+        world.escape_from_kak_data['disabled_locations'] = disabled_locations
+        for location in disabled_locations:
+            location.disabled = DisableType.DISABLED
 
     def reset(self) -> None:
         for world in self.world_dists:
