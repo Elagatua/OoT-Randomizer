@@ -82,7 +82,7 @@
         "shopsanity": "off",
         "shopsanity_prices": "random",
         "tokensanity": "dungeons",
-        "shuffle_scrubs": "off",
+        "shuffle_scrubs": "dungeons",
         "shuffle_child_trade": [],
         "shuffle_freestanding_items": "off",
         "shuffle_pots": "all",

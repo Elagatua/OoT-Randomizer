@@ -925,7 +925,7 @@ def get_pool_core(world: World) -> tuple[list[str], dict[str, Item]]:
 
         # Unshuffle certain locations in empty dungeons
         if shuffle_item and world.settings.escape_from_kak \
-            and (location.type in ('Crate', 'SmallCrate', 'Pot', 'FlyingPot') or location.vanilla_item == 'Gold Skulltula Token') \
+            and (location.type in ('Crate', 'SmallCrate', 'Pot', 'FlyingPot', 'Scrub', 'GrottoScrub') or location.vanilla_item == 'Gold Skulltula Token') \
             and (location.dungeon is None or world.empty_dungeons[location.dungeon.name].empty):
             shuffle_item = False
             location.disabled = DisableType.DISABLED
