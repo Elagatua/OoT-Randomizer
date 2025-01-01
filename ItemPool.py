@@ -918,7 +918,7 @@ def get_pool_core(world: World) -> tuple[list[str], dict[str, Item]]:
 
         # Unshuffle certain overworld locations
         if shuffle_item and world.settings.escape_from_kak \
-            and location.vanilla_item not in ludicrous_items_base \
+            and not Item(location.vanilla_item).advancement \
             and location in world.escape_from_kak_data['disabled_locations']:
             shuffle_item = False
             location.disabled = DisableType.DISABLED

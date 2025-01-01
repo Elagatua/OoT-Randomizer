@@ -156,7 +156,8 @@
             "ocarina",
             "zeldas_letter",
             "magic",
-            "farores_wind"
+            "farores_wind",
+            "bottle"
         ],
         "start_with_consumables": true,
         "start_with_rupees": false,
