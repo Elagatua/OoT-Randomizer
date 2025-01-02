@@ -51,7 +51,7 @@
         "open_forest": "closed_deku",
         "open_kakariko": "open",
         "open_door_of_time": true,
-        "zora_fountain": "closed",
+        "zora_fountain": "open",
         "gerudo_fortress": "fast",
         "dungeon_shortcuts_choice": "choice",
         "dungeon_shortcuts": ["Forest Temple"],
@@ -156,8 +156,7 @@
             "ocarina",
             "zeldas_letter",
             "magic",
-            "farores_wind",
-            "bottle"
+            "farores_wind"
         ],
         "start_with_consumables": true,
         "start_with_rupees": false,

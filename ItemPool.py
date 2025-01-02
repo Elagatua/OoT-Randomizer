@@ -917,8 +917,10 @@ def get_pool_core(world: World) -> tuple[list[str], dict[str, Item]]:
             shuffle_item = True
 
         # Unshuffle certain overworld locations
+        whitelisted_items = ("Biggoron Sword")
         if shuffle_item and world.settings.escape_from_kak \
             and not Item(location.vanilla_item).advancement \
+            and location.vanilla_item not in whitelisted_items \
             and location in world.escape_from_kak_data['disabled_locations']:
             shuffle_item = False
             location.disabled = DisableType.DISABLED
