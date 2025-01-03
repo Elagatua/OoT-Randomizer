@@ -591,10 +591,8 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
             if chosen_side_dungeon.name != 'Bottom of the Well':
                 entrance_pools['EscapeKakLock3'] = [world.get_entrance('Kakariko Village -> Bottom of the Well'), 
                                                     world.get_entrance('Kokiri Forest -> KF House of Twins')]
-            entrance_pools['EscapeKakLock4'] = [world.get_entrance('Kakariko Village -> Kak Potion Shop Front'), 
+            entrance_pools['EscapeKakLock4'] = [world.get_entrance('Kakariko Village -> Kak House of Skulltula'), 
                                                 world.get_entrance('Market Entrance -> Market Guard House')]
-            entrance_pools['EscapeKakLock5'] = [world.get_entrance('Kak Backyard -> Kak Potion Shop Back'), 
-                                                world.get_entrance('Kokiri Forest -> KF Sarias House')]
 
         # Set shuffled entrances as such
         for entrance in list(chain.from_iterable(one_way_entrance_pools.values())) + list(chain.from_iterable(entrance_pools.values())):
