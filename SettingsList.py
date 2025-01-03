@@ -703,9 +703,9 @@ class SettingInfos:
     )
 
     escape_from_kak = Checkbutton(
-        gui_text       = 'Escape from Market',
+        gui_text       = 'Escape from Kakariko',
         gui_tooltip    = '''\
-            Enables Escape from the Market game mode.
+            Enables Escape from the Kakariko game mode.
         ''',
         shared         = True,
         gui_params     = {
