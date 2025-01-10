@@ -1255,7 +1255,7 @@ class Distribution:
         # Mark all overworld locations as empty
         disabled_locations = set()
         for location in world.get_locations():
-            if not location.parent_region.dungeon_name \
+            if location.dungeon is None and (location.parent_region is None or not location.parent_region.is_boss_room) \
             and location.name not in world.distribution.locations and location.type not in ['Shop', 'Boss', 'BossHeart', 'Drop'] \
             and not location.locked \
             and ('Kak' not in location.name or location.type not in ['Collectable', 'NPC', 'Chest']):
