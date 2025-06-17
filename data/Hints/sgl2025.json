@@ -25,7 +25,8 @@
       {"location": "Spirit Temple Mirror Shield Chest", "types": ["sometimes"]},
       {"location": "Shadow Temple Freestanding Key", "types": ["sometimes"]},
       {"location": "Ice Cavern Iron Boots Chest", "types": ["sometimes"]},
-      {"location": "DMT Biggoron", "types": ["sometimes"]}
+      {"location": "DMT Biggoron", "types": ["sometimes"]},
+      {"location": "Graveyard Dampe Race Rewards", "types": ["dual"]}
   ],
   "add_items":             [],
   "remove_items":          [
