@@ -26,7 +26,13 @@
       {"location": "Shadow Temple Freestanding Key", "types": ["sometimes"]},
       {"location": "Ice Cavern Iron Boots Chest", "types": ["sometimes"]},
       {"location": "DMT Biggoron", "types": ["sometimes"]},
-      {"location": "Graveyard Dampe Race Rewards", "types": ["dual"]}
+      {"location": "Graveyard Dampe Race Rewards", "types": ["dual"]},
+      {"location": "Fire Temple Lower Loop", "types": ["dual"]},
+      {"location": "Spirit Temple Colossus Hands", "types": ["dual"]},
+      {"location": "Spirit Temple Adult Lower", "types": ["dual"]},
+      {"location": "Shadow Temple Invisible Blades Chests", "types": ["dual"]},
+      {"location": "Shadow Temple Spike Walls Room", "types": ["dual"]},
+      {"location": "Ganons Castle Spirit Trial Chests", "types": ["dual"]}
   ],
   "add_items":             [],
   "remove_items":          [
