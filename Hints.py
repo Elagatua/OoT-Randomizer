@@ -60,7 +60,7 @@ defaultHintDists: list[str] = [
     'mw_path.json',
     'mw_woth.json',
     'scrubs.json',
-    'sgl2025.json',
+    'sgl.json',
     'strong.json',
     'triforce_blitz_s4_coop.json',
     'triforce_blitz_s4.json',
@@ -68,7 +68,6 @@ defaultHintDists: list[str] = [
     'useless.json',
     'very_strong.json',
     'very_strong_magic.json',
-    'weekly.json',
 ]
 
 unHintableWothItems: set[str] = {*REWARD_COLORS, 'Triforce Piece', 'Gold Skulltula Token', 'Piece of Heart', 'Piece of Heart (Treasure Chest Game)', 'Heart Container'}
@@ -198,7 +197,8 @@ def is_restricted_dungeon_item(item: Item) -> bool:
     if item.world is None:
         return False
     return (
-        ((item.map or item.compass) and item.world.settings.shuffle_mapcompass == 'dungeon') or
+        (item.map and item.world.settings.shuffle_map == 'dungeon') or
+        (item.compass and item.world.settings.shuffle_compass == 'dungeon') or
         (item.type in ('SmallKey', 'SmallKeyRing') and item.world.settings.shuffle_smallkeys == 'dungeon') or
         (item.type == 'BossKey' and item.world.settings.shuffle_bosskeys == 'dungeon') or
         (item.type == 'GanonBossKey' and item.world.settings.shuffle_ganon_bosskey == 'dungeon') or
@@ -1548,8 +1548,11 @@ def get_junk_hint(spoiler: Spoiler, world: World, checked: dict[CheckedKey, set[
 def get_important_check_hint(spoiler: Spoiler, world: World, checked: dict[CheckedKey, set[CheckedKind]]) -> HintReturn:
     top_level_locations = []
     empty_dungeons = [dungeon for dungeon in world.precompleted_dungeons if world.precompleted_dungeons[dungeon]]
-    for location in world.get_filled_locations():
+    locations = [location for location in world.get_filled_locations()]
+
+    for location in locations:
         hint_area = HintArea.at(location)
+
         if (
             hint_area not in top_level_locations
             and hint_area not in checked
@@ -1557,13 +1560,23 @@ def get_important_check_hint(spoiler: Spoiler, world: World, checked: dict[Check
             and hint_area.dungeon_name not in empty_dungeons # prevent pre-completed dungeons from being hinted
             and not location.locked # prevent areas with unshuffled checks from being hinted
         ):
+            shuffled_locations_in_region = list(filter(lambda loc: HintArea.at(loc) == hint_area and not loc.locked, locations))
+
+            # Don't hint areas with all locations already hinted
+            if shuffled_locations_in_region and all(map(lambda loc: is_checked([loc], checked), shuffled_locations_in_region)):
+                continue
             top_level_locations.append(hint_area)
+
     if not top_level_locations:
         return None
+
     hint_area = random.choice(top_level_locations)
     item_count = 0
-    for location in world.get_filled_locations():
+
+    for location in locations:
         if HintArea.at(location) == hint_area:
+            shuffled_locations_in_region = list(filter(lambda loc: HintArea.at(loc) == hint_area and not loc.locked, locations))
+
             if (location.item.majoritem
                 # exclude locked items
                 and not location.locked
@@ -1582,6 +1595,9 @@ def get_important_check_hint(spoiler: Spoiler, world: World, checked: dict[Check
                     or world.settings.shuffle_ganon_bosskey == 'stones' or world.settings.shuffle_ganon_bosskey == 'medallions'
                     or world.settings.shuffle_ganon_bosskey == 'dungeons' or world.settings.shuffle_ganon_bosskey == 'tokens'))):
                 item_count = item_count + 1
+
+            if location in shuffled_locations_in_region and len(shuffled_locations_in_region) == 1:
+                mark_checked(checked, location.name)
 
     mark_checked(checked, hint_area, CheckedKind.IMPORTANT_CHECK)
 
