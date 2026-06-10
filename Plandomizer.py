@@ -1056,10 +1056,6 @@ class WorldDistribution:
                 continue
             save_context.give_item(world, name, record.count)
 
-    def give_randomized_items(self, world: World, save_context: SaveContext) -> None:
-        for item, count in world.randomized_starting_items.items():
-            save_context.give_item(world, item, count)
-
     def get_starting_item(self, item: str) -> int:
         items = self.starting_items
         if item in items:
@@ -1088,6 +1084,9 @@ class WorldDistribution:
     def configure_effective_starting_items(self, worlds: list[World], world: World) -> None:
         items = {item_name: record.copy() for item_name, record in self.starting_items.items()}
 
+        for item, count in world.randomized_starting_items.items():
+            add_starting_item_with_ammo(items, item, count)
+
         if world.settings.start_with_rupees:
             add_starting_item_with_ammo(items, 'Rupees', 999)
         if world.settings.start_with_consumables:
@@ -1095,7 +1094,7 @@ class WorldDistribution:
             add_starting_item_with_ammo(items, 'Deku Nuts', 99)
         for iter_world in worlds:
             skipped_locations: list[Location] = []
-            if iter_world.settings.skip_reward_from_rauru:
+            if iter_world.settings.skip_reward_from_rauru in ('free', 'free_forced'):
                 skipped_locations.append(iter_world.get_location('ToT Reward from Rauru'))
             if iter_world.skip_child_zelda:
                 skipped_locations += [iter_world.get_location('HC Zeldas Letter'), iter_world.get_location('Song from Impa')]
