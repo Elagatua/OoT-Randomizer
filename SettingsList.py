@@ -1941,6 +1941,7 @@ class SettingInfos:
             'off':       'Off',
             'simple':    'Dungeon',
             'tfbs4':     'Triforce Blitz S4',
+            'tfbs5':     'Triforce Blitz S5',
             'all':       'Dungeon and Ganon',
         },
         gui_tooltip    = '''\
@@ -1954,6 +1955,9 @@ class SettingInfos:
             castle will be shuffled.
 
             Triforce Blitz S4 shuffles all stone and medallion dungeons in separate pools.
+
+            Triforce Blitz S5 shuffles all child dungeons (Deku Tree, Dodongo's
+            Cavern, Jabu Jabu's Belly, and Bottom of the Well) in a single pool.
 
             Thieves' Hideout is controlled by a separate setting.
         ''',

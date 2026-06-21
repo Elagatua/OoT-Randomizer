@@ -648,6 +648,11 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
 
                 entrance_pools['DungeonMedallion'] = all_medallion_dungeon_entrances
                 entrance_pools['DungeonStone'] = all_stone_dungeon_entrances
+            elif worlds[0].settings.shuffle_dungeon_entrances == 'tfbs5':
+                child_dungeon_names = ['Deku Tree', 'Dodongos Cavern', 'Jabu Jabus Belly', 'Bottom of the Well']
+
+                all_dungeons_entrances = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
+                entrance_pools['DungeonChild'] = list(filter(lambda entrance: entrance.connected_region.dungeon_name in child_dungeon_names, all_dungeons_entrances))
             else:
                 entrance_pools['Dungeon'] = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
                 # The fill algorithm will already make sure gohma is reachable, however it can end up putting
