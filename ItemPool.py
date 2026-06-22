@@ -1201,4 +1201,5 @@ def configure_random_starting_items_pool(world: World, pool: list[str]) -> list[
     if 'junk' in world.settings.random_starting_items_exclude:
         exclude_list.extend(ItemInfo.junk_weight)
 
-    return sorted({item for item in pool if item not in exclude_list and ItemInfo.items[item].type != 'Shop'}) # give each item the same weight regardless of how many copies there are
+    # Shop items and hint items (e.g. the Triforce Blitz hint shop tokens) are never valid random starting items.
+    return sorted({item for item in pool if item not in exclude_list and ItemInfo.items[item].type not in ('Shop', 'Hint')}) # give each item the same weight regardless of how many copies there are
