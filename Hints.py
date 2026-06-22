@@ -939,6 +939,9 @@ def get_goal_count_hint(spoiler: Spoiler, world: World, checked: dict[CheckedKey
 
     mark_checked(checked, goal.worldAndName)
     item_count = reduce(lambda acc, locations: acc + len(locations), spoiler.goal_locations[world.id][goal_category.name][goal.name].values(), 0)
+    # Random starting items required for this path have no location but still count as steps.
+    starting_item_steps = getattr(spoiler, 'goal_required_starting_items', None) or {}
+    item_count += len(starting_item_steps.get(world.id, {}).get(goal_category.name, {}).get(goal.name, []))
     item_text = 'step' if item_count == 1 else 'steps'
 
     prefix = 'the' if len(spoiler.worlds) == 1 else 'your'

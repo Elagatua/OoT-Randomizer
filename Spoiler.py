@@ -75,6 +75,8 @@ class Spoiler:
         self.entrances: dict[int, list[Entrance]] = {}
         self.required_locations: dict[int, list[Location]] = {}
         self.goal_locations: dict[int, dict[str, dict[str, dict[int, list[Location]]]]] = {}
+        # Triforce Blitz: random starting items required per goal's path (no location to hint).
+        self.goal_required_starting_items: dict[int, dict[str, dict[str, list[str]]]] = {}
         self.goal_categories: dict[int, dict[str, GoalCategory]] = {}
         self.required_location_requirements: dict[Location, list[Location]] = {}
         self.playthrough_locations = {}
