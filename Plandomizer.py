@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import StartingItems
 from Entrance import Entrance
-from EntranceShuffle import EntranceShuffleError, change_connections, confirm_replacement, validate_world, check_entrances_compatibility
+from EntranceShuffle import EntranceShuffleError, change_connections, confirm_replacement, validate_world, check_entrances_compatibility, TFBS5_LIGHT_MEDALLION_DUNGEONS, TFBS5_GANON_ENTRANCE
 from Fill import FillError
 from Hints import HintArea, gossipLocations, shopHints, GossipText
 from Item import ItemFactory, ItemInfo, ItemIterator, is_item, Item
@@ -1245,6 +1245,28 @@ class Distribution:
                 world.triforce_goal = total_count
             else:
                 world.triforce_goal = total_count * len(worlds)
+
+    def configure_triforce_blitz_s5(self, world: World) -> None:
+        # Pick one adult dungeon to hold the Light Medallion, then force both its
+        # reward and an entrance swap with Ganon's Castle. Reward placement is applied
+        # by World.fill_bosses (via the distribution) and the entrance swap by
+        # set_shuffled_entrances during entrance shuffling.
+        chosen_dungeon = random.choice(list(TFBS5_LIGHT_MEDALLION_DUNGEONS.keys()))
+        world.tfbs5_ganon_dungeon = chosen_dungeon
+        info = TFBS5_LIGHT_MEDALLION_DUNGEONS[chosen_dungeon]
+
+        # Force the chosen dungeon's boss reward to be the Light Medallion.
+        world.distribution.add_location(info['boss'], 'Light Medallion')
+
+        # Force a coupled swap of the chosen dungeon's entrance with Ganon's Castle.
+        # A two-way entrance leads to the region named after the ' -> ' in its name.
+        dungeon_entrance = info['entrance']
+        dungeon_region = dungeon_entrance.split(' -> ')[1]
+        ganon_region = TFBS5_GANON_ENTRANCE.split(' -> ')[1]
+        if world.distribution.entrances is None:
+            world.distribution.entrances = {}
+        world.distribution.entrances[dungeon_entrance] = EntranceRecord(ganon_region)
+        world.distribution.entrances[TFBS5_GANON_ENTRANCE] = EntranceRecord(dungeon_region)
 
     def configure_escape_from_kak(self, world: World) -> None:
         all_boss_dungeons = [dungeon for dungeon in world.dungeons if dungeon.vanilla_boss_name]

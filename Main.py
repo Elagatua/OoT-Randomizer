@@ -170,6 +170,10 @@ def build_world_graphs(settings: Settings) -> list[World]:
             logger.info('Configuring Escape From Kakariko.')
             settings.distribution.configure_escape_from_kak(world)
 
+        if settings.shuffle_dungeon_entrances == 'tfbs5':
+            logger.info('Configuring Triforce Blitz S5.')
+            settings.distribution.configure_triforce_blitz_s5(world)
+
         logger.info('Generating Item Pool.')
         generate_itempool(world)
         set_shop_rules(world)

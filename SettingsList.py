@@ -1958,6 +1958,9 @@ class SettingInfos:
 
             Triforce Blitz S5 shuffles all child dungeons (Deku Tree, Dodongo's
             Cavern, Jabu Jabu's Belly, and Bottom of the Well) in a single pool.
+            Additionally, one of Forest, Fire, Water, or Shadow Temple is chosen at
+            random to hold the Light Medallion reward, and that dungeon's entrance
+            is swapped with Ganon's Castle.
 
             Thieves' Hideout is controlled by a separate setting.
         ''',

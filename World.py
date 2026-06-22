@@ -376,6 +376,11 @@ class World:
 
         self.escape_from_kak_data: dict[str, any] = {}
 
+        # Triforce Blitz S5: the adult dungeon (Forest/Fire/Water/Shadow) whose boss
+        # reward is forced to the Light Medallion and whose entrance is swapped with
+        # Ganon's Castle. Chosen in Distribution.configure_triforce_blitz_s5.
+        self.tfbs5_ganon_dungeon: Optional[str] = None
+
     def copy(self) -> World:
         new_world = World(self.id, self.settings, False)
 
@@ -410,6 +415,7 @@ class World:
         new_world.song_notes = copy.copy(self.song_notes)
 
         new_world.escape_from_kak_data = copy.copy(self.escape_from_kak_data)
+        new_world.tfbs5_ganon_dungeon = self.tfbs5_ganon_dungeon
 
         return new_world
 
