@@ -514,6 +514,19 @@ def set_entrances(worlds: list[World], savewarps_to_connect: list[tuple[Entrance
     set_entrances_based_rules(worlds)
 
 
+# Triforce Blitz S5: the adult dungeons eligible to host the Light Medallion reward,
+# mapped to their boss reward location and their primary overworld entrance. One is
+# chosen at random; its boss reward is forced to the Light Medallion and its entrance
+# is swapped with Ganon's Castle.
+TFBS5_LIGHT_MEDALLION_DUNGEONS = {
+    'Forest Temple': {'boss': 'Phantom Ganon', 'entrance': 'SFM Forest Temple Entrance Ledge -> Forest Temple Lobby'},
+    'Fire Temple':   {'boss': 'Volvagia',      'entrance': 'DMC Fire Temple Entrance -> Fire Temple Lower'},
+    'Water Temple':  {'boss': 'Morpha',        'entrance': 'Lake Hylia -> Water Temple Lobby'},
+    'Shadow Temple': {'boss': 'Bongo Bongo',   'entrance': 'Graveyard Warp Pad Region -> Shadow Temple Entryway'},
+}
+TFBS5_GANON_ENTRANCE = 'Ganons Castle Ledge -> Ganons Castle Lobby'
+
+
 # Shuffles entrances that need to be shuffled in all worlds
 def shuffle_random_entrances(worlds: list[World]) -> None:
     # Store all locations reachable before shuffling to differentiate which locations were already unreachable from those we made unreachable
@@ -648,6 +661,21 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
 
                 entrance_pools['DungeonMedallion'] = all_medallion_dungeon_entrances
                 entrance_pools['DungeonStone'] = all_stone_dungeon_entrances
+            elif worlds[0].settings.shuffle_dungeon_entrances == 'tfbs5':
+                child_dungeon_names = ['Deku Tree', 'Dodongos Cavern', 'Jabu Jabus Belly', 'Bottom of the Well']
+
+                all_dungeons_entrances = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
+                entrance_pools['DungeonChild'] = list(filter(lambda entrance: entrance.connected_region.dungeon_name in child_dungeon_names, all_dungeons_entrances))
+
+                # Swap the chosen Light Medallion dungeon's entrance with Ganon's Castle.
+                # The forced connections are injected into the distribution by
+                # Distribution.configure_triforce_blitz_s5 and applied by
+                # set_shuffled_entrances below; this pool just exposes the two entrances.
+                ganon_dungeon_entrance = TFBS5_LIGHT_MEDALLION_DUNGEONS[world.tfbs5_ganon_dungeon]['entrance']
+                entrance_pools['GanonDungeonSwap'] = [
+                    world.get_entrance(ganon_dungeon_entrance),
+                    world.get_entrance(TFBS5_GANON_ENTRANCE),
+                ]
             else:
                 entrance_pools['Dungeon'] = world.get_shufflable_entrances(type='Dungeon', only_primary=True)
                 # The fill algorithm will already make sure gohma is reachable, however it can end up putting
@@ -759,6 +787,12 @@ def shuffle_random_entrances(worlds: list[World]) -> None:
 
         # Set entrances defined in the distribution
         world.distribution.set_shuffled_entrances(worlds, {**one_way_entrance_pools, **entrance_pools}, {**one_way_target_entrance_pools, **target_entrance_pools}, locations_to_ensure_reachable, complete_itempool)
+
+        # The tfbs5 Ganon's Castle swap is fully forced via the distribution above,
+        # so drop its pool to keep it out of the random shuffle that follows.
+        if 'GanonDungeonSwap' in entrance_pools:
+            del entrance_pools['GanonDungeonSwap']
+            del target_entrance_pools['GanonDungeonSwap']
 
         # Check placed one way entrances and trim.
         # The placed entrances are already pointing at their new regions.

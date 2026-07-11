@@ -84,7 +84,7 @@ class World:
         self.shuffle_interior_entrances: bool = settings.shuffle_interior_entrances in ('simple', 'all')
 
         self.shuffle_special_dungeon_entrances: bool = settings.shuffle_dungeon_entrances == 'all'
-        self.shuffle_dungeon_entrances: bool = settings.shuffle_dungeon_entrances in ('simple', 'tfbs4', 'all')
+        self.shuffle_dungeon_entrances: bool = settings.shuffle_dungeon_entrances in ('simple', 'tfbs4', 'tfbs5', 'all')
 
         self.entrance_shuffle: bool = bool(
             self.shuffle_interior_entrances or settings.shuffle_grotto_entrances or self.shuffle_dungeon_entrances
@@ -376,6 +376,11 @@ class World:
 
         self.escape_from_kak_data: dict[str, any] = {}
 
+        # Triforce Blitz S5: the adult dungeon (Forest/Fire/Water/Shadow) whose boss
+        # reward is forced to the Light Medallion and whose entrance is swapped with
+        # Ganon's Castle. Chosen in Distribution.configure_triforce_blitz_s5.
+        self.tfbs5_ganon_dungeon: Optional[str] = None
+
     def copy(self) -> World:
         new_world = World(self.id, self.settings, False)
 
@@ -410,6 +415,7 @@ class World:
         new_world.song_notes = copy.copy(self.song_notes)
 
         new_world.escape_from_kak_data = copy.copy(self.escape_from_kak_data)
+        new_world.tfbs5_ganon_dungeon = self.tfbs5_ganon_dungeon
 
         return new_world
 

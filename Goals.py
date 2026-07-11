@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional, Any
 from functools import reduce
 
 from HintList import BOSS_GOAL_TABLE, REWARD_GOAL_TABLE, get_hint_group, hint_exclusions
+from Item import ItemFactory
 from ItemList import item_table
 from ItemPool import item_groups, triforce_items
 from RulesCommon import AccessRule
@@ -190,6 +191,13 @@ def replace_goal_names(worlds: list[World]) -> None:
                             goal.hint_text = flavor_text
 
 
+def goal_required_starting_item_count(spoiler: Spoiler, world_id: int, category_name: str, goal_name: str) -> int:
+    # Number of random starting items that are logically required for this goal's path.
+    # These have no location to hint but still count as path steps (Triforce Blitz).
+    starting_items = getattr(spoiler, 'goal_required_starting_items', None) or {}
+    return len(starting_items.get(world_id, {}).get(category_name, {}).get(goal_name, []))
+
+
 def update_goal_items(spoiler: Spoiler) -> None:
     worlds = spoiler.worlds
 
@@ -325,6 +333,38 @@ def update_goal_items(spoiler: Spoiler) -> None:
             spoiler.goal_categories[world.id] = {cat_name: category.copy() for cat_name, category in world.goal_categories.items()}
     spoiler.goal_locations = required_locations_dict
 
+    # Triforce Blitz: a random starting item that is logically required for a goal's
+    # path counts as a path step. Such items have no location to hint, so they only
+    # contribute to the path counts (the per-goal count hint and the total path sum
+    # used for the minimum/empty-path validity checks below). Determine per goal which
+    # random starting items are required by removing them and re-checking beatability.
+    goal_required_starting_items: dict[int, dict[str, dict[str, list[str]]]] = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    if worlds[0].settings.triforce_blitz and worlds[0].enable_goal_hints and any(world.randomized_starting_items for world in worlds):
+        baseline_search = Search([world.state for world in worlds])
+        baseline_search.collect_pseudo_starting_items()
+        baseline_valid = baseline_search.beatable_goals(worlds[0].unlocked_goal_categories)
+        for world in worlds:
+            for item_name, count in world.randomized_starting_items.items():
+                item = ItemFactory(item_name, world)
+                if item.solver_id is None:
+                    continue
+                test_search = Search([w.state for w in worlds])
+                test_search.collect_pseudo_starting_items()
+                for _ in range(count):
+                    test_search.state_list[world.id].remove(item)
+                valid_goals = test_search.beatable_goals(worlds[0].unlocked_goal_categories)
+                for cat_name, category in worlds[0].unlocked_goal_categories.items():
+                    if cat_name not in required_locations:
+                        continue
+                    for goal in category.goals:
+                        if goal.name not in required_locations[cat_name]:
+                            continue
+                        was_beatable = world.id in baseline_valid.get(cat_name, {}).get(goal.name, [])
+                        still_beatable = world.id in valid_goals.get(cat_name, {}).get(goal.name, [])
+                        if was_beatable and not still_beatable:
+                            goal_required_starting_items[world.id][cat_name][goal.name].append(item_name)
+    spoiler.goal_required_starting_items = {wid: {cat: dict(goals) for cat, goals in cats.items()} for wid, cats in goal_required_starting_items.items()}
+
     if worlds[0].settings.triforce_blitz:
         minimum = worlds[0].settings.triforce_blitz_minimum_path_count
         maximum_empty = worlds[0].settings.triforce_blitz_maximum_empty_paths
@@ -334,6 +374,7 @@ def update_goal_items(spoiler: Spoiler) -> None:
             for category_name in world.goal_categories:
                 for goal in world.goal_categories[category_name].goals:
                     path_count = reduce(lambda acc, locations: acc + len(locations), spoiler.goal_locations[world.id][category_name][goal.name].values(), 0)
+                    path_count += goal_required_starting_item_count(spoiler, world.id, category_name, goal.name)
                     path_sum += path_count
                     if path_count == 0:
                         empty_paths += 1
