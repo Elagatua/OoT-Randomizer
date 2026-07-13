@@ -348,10 +348,15 @@ def update_goal_items(spoiler: Spoiler) -> None:
                 item = ItemFactory(item_name, world)
                 if item.solver_id is None:
                     continue
-                test_search = Search([w.state for w in worlds])
-                test_search.collect_pseudo_starting_items()
+                # Remove the item from the state copies BEFORE building the Search, so its
+                # region cache is computed without the item. Building the Search first and
+                # removing after would leave cached reachability (e.g. warp-song access)
+                # intact, hiding the item's contribution.
+                test_states = [w.state.copy() for w in worlds]
                 for _ in range(count):
-                    test_search.state_list[world.id].remove(item)
+                    test_states[world.id].remove(item)
+                test_search = Search(test_states)
+                test_search.collect_pseudo_starting_items()
                 valid_goals = test_search.beatable_goals(worlds[0].unlocked_goal_categories)
                 for cat_name, category in worlds[0].unlocked_goal_categories.items():
                     if cat_name not in required_locations:
