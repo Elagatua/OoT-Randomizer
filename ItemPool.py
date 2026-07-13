@@ -1201,6 +1201,23 @@ def configure_random_starting_items_pool(world: World, pool: list[str]) -> list[
     if 'junk' in world.settings.random_starting_items_exclude:
         exclude_list.extend(ItemInfo.junk_weight)
 
+    # Items granted for free via skipped starting locations (e.g. a song plando'd to
+    # Song from Impa when child Zelda is skipped) must not also be a random starting
+    # item, or the random pick would be a wasted duplicate of something already owned.
+    free_start_locations = []
+    if world.settings.skip_reward_from_rauru in ('free', 'free_forced'):
+        free_start_locations.append('ToT Reward from Rauru')
+    if world.skip_child_zelda:
+        free_start_locations += ['HC Zeldas Letter', 'Song from Impa']
+    if world.settings.gerudo_fortress == 'open' and not world.settings.shuffle_gerudo_card:
+        free_start_locations.append('Hideout Gerudo Membership Card')
+    plando_locations = world.distribution.locations or {}
+    for loc_name in free_start_locations:
+        record = plando_locations.get(loc_name)
+        for r in (record if isinstance(record, list) else [record]):
+            if r is not None and getattr(r, 'item', None):
+                exclude_list.append(r.item)
+
     # Win-condition items (Triforce Blitz pieces and Triforce Hunt pieces) must never be
     # random starting items: they define the goal and are consumed from the item pool, which
     # would otherwise break goal setup (e.g. configure_triforce_blitz).
