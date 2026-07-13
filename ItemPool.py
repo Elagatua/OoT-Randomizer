@@ -1201,5 +1201,11 @@ def configure_random_starting_items_pool(world: World, pool: list[str]) -> list[
     if 'junk' in world.settings.random_starting_items_exclude:
         exclude_list.extend(ItemInfo.junk_weight)
 
+    # Win-condition items (Triforce Blitz pieces and Triforce Hunt pieces) must never be
+    # random starting items: they define the goal and are consumed from the item pool, which
+    # would otherwise break goal setup (e.g. configure_triforce_blitz).
+    exclude_list.extend(triforce_blitz_items)
+    exclude_list.append('Triforce Piece')
+
     # Shop items and hint items (e.g. the Triforce Blitz hint shop tokens) are never valid random starting items.
     return sorted({item for item in pool if item not in exclude_list and ItemInfo.items[item].type not in ('Shop', 'Hint')}) # give each item the same weight regardless of how many copies there are
