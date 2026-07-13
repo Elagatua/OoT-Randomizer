@@ -262,6 +262,18 @@ triforce_blitz_items: list[str] = ([
     'Triforce of Courage'
 ])
 
+# Major items with no meaningful function as a Triforce Blitz starting item; excluded from
+# the random starting item pool when triforce_blitz is enabled.
+triforce_blitz_nonfunctional_starting_items: list[str] = ([
+    'Biggoron Sword',
+    'Light Arrows',
+    'Goron Tunic',
+    'Zora Tunic',
+    'Double Defense',
+    'Nayrus Love',
+    'Stone of Agony',
+])
+
 triforce_blitz_hint_shop_items: list[str] = ([
     'Bomb Bag Hint',
     'Bow Hint',
@@ -1223,6 +1235,10 @@ def configure_random_starting_items_pool(world: World, pool: list[str]) -> list[
     # would otherwise break goal setup (e.g. configure_triforce_blitz).
     exclude_list.extend(triforce_blitz_items)
     exclude_list.append('Triforce Piece')
+
+    # In Triforce Blitz, exclude items that serve no meaningful purpose as a starting item.
+    if world.settings.triforce_blitz:
+        exclude_list.extend(triforce_blitz_nonfunctional_starting_items)
 
     # Shop items and hint items (e.g. the Triforce Blitz hint shop tokens) are never valid random starting items.
     return sorted({item for item in pool if item not in exclude_list and ItemInfo.items[item].type not in ('Shop', 'Hint')}) # give each item the same weight regardless of how many copies there are
