@@ -2354,6 +2354,23 @@ def build_misc_dual_hints(world: World, messages: list[Message]) -> None:
 def get_hint_shop_hint(item_name: str, upgrade_level: int, hinted_locations: set[Location], spoiler: Spoiler, world: World, worlds: list[World]) -> GossipText:
 
     hinted_world = get_hinted_world(world, worlds, 'tfb_shop')
+
+    if "Progressive " in item_name:
+        item_text = item_name[12:]
+    else:
+        item_text = item_name
+
+    # Copies of this item the hinted world starts with occupy the lowest upgrade levels
+    # but have no location, so they are invisible to the path/playthrough location lists.
+    # Shift the requested upgrade level down by the starting count so placed copies are
+    # tiered and indexed correctly; if the requested level is fully covered by starting
+    # items, report it as already obtained (there is no location to hint).
+    starting_record = hinted_world.distribution.effective_starting_items.get(item_name)
+    starting_count = starting_record.count if starting_record else 0
+    effective_level = upgrade_level - starting_count
+    if effective_level <= 0:
+        return GossipText('you begin with an #obtained# %s.' % item_text, ['Green'], [], [])
+
     all_path_items = reduce(lambda acc, locations: acc + locations, list(map(lambda world: spoiler.required_locations[world.id], worlds)), [])
     path_items = [location for location in all_path_items if location.item.name == item_name and location.item.world.id == hinted_world.id]
     playthrough_items = [location for location in spoiler.playthrough_locations if location.item.name == item_name and location.item.world.id == hinted_world.id]
@@ -2365,14 +2382,14 @@ def get_hint_shop_hint(item_name: str, upgrade_level: int, hinted_locations: set
                            location.worldAndName not in [location.worldAndName for location in playthrough_items] and
                            location.worldAndName not in [location.worldAndName for location in hinted_locations]]
 
-    if (len(path_items) >= upgrade_level):
+    if (len(path_items) >= effective_level):
         item_importance_text = 'path'
         item_importance_color = 'Green'
-        hinted_location = playthrough_items[upgrade_level - 1]
-    elif (len(playthrough_items) >= upgrade_level):
+        hinted_location = playthrough_items[effective_level - 1]
+    elif (len(playthrough_items) >= effective_level):
         item_importance_text = 'wanderer'
         item_importance_color = 'Yellow'
-        hinted_location = playthrough_items[upgrade_level - 1]
+        hinted_location = playthrough_items[effective_level - 1]
     else:
         item_importance_text = 'neglected'
         item_importance_color = 'Pink'
@@ -2382,10 +2399,6 @@ def get_hint_shop_hint(item_name: str, upgrade_level: int, hinted_locations: set
     location_text = hint_area.text(world.settings.clearer_hints, world=None if hinted_location.world.id == world.id else hinted_location.world.id + 1)
     hinted_locations.add(hinted_location)
 
-    if "Progressive " in item_name:
-        item_text = item_name[12:]
-    else:
-        item_text = item_name
     return GossipText('%s hoards a #%s# %s.' % (location_text, item_importance_text, item_text), ['Light Blue', item_importance_color], [hinted_location.name], [hinted_location.item.name])
 
 def build_hint_shop_hints(spoiler: Spoiler, worlds: list[World]) -> None:
