@@ -64,7 +64,7 @@ void Ocarina_HandleLastPlayedSong(z64_game_t* play, z64_link_t* player, int16_t 
         }
 
         // Check Song of time block proximity.
-        z64_actor_t *actor = play->actor_list[7].first; // 7 = ITEMACTION
+        z64_actor_t *actor = play->actorLists[ACTORCAT_ITEMACTION].head;
         while (actor) {
             if (actor->actor_id == 0x1D1 || actor->actor_id == 0x1D6) { // ACTOR_OBJ_TIMEBLOCK and ACTOR_OBJ_WARP2BLOCK
                 if (actor->xzdist_from_link + actor->ydist_from_link < 350) {
