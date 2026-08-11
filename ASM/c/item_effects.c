@@ -109,7 +109,7 @@ void give_small_key_ring(z64_file_t* save, int16_t dungeon_id, int16_t arg2) {
 
 silver_rupee_data_t silver_rupee_vars[0x16][2] = {
     //Vanilla,                         Master Quest
-    {{-1, 0xFF, 0x00, 0x00, 0x00,  2}, { 5, 0x1F, 0xFF, 0xFF, 0xFF,  2}}, // Dodongos Cavern Staircase. Patched to use switch flag 0x1F
+    {{-1, 0xFF, 0x00, 0x00, 0x00,  2}, { 5, 0x1C, 0xFF, 0xFF, 0xFF,  2}}, // Dodongos Cavern Staircase. Patched to use switch flag 0x1C
     {{ 5, 0x08, 0x00, 0xFF, 0xFF,  3}, {-1, 0xFF, 0x00, 0x00, 0x00,  3}}, // Ice Cavern Spinning Scythe
     {{ 5, 0x09, 0x00, 0x64, 0xFF,  5}, {-1, 0xFF, 0x00, 0x00, 0x00,  5}}, // Ice Cavern Push Block
     {{ 5, 0x1F, 0xFF, 0xFF, 0xFF,  1}, {-1, 0xFF, 0x00, 0x00, 0x00,  1}}, // Bottom of the Well Basement
@@ -234,7 +234,7 @@ void open_gate_and_mask_shop(z64_file_t* save, int16_t arg1, int16_t arg2) {
         // Check if we're in kak and actually open the gate
         if (z64_game.scene_index == 82) {
             // Loop through the actors looking for the gate
-            z64_actor_t* curr = z64_game.actor_list[7].first;
+            z64_actor_t* curr = z64_game.actorLists[7].head;
             while (curr != NULL) {
                 if (curr->actor_id == 0x100) { // Check for BG_GATE_SHUTTER
                     // Set the openingState so it starts to open

@@ -5,7 +5,7 @@ from collections.abc import Iterable, Collection
 from typing import TYPE_CHECKING, Optional, Any
 from functools import reduce
 
-from HintList import BOSS_GOAL_TABLE, REWARD_GOAL_TABLE, get_hint_group, hint_exclusions
+from HintList import BOSS_GOAL_COLOR, get_hint_group, hint_exclusions
 from Item import ItemFactory
 from ItemList import item_table
 from ItemPool import item_groups, triforce_items
@@ -173,7 +173,9 @@ def replace_goal_names(worlds: list[World]) -> None:
                     if isinstance(goal.hint_text, dict):
                         for boss in bosses:
                             if boss.item.name == goal.hint_text['replace']:
-                                flavor_text, clear_text, color = BOSS_GOAL_TABLE[boss.name]
+                                boss_table = world.language.BOSS_GOAL_TABLE[boss.name]
+                                flavor_text, clear_text = boss_table["vague"], boss_table["clear"]
+                                color = BOSS_GOAL_COLOR[boss.name]
                                 if world.settings.clearer_hints:
                                     goal.hint_text = clear_text
                                 else:
@@ -184,7 +186,8 @@ def replace_goal_names(worlds: list[World]) -> None:
             for category in world.goal_categories.values():
                 for goal in category.goals:
                     if isinstance(goal.hint_text, dict):
-                        flavor_text, clear_text = REWARD_GOAL_TABLE[goal.hint_text['replace']]
+                        reward_table = world.language.REWARD_GOAL_TABLE[goal.hint_text['replace']]
+                        flavor_text, clear_text = reward_table["vague"], reward_table["clear"]
                         if world.settings.clearer_hints:
                             goal.hint_text = clear_text
                         else:
