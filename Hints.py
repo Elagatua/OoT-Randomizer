@@ -215,6 +215,15 @@ def add_hint(spoiler: Spoiler, world: World, groups: list[list[int]], gossip_tex
     first = True
     success = True
 
+    # Disable the reachability requirement for TFB path hints, for the same reason it is disabled
+    # below: we would rather place a hint the player can't read yet than not place it at all.
+    # The hint functions mark their location as hinted before placement is attempted, so a failure
+    # here permanently consumes a path location without hinting it. As the pool of free stones
+    # shrinks, the odds that every remaining stone sits behind the hinted item grow, and the leftover
+    # stones then get filled with echo hints of paths that were already hinted. Echo hints ignore
+    # reachability entirely, so enforcing it here only loses information.
+    ignore_reachability = world.settings.triforce_blitz and hint_type in ('goal-legacy', 'goal-legacy-single')
+
     # Prevent randomizer from placing hint in removed locations for this hint type
     if 'remove_stones' in world.hint_dist_user['distribution'][hint_type]:
         removed_stones = world.hint_dist_user['distribution'][hint_type]['remove_stones']
@@ -253,7 +262,7 @@ def add_hint(spoiler: Spoiler, world: World, groups: list[list[int]], gossip_tex
                 stone_locations = [world.get_location(stone_name) for stone_name in stone_names]
 
                 reachable = True
-                if locations:
+                if locations and not ignore_reachability:
                     for location in locations:
                         if not any(map(lambda stone_location: can_reach_hint(spoiler.worlds, stone_location, location), stone_locations)):
                             reachable = False
