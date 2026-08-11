@@ -1039,7 +1039,7 @@ class WorldDistribution:
                     raise RuntimeError('Gossip stone unknown or already assigned in world %d: %r. %s' % (self.id + 1, name, build_close_match(name, 'stone')))
             if len(record.text) > 1200:
                 raise ValueError(f'Text length for gossip stone {name!r} ({len(record.text)} characters) exceeds maximum safe length (1200 characters)')
-            spoiler.hints[self.id][stone_id] = GossipText(text=record.text, colors=record.colors, prefix='')
+            spoiler.hints[self.id][stone_id] = GossipText(text=record.text, lang=spoiler.worlds[self.id].language, colors=record.colors, prefix='')
 
     def give_items(self, world: World, save_context: SaveContext) -> None:
         # copy Triforce pieces to all worlds
@@ -1495,7 +1495,7 @@ class Distribution:
                                 world_dist.goal_locations[cat_name][goal_text] = {loc.name: LocationRecord.from_item(loc.item).to_json() for loc in locations}
                             else:
                                 world_dist.goal_locations[cat_name][goal_text]['from World ' + str(location_world + 1)] = {loc.name: LocationRecord.from_item(loc.item).to_json() for loc in locations}
-            world_dist.barren_regions = list(map(str, world.empty_areas))
+            world_dist.barren_regions = [area.name for area in world.empty_areas]
             world_dist.gossip_stones = {}
             for loc in spoiler.hints[world.id]:
                 hint = GossipRecord(spoiler.hints[world.id][loc].to_json())

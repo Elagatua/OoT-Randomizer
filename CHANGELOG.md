@@ -1,11 +1,22 @@
 # Dev
 
+## New features
+* Can now generate roms that use the Japanese language for all text, including text added by the randomizer.
+
+## Bug fixes
 * Fix a crash that could occur on Wii VC when starting a cutscene while climbing a ladder.
 * Fix a visual bug where ice traps appear very large if Link is wearing the Bunny Hood or hovering using the Hover Boots.
 * Fix a vanilla bug where the player can become unable to move when the Hookshot is pulled but fails to load.
 * Fix a bug where the item on the `Song from Saria` location could be obtained multiple times by savewarping on the first frame after obtaining it, then returning to the location.
 * Fix a generator failure when a dungeon reward is selected as a random starting item and the Temple of Time altar is set to hint dungeon reward locations.
 * Fix a bug where overriding cosmetics could not override rainbow tunics.
+* Fix a visual bug where ice traps from most chests were missing the frost cloud coming out of the chest.
+* Collecting an item while simultaneously receiving a Triforce Piece from another player in multiworld no longer turns the collected item into a Gerudo Mask or blue rupee.
+* Fix a logic bug where the `Equip Swap` glitch didn't check if the slingshot was available.
+* Fix silver rupee counter not displaying in Ganon's castle.
+* Fix silver rupee counter overlapping D-pad dungeon info menus.
+* Fix blowing up a specific bombable wall in MQ Dodongo's Cavern opening the door controlled by the silver rupees.
+* Fix a generator failure when Water Temple is MQ and `Logic Rules` are `Advanced`.
 
 # 9.1
 
