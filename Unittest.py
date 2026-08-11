@@ -18,7 +18,7 @@ from EntranceShuffle import EntranceShuffleError
 from Fill import ShuffleError
 from Hints import HintArea, build_misc_item_hints
 from Item import ItemInfo
-from ItemPool import remove_junk_items, remove_junk_ludicrous_items, ludicrous_items_base, ludicrous_items_extended, trade_items, ludicrous_exclusions
+from ItemPool import remove_junk_items, remove_junk_ludicrous_items, ludicrous_items_base, ludicrous_items_extended, trade_items, ludicrous_exclusions, triforce_blitz_items
 from LocationList import location_is_viewable
 from Main import main, resolve_settings, build_world_graphs
 from Messages import Message, read_messages, shuffle_messages
@@ -855,7 +855,18 @@ class TestValidSpoilers(unittest.TestCase):
         locations, items, locitems = self.loc_item_collection(pl)
         self.required_checks(spoiler, locations, items, locitems)
         # Everybody reached the win condition in the playthrough
-        if spoiler['settings'].get('triforce_hunt', False) or spoiler['randomized_settings'].get('triforce_hunt', False):
+        if spoiler['settings'].get('triforce_blitz', False) or spoiler['randomized_settings'].get('triforce_blitz', False):
+            # Triforce Blitz is won by collecting the three named Triforce pieces rather than
+            # by reaching Ganon. Each world normally owns one of each; take the counts from the
+            # item pool so a piece given as a starting item (no location to appear at) still works.
+            item_pool = self.normalize_worlds_dict(spoiler['item_pool'])
+            self.assertEqual(
+                {p: {piece: item_pool[p].get(piece, 0) for piece in triforce_blitz_items}
+                    for p in items},
+                {p: {piece: c[piece] for piece in triforce_blitz_items}
+                    for p, c in items.items()},
+                'Playthrough missing some (or having extra) Triforce Blitz pieces')
+        elif spoiler['settings'].get('triforce_hunt', False) or spoiler['randomized_settings'].get('triforce_hunt', False):
             item_pool = self.normalize_worlds_dict(spoiler['item_pool'])
             # playthrough assumes each player gets exactly the goal
             req = spoiler['settings'].get('triforce_goal_per_world', None) or spoiler['randomized_settings'].get('triforce_goal_per_world', None)
