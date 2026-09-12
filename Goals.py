@@ -362,11 +362,10 @@ def update_goal_items(spoiler: Spoiler) -> None:
                 test_search.collect_pseudo_starting_items()
                 valid_goals = test_search.beatable_goals(worlds[0].unlocked_goal_categories)
                 for cat_name, category in worlds[0].unlocked_goal_categories.items():
-                    if cat_name not in required_locations:
-                        continue
+                    # Do not filter on required_locations here: a goal whose path has no
+                    # required locations at all is exactly the case where a required
+                    # starting item is the only step, so such goals must still be tested.
                     for goal in category.goals:
-                        if goal.name not in required_locations[cat_name]:
-                            continue
                         was_beatable = world.id in baseline_valid.get(cat_name, {}).get(goal.name, [])
                         still_beatable = world.id in valid_goals.get(cat_name, {}).get(goal.name, [])
                         if was_beatable and not still_beatable:
