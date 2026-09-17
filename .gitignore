@@ -2,6 +2,7 @@
 .vs
 .vscode
 .idea
+.venv/
 /ASM/build/bin
 /Output
 /build
