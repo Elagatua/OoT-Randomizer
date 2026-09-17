@@ -833,7 +833,7 @@ def fast_ownworld_fill(worlds: list[World], locations: list[Location], itempool:
 # When a world has barely more fillable locations than progression items, the
 # restrictive fill can still dead-end on the last item or two. Trim a little
 # below capacity so it has room to manoeuvre.
-PROGRESSION_TRIM_HEADROOM: int = 5
+PROGRESSION_TRIM_HEADROOM: int = 8
 
 
 def trim_surplus_progression(worlds: list[World], fill_locations: list[Location],
