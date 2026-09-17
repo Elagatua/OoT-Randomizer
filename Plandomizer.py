@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 import StartingItems
 from Entrance import Entrance
-from EntranceShuffle import EntranceShuffleError, change_connections, confirm_replacement, validate_world, check_entrances_compatibility, TFBS5_LIGHT_MEDALLION_DUNGEONS, TFBS5_GANON_ENTRANCE
+from EntranceShuffle import EntranceShuffleError, change_connections, confirm_replacement, validate_world, check_entrances_compatibility, order_escape_from_kak_boss_dungeons, TFBS5_LIGHT_MEDALLION_DUNGEONS, TFBS5_GANON_ENTRANCE
 from Fill import FillError
 from Hints import HintArea, gossipLocations, shopHints, GossipText
 from Item import ItemFactory, ItemInfo, ItemIterator, is_item, Item
@@ -1272,7 +1272,9 @@ class Distribution:
         all_boss_dungeons = [dungeon for dungeon in world.dungeons if dungeon.vanilla_boss_name]
         all_side_dungeons = [dungeon for dungeon in world.dungeons if not dungeon.vanilla_boss_name and dungeon.name != 'Ganons Castle']
 
-        chosen_boss_dungeons = random.sample(all_boss_dungeons, 3)
+        # The order matters: each pick is paired with the Kakariko entrance at the
+        # same index during entrance shuffling, and some pairings can never be placed.
+        chosen_boss_dungeons = order_escape_from_kak_boss_dungeons(random.sample(all_boss_dungeons, 3))
         chosen_side_dungeon = random.choice(all_side_dungeons)
 
         world.escape_from_kak_data['boss_dungeons'] = chosen_boss_dungeons

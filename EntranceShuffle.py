@@ -2,8 +2,8 @@ from __future__ import annotations
 import random
 import logging
 from collections import OrderedDict
-from collections.abc import Iterable, Container
-from itertools import chain
+from collections.abc import Iterable, Container, Sequence
+from itertools import chain, permutations
 from typing import TYPE_CHECKING, Optional
 
 from Fill import ShuffleError
@@ -16,6 +16,7 @@ from Hints import HintArea, HintAreaNotFound
 from HintList import misc_item_hint_table
 
 if TYPE_CHECKING:
+    from Dungeon import Dungeon
     from Entrance import Entrance
     from Location import Location
     from Item import Item
@@ -424,6 +425,42 @@ escape_from_kak_entrances = [
     'Kakariko Village -> Graveyard'
 ]
 escape_from_kak_side_entrance = 'Kakariko Village -> Kak Windmill'
+
+# Each chosen boss dungeon is paired with the Kakariko entrance at the same index
+# (see the EscapeBossDungeon pools in set_shuffled_entrances). The pair is swapped,
+# so pairing a Kakariko entrance with a dungeon whose own entrance sits behind it
+# leaves that region reachable only through itself. Those pairings can never be
+# placed, and because the dungeons are drawn before entrance shuffling starts, the
+# retry loop replays the same doomed assignment every time.
+escape_from_kak_incompatible_dungeons: dict[str, set[str]] = {
+    # Swapping would make 'Death Mountain -> Dodongos Cavern Beginning' point at
+    # Death Mountain itself.
+    'Kak Behind Gate -> Death Mountain': {'Dodongos Cavern'},
+    # Likewise, the Graveyard would only be reachable from Graveyard Warp Pad
+    # Region, which is only reachable from the Graveyard.
+    'Kakariko Village -> Graveyard': {'Shadow Temple'},
+}
+
+
+def order_escape_from_kak_boss_dungeons(dungeons: list[Dungeon]) -> list[Dungeon]:
+    """Order chosen boss dungeons so none lands on a Kakariko entrance it cannot be
+    swapped with. Returns the order unchanged when it is already valid, and gives up
+    (leaving it to the generation retry) if no ordering works."""
+    def valid(order: Sequence[Dungeon]) -> bool:
+        return all(
+            dungeon.name not in escape_from_kak_incompatible_dungeons.get(entrance_name, ())
+            for entrance_name, dungeon in zip(escape_from_kak_entrances, order)
+        )
+
+    if valid(dungeons):
+        return list(dungeons)
+    orderings = list(permutations(dungeons))
+    random.shuffle(orderings)
+    for order in orderings:
+        if valid(order):
+            return list(order)
+    return list(dungeons)
+
 
 class EntranceShuffleError(ShuffleError):
     pass
