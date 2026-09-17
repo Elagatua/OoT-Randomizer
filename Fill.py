@@ -334,6 +334,9 @@ def distribute_items_restrictive(worlds: list[World], fill_locations: Optional[l
         fill_dungeon_unique_item(worlds, search, fill_locations, progitempool)
         search.collect_locations()
 
+    # Shrink the progression pool if this world has too few locations to hold it.
+    trim_surplus_progression(worlds, fill_locations, progitempool, restitempool)
+
     # Place all progression items. This will include keys in keysanity.
     # Items in this group will check for reachability and will be placed
     # such that the game is guaranteed beatable.
@@ -825,3 +828,88 @@ def fast_ownworld_fill(worlds: list[World], locations: list[Location], itempool:
             locations.remove(spot_to_fill)
             itempool.remove(item_to_place)
             spot_to_fill.world.push_item(spot_to_fill, item_to_place)
+
+
+# When a world has barely more fillable locations than progression items, the
+# restrictive fill can still dead-end on the last item or two. Trim a little
+# below capacity so it has room to manoeuvre.
+PROGRESSION_TRIM_HEADROOM: int = 5
+
+
+def trim_surplus_progression(worlds: list[World], fill_locations: list[Location],
+                             progitempool: list[Item], restitempool: list[Item]) -> None:
+    """Demote surplus progression items when a world has fewer fillable locations
+    than progression items to put in them.
+
+    Settings that shrink the world (Escape from Kakariko with most location
+    shuffles off) leave the item pool full of items that can unlock progression in
+    principle, but far fewer locations that can hold them. Only a small subset is
+    actually needed to beat such a seed, so drop the rest out of the restrictive
+    fill.
+
+    Only items the game is provably beatable without are demoted, so the seed stays
+    winnable. Demoted items still appear in the world; they just get placed like any
+    other filler, without a reachability guarantee.
+
+    Restricted to Escape from Kakariko, and a no-op even there for any world whose
+    progression pool already fits.
+    """
+    if not worlds[0].settings.escape_from_kak:
+        return
+
+    capacity = sum(1 for location in fill_locations if location.disabled == DisableType.ENABLED)
+    if len(progitempool) <= capacity:
+        return
+
+    target = max(0, capacity - PROGRESSION_TRIM_HEADROOM)
+    logger.info('Progression pool (%d) exceeds fillable locations (%d); trimming to %d.',
+                len(progitempool), capacity, target)
+
+    def demote(item: Item) -> None:
+        progitempool.remove(item)
+        restitempool.append(item)
+
+    # Items that can never contribute to beating the game under these settings, such
+    # as hearts when nothing requires hearts. Spoiler.create_playthrough already
+    # ignores these for the same reason, so no beatability check is needed.
+    for item in list(progitempool):
+        if len(progitempool) <= target:
+            break
+        if item.world.max_progressions.get(item.name, 1) == 0:
+            demote(item)
+
+    # Anything else the game is still beatable without, one copy at a time. Spare
+    # copies go first: losing the second Bomb Bag costs the player nothing, losing
+    # the only one costs them that item for the whole seed.
+    if len(progitempool) > target:
+        state_list = [world.state for world in worlds]
+        for item in _trim_candidate_order(progitempool):
+            if len(progitempool) <= target:
+                break
+            trial = [other for other in progitempool if other is not item]
+            if Search.max_explore(state_list, trial).can_beat_game():
+                demote(item)
+
+    if len(progitempool) > target:
+        logger.info('Could not trim below %d progression items; the rest are required.',
+                    len(progitempool))
+
+
+def _trim_candidate_order(progitempool: list[Item]) -> list[Item]:
+    """Order progression items for trimming: every duplicate copy first, then the
+    last remaining copy of each item. Randomized within each group so the choice
+    stays varied between seeds."""
+    copies_by_item: dict[tuple[int, str], list[Item]] = {}
+    for item in progitempool:
+        copies_by_item.setdefault((item.world.id, item.name), []).append(item)
+
+    duplicates: list[Item] = []
+    last_copies: list[Item] = []
+    for copies in copies_by_item.values():
+        random.shuffle(copies)
+        duplicates.extend(copies[:-1])
+        last_copies.append(copies[-1])
+
+    random.shuffle(duplicates)
+    random.shuffle(last_copies)
+    return duplicates + last_copies
