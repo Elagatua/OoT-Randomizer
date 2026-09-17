@@ -268,6 +268,9 @@ def distribute_items_restrictive(worlds: list[World], fill_locations: Optional[l
         fill_dungeons_restrictive(worlds, search, fill_locations, dungeon_items, itempool + songitempool)
         search.collect_locations()
 
+    # Fork fix (1/3): empty-dungeon locations left unfilled when junk runs short.
+    leftover_empty_locations: list[Location] = []
+
     # If some dungeons are supposed to be empty, fill them with useless items.
     if worlds[0].settings.empty_dungeons_mode != 'none':
         empty_locations = [
@@ -306,6 +309,12 @@ def distribute_items_restrictive(worlds: list[World], fill_locations: Optional[l
             else:
                 fast_fill(empty_locations, restitempool)
 
+        # Fork fix (2/3): every empty-dungeon location was removed from fill_locations
+        # above, but fast_fill only places min(locations, items). Any location left
+        # over when junk runs short would be silently dropped, and the fill would
+        # then fail with 'Not all items are placed.' Keep them to hand back below.
+        leftover_empty_locations = list(empty_locations)
+
     # places the songs into the world
     # Currently places songs only at song locations. if there's an option
     # to allow at other locations then they should be in the main pool.
@@ -343,6 +352,9 @@ def distribute_items_restrictive(worlds: list[World], fill_locations: Optional[l
     # No restrictions at all. Places them completely randomly. Since they
     # cannot affect the beatability, we don't need to check them
     logger.info('Placing the rest of the items.')
+    # Fork fix (3/3): hand back the empty-dungeon locations junk never reached, now
+    # that the restrictive fill is done and cannot put progression in them.
+    fill_locations.extend(leftover_empty_locations)
     if worlds[0].settings.triforce_blitz_s4_coop:
         fast_ownworld_fill(worlds, fill_locations, restitempool)
     else:
